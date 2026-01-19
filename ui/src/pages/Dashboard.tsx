@@ -199,8 +199,9 @@ export default function Dashboard() {
                 </h3>
                 
                 <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none">Company</label>
+                    <label htmlFor="company-filter" className="text-sm font-medium leading-none">Company</label>
                     <Input
+                        id="company-filter"
                         placeholder="Search..."
                         value={filterConfig.company}
                         onChange={(e) =>
@@ -211,14 +212,14 @@ export default function Dashboard() {
                 </div>
                 
                 <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none">Status</label>
+                    <label id="status-filter-label" className="text-sm font-medium leading-none">Status</label>
                     <Select
                         value={filterConfig.status}
                         onValueChange={(val) =>
                         setFilterConfig((prev) => ({ ...prev, status: val || "all" }))
                         }
                     >
-                        <SelectTrigger className="h-9 w-full bg-background">
+                        <SelectTrigger aria-labelledby="status-filter-label" className="h-9 w-full bg-background">
                             <SelectValue placeholder="All Statuses" />
                         </SelectTrigger>
                         <SelectContent>
@@ -236,14 +237,14 @@ export default function Dashboard() {
                 </div>
                 
                 <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none">Last Updated</label>
+                    <label id="updated-filter-label" className="text-sm font-medium leading-none">Last Updated</label>
                     <Select
                         value={filterConfig.daysAgo}
                         onValueChange={(val) =>
                         setFilterConfig((prev) => ({ ...prev, daysAgo: val || "all" }))
                         }
                     >
-                        <SelectTrigger className="h-9 w-full bg-background">
+                        <SelectTrigger aria-labelledby="updated-filter-label" className="h-9 w-full bg-background">
                             <SelectValue placeholder="Any time" />
                         </SelectTrigger>
                         <SelectContent>
