@@ -1,16 +1,14 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
 import { Button } from "./ui/button";
 import { signOut } from "@/lib/auth-client";
 
 export default function Layout() {
-  const navigate = useNavigate();
-
   const handleSignOut = async () => {
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          navigate("/login");
+          window.location.href = "/";
         },
       },
     });

@@ -22,7 +22,7 @@ export default function Signup() {
       email,
       password,
       name,
-      callbackURL: "/",
+      callbackURL: "/app",
     }, {
       onSuccess: () => {
         toast.success("Account created successfully!");

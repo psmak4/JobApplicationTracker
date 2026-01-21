@@ -6,6 +6,7 @@ import { defineConfig } from "vite"
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  appType: "mpa",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -20,6 +21,10 @@ export default defineConfig({
       },
     },
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html"),
+        app: path.resolve(__dirname, "app.html"),
+      },
       output: {
         manualChunks: {
           vendor: ["react", "react-dom", "react-router-dom"],
