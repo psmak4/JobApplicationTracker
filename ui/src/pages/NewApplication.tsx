@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 
-import { ApplicationService } from "../services/applicationService";
+import { useCreateApplication } from "../hooks/useMutations";
 import type { ApplicationStatus, WorkType } from "../types";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -53,6 +53,8 @@ type ApplicationFormValues = z.infer<typeof applicationSchema>;
 
 export default function NewApplication() {
   const navigate = useNavigate();
+  const createMutation = useCreateApplication();
+
   const {
     register,
     handleSubmit,
@@ -67,28 +69,33 @@ export default function NewApplication() {
       jobDescriptionUrl: "",
       salary: "",
       location: "",
+      workType: "Remote",
       contactInfo: "",
       notes: "",
       initialStatus: "Applied",
-      initialStatusDate: new Date().toISOString().split("T")[0],
+      initialStatusDate: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD
     },
   });
 
-  const onSubmit = (data: ApplicationFormValues) => {
-    ApplicationService.create({
-      company: data.company,
-      jobTitle: data.jobTitle,
-      jobDescriptionUrl: data.jobDescriptionUrl || undefined,
-      salary: data.salary || undefined,
-      location: data.location || undefined,
-      workType: data.workType as WorkType | undefined,
-      contactInfo: data.contactInfo || undefined,
-      notes: data.notes || undefined,
-      initialStatus: data.initialStatus as ApplicationStatus,
-      initialStatusDate: data.initialStatusDate,
-    });
-    toast.success("Application created successfully!");
-    navigate("/");
+  const onSubmit = async (data: ApplicationFormValues) => {
+    try {
+      await createMutation.mutateAsync({
+        company: data.company,
+        jobTitle: data.jobTitle,
+        jobDescriptionUrl: data.jobDescriptionUrl || undefined,
+        salary: data.salary || undefined,
+        location: data.location || undefined,
+        workType: data.workType as WorkType | undefined,
+        contactInfo: data.contactInfo || undefined,
+        notes: data.notes || undefined,
+        status: data.initialStatus as ApplicationStatus,
+        date: data.initialStatusDate,
+      });
+      toast.success("Application created successfully!");
+      navigate("/");
+    } catch (error) {
+      toast.error("Failed to create application");
+    }
   };
 
   const currentStatus = watch("initialStatus");
@@ -143,7 +150,7 @@ export default function NewApplication() {
                         <FieldLabel>Work Type</FieldLabel>
                         <Select
                             onValueChange={(value) => setValue("workType", value as WorkType)}
-                            defaultValue={currentWorkType}
+                            value={currentWorkType}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Select work type" />
@@ -173,7 +180,7 @@ export default function NewApplication() {
                         <FieldLabel>Initial Status</FieldLabel>
                         <Select
                             onValueChange={(value) => setValue("initialStatus", value as ApplicationStatus)}
-                            defaultValue={currentStatus}
+                            value={currentStatus}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Select status" />

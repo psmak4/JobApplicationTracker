@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Plus, X, Trash2, Edit, ExternalLink, MapPin, Briefcase, DollarSign, User, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { cn, formatDisplayDate } from "../lib/utils";
 
-import { ApplicationService } from "../services/applicationService";
-import type { Application, ApplicationStatus } from "../types";
+import { useApplication } from "../hooks/useApplications";
+import { useAddStatus, useDeleteStatus } from "../hooks/useMutations";
+import type { ApplicationStatus } from "../types";
 import { Button, buttonVariants } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
@@ -36,49 +38,49 @@ import { FieldLabel } from "../components/ui/field";
 export default function ApplicationView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [application, setApplication] = useState<Application | undefined>(undefined);
+  
+  const { data: application, isLoading, error } = useApplication(id!);
+  const addStatusMutation = useAddStatus(id!);
+  const deleteStatusMutation = useDeleteStatus(id!);
+
   const [isNewStatusOpen, setIsNewStatusOpen] = useState(false);
   const [statusToDelete, setStatusToDelete] = useState<string | null>(null);
 
   // New Status State
   const [newStatus, setNewStatus] = useState<ApplicationStatus>("Applied");
-  const [newStatusDate, setNewStatusDate] = useState(new Date().toISOString().split("T")[0]);
+  const [newStatusDate, setNewStatusDate] = useState(new Date().toLocaleDateString('en-CA'));
 
-  useEffect(() => {
-    if (id) {
-      const app = ApplicationService.getById(id);
-      if (app) {
-        setApplication(app);
-      } else {
-        navigate("/");
-      }
-    }
-  }, [id, navigate]);
+  if (isLoading) return <div className="p-8 text-center">Loading...</div>;
+  if (error || !application) return <div className="p-8 text-center text-destructive">Application not found</div>;
 
-  const onAddStatus = () => {
-    if (!application) return;
-    const updated = ApplicationService.addStatus(application.id, newStatus, newStatusDate);
-    setApplication(updated);
-    setIsNewStatusOpen(false);
-    toast.success("Status history updated!");
-  };
-
-  const onDeleteStatus = () => {
-    if (!application || !statusToDelete) return;
+  const onAddStatus = async () => {
     try {
-        const updated = ApplicationService.deleteStatus(application.id, statusToDelete);
-        setApplication(updated);
-        toast.success("Status entry deleted.");
-    } catch (error) {
-        toast.error((error as Error).message);
-    } finally {
-        setStatusToDelete(null);
+      await addStatusMutation.mutateAsync({
+        status: newStatus,
+        date: newStatusDate,
+      });
+      setIsNewStatusOpen(false);
+      toast.success("Status history updated!");
+    } catch (err) {
+      toast.error("Failed to update status");
     }
   };
 
-  if (!application) return <div>Loading...</div>;
+  const onDeleteStatus = async () => {
+    if (!statusToDelete) return;
+    try {
+      await deleteStatusMutation.mutateAsync(statusToDelete);
+      toast.success("Status entry deleted.");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to delete status entry");
+    } finally {
+      setStatusToDelete(null);
+    }
+  };
 
-  const currentStatus = application.statusHistory[application.statusHistory.length - 1].status;
+  const currentStatus = application.statusHistory && application.statusHistory.length > 0 
+    ? application.statusHistory[0].status // Backend returns sorted desc
+    : "Unknown";
 
   return (
     <div className="space-y-6">
@@ -96,7 +98,7 @@ export default function ApplicationView() {
           <p className="text-muted-foreground">{application.jobTitle}</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
-            <Link to={`/applications/${application.id}/edit`} className={buttonVariants({ variant: "default", size: "sm" })}>
+            <Link to={`/applications/${application.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
             </Link>
@@ -231,28 +233,25 @@ export default function ApplicationView() {
                                     <FieldLabel>Date</FieldLabel>
                                     <Input type="date" value={newStatusDate} onChange={(e) => setNewStatusDate(e.target.value)} />
                                 </div>
-                                <Button onClick={onAddStatus} size="sm">Save Status</Button>
+                                <Button onClick={onAddStatus} size="sm" disabled={addStatusMutation.isPending}>
+                                    {addStatusMutation.isPending ? "Saving..." : "Save Status"}
+                                </Button>
                              </div>
                         </div>
                     )}
 
                     <div className="relative border-l border-muted ml-2 space-y-6">
-                        {/* Reverse copy of history to show newest first */}
-                        {[...application.statusHistory].reverse().map((entry, index) => (
+                        {application.statusHistory && application.statusHistory.map((entry, index) => (
                             <div key={entry.id} className="ml-4 relative group">
                                 <div className={`absolute -left-5.25 mt-1.5 h-2.5 w-2.5 rounded-full border border-background ${index === 0 ? 'bg-primary' : 'bg-muted-foreground'}`} />
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="flex flex-col gap-1">
                                         <span className="font-semibold text-sm">{entry.status}</span>
                                         <span className="text-xs text-muted-foreground">
-                                            {new Date(entry.date).toLocaleDateString(undefined, {
-                                                year: "numeric",
-                                                month: "short",
-                                                day: "numeric"
-                                            })}
+                                            {formatDisplayDate(entry.date)}
                                         </span>
                                     </div>
-                                    {application.statusHistory.length > 1 && (
+                                    {application.statusHistory && application.statusHistory.length > 1 && (
                                         <Button
                                             variant="ghost"
                                             size="icon"
@@ -282,8 +281,8 @@ export default function ApplicationView() {
             </AlertDialogHeader>
             <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={onDeleteStatus} className="bg-destructive text-(--destructive-foreground) hover:bg-destructive/90">
-                    Delete
+                <AlertDialogAction onClick={onDeleteStatus} className="bg-destructive text-(--destructive-foreground) hover:bg-destructive/90" disabled={deleteStatusMutation.isPending}>
+                    {deleteStatusMutation.isPending ? "Deleting..." : "Delete"}
                 </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>

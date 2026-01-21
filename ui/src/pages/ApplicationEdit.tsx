@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,8 +6,9 @@ import * as z from "zod";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
-import { ApplicationService } from "../services/applicationService";
-import type { Application, WorkType } from "../types";
+import { useApplication } from "../hooks/useApplications";
+import { useUpdateApplication } from "../hooks/useMutations";
+import type { WorkType } from "../types";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
@@ -49,7 +50,9 @@ type ApplicationFormValues = z.infer<typeof applicationSchema>;
 export default function ApplicationEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [application, setApplication] = useState<Application | undefined>(undefined);
+  
+  const { data: application, isLoading } = useApplication(id!);
+  const updateMutation = useUpdateApplication(id!);
 
   const {
     register,
@@ -60,55 +63,52 @@ export default function ApplicationEdit() {
     formState: { errors, isDirty, isSubmitting },
   } = useForm<ApplicationFormValues>({
     resolver: zodResolver(applicationSchema),
+    defaultValues: {
+      company: "",
+      jobTitle: "",
+      jobDescriptionUrl: "",
+      salary: "",
+      location: "",
+      workType: "Remote",
+      contactInfo: "",
+      notes: "",
+    },
   });
 
   useEffect(() => {
-    if (id) {
-      const app = ApplicationService.getById(id);
-      if (app) {
-        setApplication(app);
-        reset({
-          company: app.company,
-          jobTitle: app.jobTitle,
-          jobDescriptionUrl: app.jobDescriptionUrl || "",
-          salary: app.salary || "",
-          location: app.location || "",
-          workType: app.workType,
-          contactInfo: app.contactInfo || "",
-          notes: app.notes || "",
-        });
-      } else {
-        navigate("/");
-      }
+    if (application) {
+      reset({
+        company: application.company,
+        jobTitle: application.jobTitle,
+        jobDescriptionUrl: application.jobDescriptionUrl || "",
+        salary: application.salary || "",
+        location: application.location || "",
+        workType: application.workType,
+        contactInfo: application.contactInfo || "",
+        notes: application.notes || "",
+      });
     }
-  }, [id, navigate, reset]);
+  }, [application, reset]);
 
-  const onUpdateDetails = (data: ApplicationFormValues) => {
-    if (!application) return;
-    
-    ApplicationService.update(application.id, {
-        company: data.company,
-        jobTitle: data.jobTitle,
-        jobDescriptionUrl: data.jobDescriptionUrl || undefined,
-        salary: data.salary || undefined,
-        location: data.location || undefined,
-        workType: data.workType as WorkType | undefined,
-        contactInfo: data.contactInfo || undefined,
-        notes: data.notes || undefined,
-    });
-    
-    toast.success("Details updated successfully!");
-    navigate(`/applications/${application.id}`);
+  const onUpdateDetails = async (data: ApplicationFormValues) => {
+    try {
+      await updateMutation.mutateAsync(data);
+      toast.success("Details updated successfully!");
+      navigate(`/applications/${id}`);
+    } catch (err) {
+      toast.error("Failed to update application");
+    }
   };
 
-  if (!application) return <div>Loading...</div>;
+  if (isLoading) return <div className="p-8 text-center">Loading...</div>;
+  if (!application) return <div className="p-8 text-center text-destructive">Application not found</div>;
 
   const currentWorkType = watch("workType");
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(`/applications/${application.id}`)}>
+        <Button variant="ghost" size="icon" onClick={() => navigate(`/applications/${id}`)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
@@ -181,11 +181,11 @@ export default function ApplicationEdit() {
                     </FieldGroup>
                 </FieldSet>
                 <div className="flex justify-end space-x-2">
-                    <Button type="button" variant="outline" onClick={() => navigate(`/applications/${application.id}`)}>
+                    <Button type="button" variant="outline" onClick={() => navigate(`/applications/${id}`)}>
                         Cancel
                     </Button>
                     <Button type="submit" disabled={!isDirty || isSubmitting}>
-                        Save Changes
+                        {isSubmitting ? "Saving..." : "Save Changes"}
                     </Button>
                 </div>
               </form>

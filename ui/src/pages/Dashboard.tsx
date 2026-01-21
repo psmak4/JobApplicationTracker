@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ApplicationService } from "../services/applicationService";
 import type { Application } from "../types";
 import { Badge } from "../components/ui/badge";
 import { Button, buttonVariants } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import { useApplications, useDeleteApplication } from "../hooks/useApplications";
 import {
   Select,
   SelectContent,
@@ -23,8 +23,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../components/ui/alert-dialog";
-import { Trash2, ArrowUpDown, ArrowUp, ArrowDown, X, Filter as FilterIcon, Eye } from "lucide-react";
-import { cn } from "../lib/utils";
+import { Trash2, ArrowUpDown, ArrowUp, ArrowDown, X, Filter as FilterIcon, Eye, Plus } from "lucide-react";
+import { cn, formatDisplayDate } from "../lib/utils";
 import { toast } from "sonner";
 
 type SortKey = "company" | "status" | "updatedAt";
@@ -58,7 +58,9 @@ const SortIcon = ({ columnKey, sortConfig }: SortIconProps) => {
 };
 
 export default function Dashboard() {
-  const [applications, setApplications] = useState<Application[]>(ApplicationService.getAll());
+  const { data: applications = [], isLoading, error } = useApplications();
+  const deleteMutation = useDeleteApplication();
+  
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: "updatedAt",
     direction: "desc",
@@ -70,19 +72,18 @@ export default function Dashboard() {
   });
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  const loadApplications = () => {
-    const data = ApplicationService.getAll();
-    setApplications(data);
-  };
-
-  const handleDelete = (id: string) => {
-    ApplicationService.delete(id);
-    loadApplications();
-    toast.success("Application deleted");
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteMutation.mutateAsync(id);
+      toast.success("Application deleted");
+    } catch (err) {
+      toast.error("Failed to delete application");
+    }
   };
 
   const getCurrentStatus = (app: Application) => {
-    return app.statusHistory[app.statusHistory.length - 1].status;
+    if (!app.statusHistory || app.statusHistory.length === 0) return "Unknown";
+    return app.statusHistory[0].status; // Backend sorts history by date desc
   };
 
   const getStatusColor = (status: string) => {
@@ -110,11 +111,7 @@ export default function Dashboard() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+    return formatDisplayDate(dateString);
   };
 
   const toggleSort = (key: SortKey) => {
@@ -179,6 +176,9 @@ export default function Dashboard() {
     return result;
   }, [applications, sortConfig, filterConfig]);
 
+  if (isLoading) return <div className="p-8 text-center">Loading applications...</div>;
+  if (error) return <div className="p-8 text-center text-destructive">Error loading applications</div>;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -188,6 +188,9 @@ export default function Dashboard() {
             Overview of your job applications.
           </p>
         </div>
+        <Link to="/applications/new" className={cn(buttonVariants(), "w-full sm:w-auto")}>
+          <Plus className="mr-2 h-4 w-4" /> New Application
+        </Link>
       </div>
 
       <div className="flex flex-col md:flex-row gap-6">

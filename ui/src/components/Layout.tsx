@@ -1,24 +1,43 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
-import { buttonVariants } from "./ui/button";
+import { Button } from "./ui/button";
+import { signOut } from "@/lib/auth-client";
 
-export function Layout() {
+export default function Layout() {
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          navigate("/login");
+        },
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background font-sans antialiased">
       <Toaster position="bottom-right" richColors />
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
-          <div className="mr-4 flex">
-            <Link to="/" className="mr-6 flex items-center space-x-2">
-              <span className="font-bold sm:inline-block">
-                Job Tracker
-              </span>
+          <div className="mr-4 flex gap-6">
+            <Link to="/" className="text-lg font-bold">
+              Job Application Tracker
             </Link>
+            <nav className="flex items-center gap-4 text-sm font-medium">
+              <Link
+                to="/"
+                className="text-muted-foreground transition-colors hover:text-primary"
+              >
+                Dashboard
+              </Link>
+            </nav>
           </div>
           <div className="flex items-center space-x-2 justify-end">
-            <Link to="/applications/new" className={buttonVariants({ variant: "default", size: "sm" })}>
-                New Application
-            </Link>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              Sign Out
+            </Button>
           </div>
         </div>
       </header>
