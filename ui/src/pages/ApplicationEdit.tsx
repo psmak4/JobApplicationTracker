@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft } from 'lucide-react'
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as z from 'zod'
@@ -40,7 +40,7 @@ export default function ApplicationEdit() {
 		handleSubmit,
 		reset,
 		setValue,
-		watch,
+		control,
 		formState: { errors, isDirty, isSubmitting },
 	} = useForm<ApplicationFormValues>({
 		resolver: zodResolver(applicationSchema),
@@ -81,10 +81,10 @@ export default function ApplicationEdit() {
 		}
 	}
 
+	const currentWorkType = useWatch({ control, name: 'workType' })
+
 	if (isLoading) return <div className="p-8 text-center">Loading...</div>
 	if (!application) return <div className="p-8 text-center text-destructive">Application not found</div>
-
-	const currentWorkType = watch('workType')
 
 	return (
 		<div className="space-y-6">
@@ -159,7 +159,7 @@ export default function ApplicationEdit() {
 									</div>
 									<Field>
 										<FieldLabel htmlFor="notes">Notes</FieldLabel>
-										<Textarea id="notes" className="min-h-[150px]" {...register('notes')} />
+										<Textarea id="notes" className="min-h-37.5" {...register('notes')} />
 									</Field>
 								</FieldGroup>
 							</FieldSet>

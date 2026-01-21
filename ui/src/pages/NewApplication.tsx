@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as z from 'zod'
@@ -45,7 +45,7 @@ export default function NewApplication() {
 		register,
 		handleSubmit,
 		setValue,
-		watch,
+		control,
 		formState: { errors, isSubmitting },
 	} = useForm<ApplicationFormValues>({
 		resolver: zodResolver(applicationSchema),
@@ -84,8 +84,8 @@ export default function NewApplication() {
 		}
 	}
 
-	const currentStatus = watch('initialStatus')
-	const currentWorkType = watch('workType')
+	const currentStatus = useWatch({ control, name: 'initialStatus' })
+	const currentWorkType = useWatch({ control, name: 'workType' })
 
 	return (
 		<div className="max-w-2xl mx-auto">
