@@ -11,7 +11,7 @@ export default defineConfig({
     {
       name: "rewrite-middleware",
       configureServer(server) {
-        server.middlewares.use((req, res, next) => {
+        server.middlewares.use((req, _res, next) => {
           if (req.url && req.url.startsWith("/app") && !req.url.includes(".")) {
             req.url = "/app.html";
           }

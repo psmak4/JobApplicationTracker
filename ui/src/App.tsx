@@ -1,57 +1,66 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { Toaster } from "sonner"
-import Layout from "./components/Layout"
-import Dashboard from "./pages/Dashboard"
-import NewApplication from "./pages/NewApplication"
-import ApplicationView from "./pages/ApplicationView"
-import ApplicationEdit from "./pages/ApplicationEdit"
-import Login from "./pages/auth/Login"
-import Signup from "./pages/auth/Signup"
-import { useSession } from "./lib/auth-client"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Suspense, lazy } from 'react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { Toaster } from 'sonner'
+import Layout from './components/Layout'
+import { useSession } from './lib/auth-client'
+
+// Lazy load pages
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const NewApplication = lazy(() => import('./pages/NewApplication'))
+const ApplicationView = lazy(() => import('./pages/ApplicationView'))
+const ApplicationEdit = lazy(() => import('./pages/ApplicationEdit'))
+const Login = lazy(() => import('./pages/auth/Login'))
+const Signup = lazy(() => import('./pages/auth/Signup'))
 
 const queryClient = new QueryClient()
 
+function LoadingFallback() {
+	return (
+		<div className="flex items-center justify-center h-screen bg-background text-muted-foreground animate-pulse">
+			Loading...
+		</div>
+	)
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { data: session, isPending } = useSession()
+	const { data: session, isPending } = useSession()
 
-  if (isPending) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>
-  }
+	if (isPending) return <LoadingFallback />
 
-  if (!session) {
-    return <Navigate to="/login" replace />
-  }
+	if (!session) return <Navigate to="/login" replace />
 
-  return <>{children}</>
+	return <>{children}</>
 }
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter basename="/app">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="applications/new" element={<NewApplication />} />
-            <Route path="applications/:id" element={<ApplicationView />} />
-            <Route path="applications/:id/edit" element={<ApplicationEdit />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-      <Toaster />
-    </QueryClientProvider>
-  )
+	return (
+		<QueryClientProvider client={queryClient}>
+			<BrowserRouter basename="/app">
+				<Suspense fallback={<LoadingFallback />}>
+					<Routes>
+						<Route path="/login" element={<Login />} />
+						<Route path="/signup" element={<Signup />} />
+
+						<Route
+							path="/"
+							element={
+								<ProtectedRoute>
+									<Layout />
+								</ProtectedRoute>
+							}
+						>
+							<Route index element={<Dashboard />} />
+							<Route path="applications/new" element={<NewApplication />} />
+							<Route path="applications/:id" element={<ApplicationView />} />
+							<Route path="applications/:id/edit" element={<ApplicationEdit />} />
+						</Route>
+					</Routes>
+				</Suspense>
+			</BrowserRouter>
+			<Toaster />
+		</QueryClientProvider>
+	)
 }
 
 export default App
