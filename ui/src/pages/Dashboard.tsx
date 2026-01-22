@@ -1,5 +1,5 @@
 import { ArrowUpDown, Cog, Filter as FilterIcon, LayoutGrid, Plus, Table as TableIcon, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Badge } from '../components/ui/badge'
 import { Button, buttonVariants } from '../components/ui/button'
@@ -55,11 +55,32 @@ export default function Dashboard() {
 		key: 'lastStatusUpdate',
 		direction: 'desc',
 	})
-	const [filterConfig, setFilterConfig] = useState<FilterConfig>({
-		company: '',
-		status: [],
+	const [filterConfig, setFilterConfig] = useState<FilterConfig>(() => {
+		const saved = localStorage.getItem('dashboard_filter_config')
+		if (saved) {
+			try {
+				return JSON.parse(saved)
+			} catch (e) {
+				console.error('Failed to parse saved filters', e)
+			}
+		}
+		return {
+			company: '',
+			status: [],
+		}
 	})
-	const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+
+	useEffect(() => {
+		localStorage.setItem('dashboard_filter_config', JSON.stringify(filterConfig))
+	}, [filterConfig])
+	const [isFiltersOpen, setIsFiltersOpen] = useState(() => {
+		const saved = localStorage.getItem('dashboard_controls_open')
+		return saved ? saved === 'true' : false
+	})
+
+	useEffect(() => {
+		localStorage.setItem('dashboard_controls_open', isFiltersOpen.toString())
+	}, [isFiltersOpen])
 
 	const toggleStatus = (status: string) => {
 		setFilterConfig((prev) => {
