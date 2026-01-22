@@ -1,7 +1,7 @@
 import { ArrowUpDown, Cog, Filter as FilterIcon, LayoutGrid, Plus, Table as TableIcon, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Badge } from '../components/ui/badge'
+import ApplicationStatusBadge from '@/components/ApplicationBadge'
 import { Button, buttonVariants } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Checkbox } from '../components/ui/checkbox'
@@ -49,8 +49,10 @@ interface FilterConfig {
 export default function Dashboard() {
 	const navigate = useNavigate()
 	const { data: applications = [], isLoading, error } = useApplications()
-
-	const [viewMode, setViewMode] = useState<'table' | 'card'>('table')
+	const [viewMode, setViewMode] = useState<'table' | 'card'>(() => {
+		const saved = localStorage.getItem('dashboard_view_mode')
+		return saved === 'card' ? 'card' : 'table'
+	})
 	const [sortConfig, setSortConfig] = useState<SortConfig>({
 		key: 'lastStatusUpdate',
 		direction: 'desc',
@@ -69,18 +71,10 @@ export default function Dashboard() {
 			status: [],
 		}
 	})
-
-	useEffect(() => {
-		localStorage.setItem('dashboard_filter_config', JSON.stringify(filterConfig))
-	}, [filterConfig])
 	const [isFiltersOpen, setIsFiltersOpen] = useState(() => {
 		const saved = localStorage.getItem('dashboard_controls_open')
 		return saved ? saved === 'true' : false
 	})
-
-	useEffect(() => {
-		localStorage.setItem('dashboard_controls_open', isFiltersOpen.toString())
-	}, [isFiltersOpen])
 
 	const toggleStatus = (status: string) => {
 		setFilterConfig((prev) => {
@@ -101,19 +95,6 @@ export default function Dashboard() {
 	const getLastStatusDate = (app: Application) => {
 		if (!app.statusHistory || app.statusHistory.length === 0) return app.updatedAt
 		return app.statusHistory[0].date
-	}
-
-	const getStatusColor = (status: string) => {
-		switch (status) {
-			case 'Offer':
-				return 'bg-green-100 text-green-800 hover:bg-green-100/80 border-transparent dark:bg-green-900/30 dark:text-green-400'
-			case 'Rejected':
-				return 'destructive'
-			case 'Withdrawn':
-				return 'secondary'
-			default:
-				return 'outline'
-		}
 	}
 
 	const getStalenessColor = (statusDate: string, status: string) => {
@@ -172,6 +153,18 @@ export default function Dashboard() {
 
 		return result
 	}, [applications, sortConfig, filterConfig])
+
+	useEffect(() => {
+		localStorage.setItem('dashboard_view_mode', viewMode)
+	}, [viewMode])
+
+	useEffect(() => {
+		localStorage.setItem('dashboard_filter_config', JSON.stringify(filterConfig))
+	}, [filterConfig])
+
+	useEffect(() => {
+		localStorage.setItem('dashboard_controls_open', isFiltersOpen.toString())
+	}, [isFiltersOpen])
 
 	if (isLoading) return <div className="p-8 text-center">Loading applications...</div>
 	if (error) return <div className="p-8 text-center text-destructive">Error loading applications</div>
@@ -455,25 +448,7 @@ export default function Dashboard() {
 															</td>
 															<td className="p-4 align-middle">{app.jobTitle}</td>
 															<td className="p-4 align-middle">
-																<Badge
-																	variant={
-																		getStatusColor(currentStatus) as
-																			| 'default'
-																			| 'destructive'
-																			| 'secondary'
-																			| 'outline'
-																	}
-																	className={
-																		getStatusColor(currentStatus) !==
-																			'destructive' &&
-																		getStatusColor(currentStatus) !== 'secondary' &&
-																		getStatusColor(currentStatus) !== 'outline'
-																			? getStatusColor(currentStatus)
-																			: ''
-																	}
-																>
-																	{currentStatus}
-																</Badge>
+																<ApplicationStatusBadge currentStatus={currentStatus} />
 															</td>
 															<td
 																className={`p-4 align-middle ${getStalenessColor(lastStatusDate, currentStatus)}`}
@@ -509,24 +484,7 @@ export default function Dashboard() {
 														<CardTitle className="text-lg truncate">
 															{app.company}
 														</CardTitle>
-														<Badge
-															variant={
-																getStatusColor(currentStatus) as
-																	| 'default'
-																	| 'destructive'
-																	| 'secondary'
-																	| 'outline'
-															}
-															className={
-																getStatusColor(currentStatus) !== 'destructive' &&
-																getStatusColor(currentStatus) !== 'secondary' &&
-																getStatusColor(currentStatus) !== 'outline'
-																	? getStatusColor(currentStatus)
-																	: ''
-															}
-														>
-															{currentStatus}
-														</Badge>
+														<ApplicationStatusBadge currentStatus={currentStatus} />
 													</div>
 													<p className="text-sm text-muted-foreground truncate">
 														{app.jobTitle}
