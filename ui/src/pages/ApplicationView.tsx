@@ -14,6 +14,7 @@ import {
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
+import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -25,7 +26,6 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '../components/ui/alert-dialog'
-import { Badge } from '../components/ui/badge'
 import { Button, buttonVariants } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { FieldLabel } from '../components/ui/field'
@@ -101,14 +101,14 @@ export default function ApplicationView() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center gap-4">
+			<div className="flex items-start gap-4">
 				<Button variant="ghost" size="icon" onClick={() => navigate('/')}>
 					<ArrowLeft className="h-4 w-4" />
 				</Button>
 				<div>
 					<div className="flex items-center gap-3">
 						<h1 className="text-2xl font-bold tracking-tight">{application.company}</h1>
-						<Badge variant="outline">{currentStatus}</Badge>
+						<ApplicationStatusBadge currentStatus={currentStatus} />
 					</div>
 					<p className="text-muted-foreground">{application.jobTitle}</p>
 				</div>
@@ -264,12 +264,13 @@ export default function ApplicationView() {
 									<h4 className="font-medium text-sm">Add New Status</h4>
 									<div className="grid gap-4">
 										<div className="grid gap-2">
-											<FieldLabel>Status</FieldLabel>
+											<FieldLabel htmlFor="status-select">Status</FieldLabel>
 											<Select
+												id="status-select"
 												value={newStatus}
 												onValueChange={(v) => setNewStatus(v as ApplicationStatus)}
 											>
-												<SelectTrigger>
+												<SelectTrigger className="w-full">
 													<SelectValue />
 												</SelectTrigger>
 												<SelectContent>
@@ -287,8 +288,9 @@ export default function ApplicationView() {
 											</Select>
 										</div>
 										<div className="grid gap-2">
-											<FieldLabel>Date</FieldLabel>
+											<FieldLabel htmlFor="status-date-input">Date</FieldLabel>
 											<Input
+												id="status-date-input"
 												type="date"
 												value={newStatusDate}
 												onChange={(e) => setNewStatusDate(e.target.value)}
