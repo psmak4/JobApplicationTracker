@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Badge } from '../components/ui/badge'
 import { Button, buttonVariants } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { Checkbox } from '../components/ui/checkbox'
+import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useApplications } from '../hooks/useApplications'
 import { cn, formatDisplayDate } from '../lib/utils'
@@ -23,11 +25,15 @@ const DIRECTION_OPTIONS: { value: SortDirection; label: string }[] = [
 	{ value: 'desc', label: 'Descending' },
 ]
 
-const DAYS_AGO_OPTIONS = [
-	{ value: 'all', label: 'Any time' },
-	{ value: '7', label: 'Last 7 days' },
-	{ value: '14', label: 'Last 14 days' },
-	{ value: '30', label: 'Last 30 days' },
+const STATUS_OPTIONS = [
+	'Applied',
+	'Phone Screen',
+	'Technical Interview',
+	'On-site Interview',
+	'Offer',
+	'Rejected',
+	'Withdrawn',
+	'Other',
 ]
 
 interface SortConfig {
@@ -37,8 +43,7 @@ interface SortConfig {
 
 interface FilterConfig {
 	company: string
-	status: string // "all" or specific status
-	daysAgo: string // "all", "7", "14", "30"
+	status: string[]
 }
 
 export default function Dashboard() {
@@ -52,10 +57,20 @@ export default function Dashboard() {
 	})
 	const [filterConfig, setFilterConfig] = useState<FilterConfig>({
 		company: '',
-		status: 'all',
-		daysAgo: 'all',
+		status: [],
 	})
 	const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+
+	const toggleStatus = (status: string) => {
+		setFilterConfig((prev) => {
+			const current = prev.status
+			if (current.includes(status)) {
+				return { ...prev, status: current.filter((s) => s !== status) }
+			} else {
+				return { ...prev, status: [...current, status] }
+			}
+		})
+	}
 
 	const getCurrentStatus = (app: Application) => {
 		if (!app.statusHistory || app.statusHistory.length === 0) return 'Unknown'
@@ -105,15 +120,8 @@ export default function Dashboard() {
 			result = result.filter((app) => app.company.toLowerCase() === query)
 		}
 
-		if (filterConfig.status !== 'all') {
-			result = result.filter((app) => getCurrentStatus(app) === filterConfig.status)
-		}
-
-		if (filterConfig.daysAgo !== 'all') {
-			const days = parseInt(filterConfig.daysAgo)
-			const cutoffDate = new Date()
-			cutoffDate.setDate(cutoffDate.getDate() - days)
-			result = result.filter((app) => new Date(getLastStatusDate(app)) >= cutoffDate)
+		if (filterConfig.status.length > 0) {
+			result = result.filter((app) => filterConfig.status.includes(getCurrentStatus(app)))
 		}
 
 		// Sort
@@ -237,10 +245,15 @@ export default function Dashboard() {
 								</h3>
 
 								<div className="space-y-2">
-									<label id="company-filter-label" className="text-sm font-medium leading-none">
+									<label
+										id="company-filter-label"
+										htmlFor="company-filter-select"
+										className="text-xs text-muted-foreground uppercase tracking-wider font-semibold"
+									>
 										Company
 									</label>
 									<Select
+										id="company-filter-select"
 										value={filterConfig.company || 'all'}
 										onValueChange={(val) =>
 											setFilterConfig((prev) => ({
@@ -270,100 +283,36 @@ export default function Dashboard() {
 									</Select>
 								</div>
 
-								<div className="space-y-2">
-									<label id="status-filter-label" className="text-sm font-medium leading-none">
+								<div className="space-y-3 pt-2">
+									<Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
 										Status
-									</label>
-									<Select
-										value={filterConfig.status}
-										onValueChange={(val) =>
-											setFilterConfig((prev) => ({ ...prev, status: val || 'all' }))
-										}
-									>
-										<SelectTrigger
-											aria-labelledby="status-filter-label"
-											className="h-9 w-full bg-background"
-										>
-											<SelectValue placeholder="All Statuses">
-												{filterConfig.status === 'all' ? 'All Statuses' : filterConfig.status}
-											</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="all" label="All Statuses">
-												All Statuses
-											</SelectItem>
-											<SelectItem value="Applied" label="Applied">
-												Applied
-											</SelectItem>
-											<SelectItem value="Phone Screen" label="Phone Screen">
-												Phone Screen
-											</SelectItem>
-											<SelectItem value="Technical Interview" label="Technical Interview">
-												Technical Interview
-											</SelectItem>
-											<SelectItem value="On-site Interview" label="On-site Interview">
-												On-site Interview
-											</SelectItem>
-											<SelectItem value="Offer" label="Offer">
-												Offer
-											</SelectItem>
-											<SelectItem value="Rejected" label="Rejected">
-												Rejected
-											</SelectItem>
-											<SelectItem value="Withdrawn" label="Withdrawn">
-												Withdrawn
-											</SelectItem>
-											<SelectItem value="Other" label="Other">
-												Other
-											</SelectItem>
-										</SelectContent>
-									</Select>
+									</Label>
+									<div className="space-y-2">
+										{STATUS_OPTIONS.map((status) => (
+											<div key={`chk-${status}`} className="flex items-center space-x-2">
+												<Checkbox
+													id={`status-chk-${status}`}
+													checked={filterConfig.status.includes(status)}
+													onCheckedChange={() => toggleStatus(status)}
+												/>
+												<Label
+													htmlFor={`status-chk-${status}`}
+													className="font-normal text-sm cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+												>
+													{status}
+												</Label>
+											</div>
+										))}
+									</div>
 								</div>
 
-								<div className="space-y-2">
-									<label id="updated-filter-label" className="text-sm font-medium leading-none">
-										Last Status Update
-									</label>
-									<Select
-										value={filterConfig.daysAgo}
-										onValueChange={(val) =>
-											setFilterConfig((prev) => ({
-												...prev,
-												daysAgo: val || 'all',
-											}))
-										}
-									>
-										<SelectTrigger
-											aria-labelledby="updated-filter-label"
-											className="h-9 w-full bg-background"
-										>
-											<SelectValue placeholder="Any time">
-												{
-													DAYS_AGO_OPTIONS.find((opt) => opt.value === filterConfig.daysAgo)
-														?.label
-												}
-											</SelectValue>
-										</SelectTrigger>
-										<SelectContent>
-											{DAYS_AGO_OPTIONS.map((opt) => (
-												<SelectItem key={opt.value} value={opt.value} label={opt.label}>
-													{opt.label}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-
-								{(filterConfig.company ||
-									filterConfig.status !== 'all' ||
-									filterConfig.daysAgo !== 'all') && (
+								{(filterConfig.company || filterConfig.status.length > 0) && (
 									<Button
 										variant="ghost"
 										onClick={() =>
 											setFilterConfig({
 												company: '',
-												status: 'all',
-												daysAgo: 'all',
+												status: [],
 											})
 										}
 										className="w-full h-9"
