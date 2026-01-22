@@ -37,13 +37,13 @@ export default function Login() {
 	}
 
 	return (
-		<div className="flex items-center justify-center min-h-[80vh]">
-			<Card className="w-full max-w-md">
-				<CardHeader>
-					<CardTitle className="text-2xl">Login</CardTitle>
-					<CardDescription>Enter your credentials to access your job tracker.</CardDescription>
-				</CardHeader>
-				<form onSubmit={handleLogin}>
+		<div className="flex items-center justify-center min-h-[80vh] px-4 sm:px-0">
+			<form onSubmit={handleLogin} className="w-full max-w-md">
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-2xl">Login</CardTitle>
+						<CardDescription>Enter your credentials to access your job tracker.</CardDescription>
+					</CardHeader>
 					<CardContent className="space-y-4">
 						<div className="space-y-2">
 							<Label htmlFor="email">Email</Label>
@@ -78,8 +78,8 @@ export default function Login() {
 							</Link>
 						</p>
 					</CardFooter>
-				</form>
-			</Card>
+				</Card>
+			</form>
 		</div>
 	)
 }

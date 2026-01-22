@@ -39,13 +39,13 @@ export default function Signup() {
 	}
 
 	return (
-		<div className="flex items-center justify-center min-h-[80vh]">
-			<Card className="w-full max-w-md">
-				<CardHeader>
-					<CardTitle className="text-2xl">Create an account</CardTitle>
-					<CardDescription>Enter your details to get started with Job Tracker.</CardDescription>
-				</CardHeader>
-				<form onSubmit={handleSignup}>
+		<div className="flex items-center justify-center min-h-[80vh] px-4 sm:px-0">
+			<form onSubmit={handleSignup} className="w-full max-w-md">
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-2xl">Create an account</CardTitle>
+						<CardDescription>Enter your details to get started with Job Tracker.</CardDescription>
+					</CardHeader>
 					<CardContent className="space-y-4">
 						<div className="space-y-2">
 							<Label htmlFor="name">Full Name</Label>
@@ -91,8 +91,8 @@ export default function Signup() {
 							</Link>
 						</p>
 					</CardFooter>
-				</form>
-			</Card>
+				</Card>
+			</form>
 		</div>
 	)
 }
