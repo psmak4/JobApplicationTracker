@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Checkbox } from '../components/ui/checkbox'
 import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
-import { useApplications } from '../hooks/useApplications'
+import { useApplicationPrefetch, useApplications } from '../hooks/useApplications'
 import { cn, formatDisplayDate } from '../lib/utils'
 import type { Application } from '../types'
 
@@ -49,6 +49,8 @@ interface FilterConfig {
 export default function Dashboard() {
 	const navigate = useNavigate()
 	const { data: applications = [], isLoading, error } = useApplications()
+	const prefetchApplication = useApplicationPrefetch()
+
 	const [viewMode, setViewMode] = useState<'table' | 'card'>(() => {
 		const saved = localStorage.getItem('dashboard_view_mode')
 		return saved === 'card' ? 'card' : 'table'
@@ -442,6 +444,7 @@ export default function Dashboard() {
 															key={app.id}
 															className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted cursor-pointer"
 															onClick={() => navigate(`/applications/${app.id}`)}
+															onMouseEnter={() => prefetchApplication(app.id)}
 														>
 															<td className="p-4 align-middle font-medium">
 																{app.company}
@@ -478,6 +481,7 @@ export default function Dashboard() {
 												key={app.id}
 												className="cursor-pointer hover:border-primary/50 transition-colors border ring-0 rounded-md"
 												onClick={() => navigate(`/applications/${app.id}`)}
+												onMouseEnter={() => prefetchApplication(app.id)}
 											>
 												<CardHeader className="pb-2">
 													<div className="flex justify-between items-start gap-2">

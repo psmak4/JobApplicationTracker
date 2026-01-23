@@ -23,6 +23,20 @@ export const useApplication = (id: string) => {
 	})
 }
 
+export const useApplicationPrefetch = () => {
+	const queryClient = useQueryClient()
+
+	return (id: string) => {
+		queryClient.prefetchQuery({
+			queryKey: ['applications', id],
+			queryFn: async () => {
+				const response = await apiClient.get(`/applications/${id}`)
+				return response.data
+			},
+		})
+	}
+}
+
 export const useDeleteApplication = () => {
 	const queryClient = useQueryClient()
 	return useMutation({
