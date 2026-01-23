@@ -61,12 +61,14 @@ export const statusController = {
 				return
 			}
 
+			const statusDate = new Date(validation.data.date)
+
 			const [newStatus] = await db
 				.insert(statusHistory)
 				.values({
 					applicationId,
 					status: validation.data.status,
-					date: validation.data.date.split('T')[0],
+					date: statusDate,
 				})
 				.returning()
 

@@ -13,8 +13,8 @@ export type WorkType = 'Remote' | 'Hybrid' | 'On-site'
 export interface StatusHistoryEntry {
 	id: string // UUID
 	status: ApplicationStatus
-	date: string // ISO date
-	createdAt: string // ISO date
+	date: string // ISO timestamp
+	createdAt: string // ISO timestap
 }
 
 export interface Application {
@@ -28,6 +28,6 @@ export interface Application {
 	contactInfo?: string
 	notes?: string
 	statusHistory: StatusHistoryEntry[]
-	createdAt: string // ISO date
-	updatedAt: string // ISO date
+	createdAt: string // ISO timestmap string
+	updatedAt: string // ISO timestmap string
 }

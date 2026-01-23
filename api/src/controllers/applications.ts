@@ -96,6 +96,7 @@ export const applicationController = {
 			}
 
 			const { status, date, ...appData } = validation.data
+			const statusDate: Date = date ? new Date(date) : new Date()
 
 			// Transaction to create app and initial status
 			const result = await db.transaction(async (tx) => {
@@ -112,7 +113,7 @@ export const applicationController = {
 					.values({
 						applicationId: newApp.id,
 						status: status as any,
-						date: date ? date.split('T')[0] : new Date().toISOString().split('T')[0],
+						date: statusDate,
 					})
 					.returning()
 
@@ -148,7 +149,7 @@ export const applicationController = {
 				return
 			}
 
-			const { status, ...updateData } = validation.data
+			const { status, date, ...updateData } = validation.data
 
 			// Update basic info
 			const [updatedApp] = await db
@@ -170,10 +171,12 @@ export const applicationController = {
 					.limit(1)
 
 				if (!latestStatus || latestStatus.status !== status) {
+					const statusDate: Date = date ? new Date(date) : new Date()
+
 					await db.insert(statusHistory).values({
 						applicationId: applicationId,
 						status: status as any,
-						date: new Date().toISOString().split('T')[0],
+						date: statusDate,
 					})
 				}
 			}
@@ -190,9 +193,6 @@ export const applicationController = {
 		try {
 			const userId = (req as any).user.id
 			const applicationId = req.params.id as string
-
-			// Drizzle's "cascade" in schema definition handles the statusHistory deletion usually if foreign keys are set up in DB.
-			// Our schema.ts has `references(() => users.id, { onDelete: "cascade" })` but let's verify logic.
 
 			const [deleted] = await db
 				.delete(applications)
