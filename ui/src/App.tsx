@@ -1,4 +1,6 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
+import { QueryClient } from '@tanstack/react-query'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from 'sonner'
@@ -13,7 +15,19 @@ const ApplicationEdit = lazy(() => import('./pages/ApplicationEdit'))
 const Login = lazy(() => import('./pages/auth/Login'))
 const Signup = lazy(() => import('./pages/auth/Signup'))
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			gcTime: 1000 * 60 * 60 * 24 * 7,
+			staleTime: 1000 * 60 * 60,
+		},
+	},
+})
+
+const localStoragePersister = createAsyncStoragePersister({
+	storage: window.localStorage,
+	key: 'job-application-tracker-cache',
+})
 
 function LoadingFallback() {
 	return (
@@ -35,7 +49,16 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
 	return (
-		<QueryClientProvider client={queryClient}>
+		<PersistQueryClientProvider
+			client={queryClient}
+			persistOptions={{
+				persister: localStoragePersister,
+				maxAge: 1000 * 60 * 60 * 24 * 7,
+			}}
+			onSuccess={() => {
+				queryClient.resumePausedMutations()
+			}}
+		>
 			<BrowserRouter basename="/app">
 				<Suspense fallback={<LoadingFallback />}>
 					<Routes>
@@ -59,7 +82,7 @@ function App() {
 				</Suspense>
 			</BrowserRouter>
 			<Toaster />
-		</QueryClientProvider>
+		</PersistQueryClientProvider>
 	)
 }
 
