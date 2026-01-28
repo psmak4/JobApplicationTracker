@@ -104,6 +104,27 @@ export const deleteLimiter = rateLimit({
 	},
 })
 
+// Rate limiter for parser endpoint (very restrictive due to external HTTP requests)
+export const parserLimiter = rateLimit({
+	windowMs: 60 * 1000, // 1 minute
+	max: 5, // Limit each IP to 5 parse requests per minute
+	message: {
+		error: 'Too many parse requests',
+		message: 'You are parsing job postings too quickly. Please wait before trying again.',
+		retryAfter: 60,
+	},
+	standardHeaders: true,
+	legacyHeaders: false,
+	handler: (req, res) => {
+		const rateLimitInfo = (req as RateLimitedRequest).rateLimit
+		res.status(429).json({
+			error: 'Too many parse requests',
+			message: 'You have exceeded the limit of 5 parse requests per minute. Please wait before trying again.',
+			retryAfter: Math.ceil((rateLimitInfo.resetTime?.getTime() || Date.now()) / 1000),
+		})
+	},
+})
+
 // ============================================================================
 // SPEED LIMITERS - Slow down requests instead of blocking
 // ============================================================================
@@ -157,6 +178,17 @@ export const deleteSpeedLimiter = slowDown({
 	maxDelayMs: 5000, // Maximum delay of 5 seconds
 })
 
+// Speed limiter for parser endpoint (aggressive due to external HTTP requests)
+export const parserSpeedLimiter = slowDown({
+	windowMs: 60 * 1000, // 1 minute
+	delayAfter: 2, // Allow 2 requests at full speed
+	delayMs: (hits) => {
+		// Very aggressive delay: 1000ms, 2000ms, 3000ms, etc.
+		return (hits - 2) * 1000
+	},
+	maxDelayMs: 10000, // Maximum delay of 10 seconds
+})
+
 // ============================================================================
 // COMBINED MIDDLEWARE - Apply both speed limiting and rate limiting
 // ============================================================================
@@ -172,3 +204,6 @@ export const createProtection = [createSpeedLimiter, createLimiter]
 
 // Apply to delete routes (speed limit, then rate limit)
 export const deleteProtection = [deleteSpeedLimiter, deleteLimiter]
+
+// Apply to parser routes (speed limit, then rate limit)
+export const parserProtection = [parserSpeedLimiter, parserLimiter]
