@@ -6,7 +6,21 @@ import { applicationStatusEnum, applications, statusHistory } from '../db/schema
 
 const createStatusSchema = z.object({
 	status: z.enum(applicationStatusEnum.enumValues),
-	date: z.string().default(() => new Date().toISOString().split('T')[0]),
+	date: z
+		.string()
+		.refine(
+			(date) => {
+				try {
+					return !isNaN(Date.parse(date))
+				} catch (e) {
+					return false
+				}
+			},
+			{
+				message: 'Invalid date format. Please use ISO 8601 date string.',
+			},
+		)
+		.default(() => new Date().toISOString().split('T')[0]),
 })
 
 export const statusController = {
@@ -62,6 +76,10 @@ export const statusController = {
 			}
 
 			const statusDate = new Date(validation.data.date)
+			if (isNaN(statusDate.getTime())) {
+				res.status(400).json({ message: 'Invalid date provided' })
+				return
+			}
 
 			const [newStatus] = await db
 				.insert(statusHistory)
