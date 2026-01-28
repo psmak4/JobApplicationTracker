@@ -2,7 +2,7 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import { QueryClient } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { Suspense, lazy } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import Layout from './components/Layout'
 import { useSession } from './lib/auth-client'
@@ -24,8 +24,26 @@ const queryClient = new QueryClient({
 	},
 })
 
+// Wrap localStorage access in try-catch for when storage is unavailable (e.g., incognito mode)
+const createSafeStorage = () => {
+	try {
+		// Test if localStorage is accessible
+		const testKey = '__storage_test__'
+		window.localStorage.setItem(testKey, testKey)
+		window.localStorage.removeItem(testKey)
+		return window.localStorage
+	} catch {
+		// Return a no-op storage when localStorage is not available
+		return {
+			getItem: () => null,
+			setItem: () => {},
+			removeItem: () => {},
+		}
+	}
+}
+
 const localStoragePersister = createAsyncStoragePersister({
-	storage: window.localStorage,
+	storage: createSafeStorage(),
 	key: 'job-application-tracker-cache',
 })
 
@@ -33,6 +51,18 @@ function LoadingFallback() {
 	return (
 		<div className="flex items-center justify-center h-screen bg-background text-muted-foreground animate-pulse">
 			Loading...
+		</div>
+	)
+}
+
+function NotFound() {
+	return (
+		<div className="flex flex-col items-center justify-center h-screen bg-background text-center px-4">
+			<h1 className="text-6xl font-bold text-muted-foreground mb-4">404</h1>
+			<p className="text-xl text-muted-foreground mb-8">Page not found</p>
+			<Link to="/" className="text-primary hover:underline">
+				Go back to Dashboard
+			</Link>
 		</div>
 	)
 }
@@ -78,6 +108,9 @@ function App() {
 							<Route path="applications/:id" element={<ApplicationView />} />
 							<Route path="applications/:id/edit" element={<ApplicationEdit />} />
 						</Route>
+
+						{/* Catch-all route for 404 */}
+						<Route path="*" element={<NotFound />} />
 					</Routes>
 				</Suspense>
 			</BrowserRouter>

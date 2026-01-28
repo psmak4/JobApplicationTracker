@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as z from 'zod'
 import { Button } from '../components/ui/button'
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Textarea } from '../components/ui/textarea'
 import { useApplication } from '../hooks/useApplications'
 import { useUpdateApplication } from '../hooks/useMutations'
+import { getErrorMessage } from '../lib/error-utils'
 import type { WorkType } from '../types'
 
 const applicationSchema = z.object({
@@ -32,8 +33,13 @@ export default function ApplicationEdit() {
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
 
-	const { data: application, isLoading } = useApplication(id!)
-	const updateMutation = useUpdateApplication(id!)
+	// Handle missing id - redirect to dashboard
+	if (!id) {
+		return <Navigate to="/" replace />
+	}
+
+	const { data: application, isLoading } = useApplication(id)
+	const updateMutation = useUpdateApplication(id)
 
 	const {
 		register,
@@ -76,8 +82,8 @@ export default function ApplicationEdit() {
 			await updateMutation.mutateAsync(data)
 			toast.success('Details updated successfully!')
 			navigate(`/applications/${id}`)
-		} catch {
-			toast.error('Failed to update application')
+		} catch (err) {
+			toast.error(getErrorMessage(err, 'Failed to update application'))
 		}
 	}
 

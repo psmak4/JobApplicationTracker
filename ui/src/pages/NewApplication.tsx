@@ -9,6 +9,7 @@ import { Input } from '../components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { Textarea } from '../components/ui/textarea'
 import { useCreateApplication } from '../hooks/useMutations'
+import { getErrorMessage } from '../lib/error-utils'
 import type { ApplicationStatus, WorkType } from '../types'
 
 const applicationSchema = z.object({
@@ -79,8 +80,8 @@ export default function NewApplication() {
 			})
 			toast.success('Application created successfully!')
 			navigate('/')
-		} catch {
-			toast.error('Failed to create application')
+		} catch (err) {
+			toast.error(getErrorMessage(err, 'Failed to create application'))
 		}
 	}
 

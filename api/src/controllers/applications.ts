@@ -24,7 +24,7 @@ export const applicationController = {
 	// Get all applications for the logged-in user
 	getAll: async (req: Request, res: Response) => {
 		try {
-			const userId = (req as any).user.id
+			const userId = req.user!.id
 
 			const userApplications = await db
 				.select()
@@ -59,7 +59,7 @@ export const applicationController = {
 	// Get a single application details (including history)
 	getOne: async (req: Request, res: Response) => {
 		try {
-			const userId = (req as any).user.id
+			const userId = req.user!.id
 			const applicationId = req.params.id as string
 
 			const application = await db.query.applications.findFirst({
@@ -87,7 +87,7 @@ export const applicationController = {
 	// Create a new application
 	create: async (req: Request, res: Response) => {
 		try {
-			const userId = (req as any).user.id
+			const userId = req.user!.id
 			const validation = createApplicationSchema.safeParse(req.body)
 
 			if (!validation.success) {
@@ -96,7 +96,7 @@ export const applicationController = {
 			}
 
 			const { status, date, ...appData } = validation.data
-			const statusDate: Date = date ? new Date(date) : new Date()
+			const statusDate = date ? new Date(date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
 
 			// Transaction to create app and initial status
 			const result = await db.transaction(async (tx) => {
@@ -112,7 +112,7 @@ export const applicationController = {
 					.insert(statusHistory)
 					.values({
 						applicationId: newApp.id,
-						status: status as any,
+						status: status,
 						date: statusDate,
 					})
 					.returning()
@@ -130,7 +130,7 @@ export const applicationController = {
 	// Update an application
 	update: async (req: Request, res: Response) => {
 		try {
-			const userId = (req as any).user.id
+			const userId = req.user!.id
 			const applicationId = req.params.id as string
 			const validation = updateApplicationSchema.safeParse(req.body)
 
@@ -171,11 +171,11 @@ export const applicationController = {
 					.limit(1)
 
 				if (!latestStatus || latestStatus.status !== status) {
-					const statusDate: Date = date ? new Date(date) : new Date()
+					const statusDate = date ? new Date(date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
 
 					await db.insert(statusHistory).values({
 						applicationId: applicationId,
-						status: status as any,
+						status: status,
 						date: statusDate,
 					})
 				}
@@ -191,7 +191,7 @@ export const applicationController = {
 	// Delete an application
 	delete: async (req: Request, res: Response) => {
 		try {
-			const userId = (req as any).user.id
+			const userId = req.user!.id
 			const applicationId = req.params.id as string
 
 			const [deleted] = await db

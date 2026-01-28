@@ -14,8 +14,9 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 		}
 
 		// Attach user/session to request for use in controllers
-		;(req as any).user = session.user
-		;(req as any).session = session.session
+		// Types are properly extended in types/express.d.ts
+		req.user = session.user
+		req.session = session.session
 
 		next()
 	} catch (error) {
@@ -23,3 +24,4 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 		res.status(500).json({ message: 'Internal Server Error' })
 	}
 }
+

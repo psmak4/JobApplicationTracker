@@ -12,7 +12,7 @@ import {
 	X,
 } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
 import {
@@ -33,6 +33,7 @@ import { Input } from '../components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useApplication, useDeleteApplication } from '../hooks/useApplications'
 import { useAddStatus, useDeleteStatus } from '../hooks/useMutations'
+import { getErrorMessage } from '../lib/error-utils'
 import { formatDisplayDate } from '../lib/utils'
 import type { ApplicationStatus } from '../types'
 
@@ -40,10 +41,15 @@ export default function ApplicationView() {
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
 
-	const { data: application, isLoading, error } = useApplication(id!)
+	// Handle missing id - redirect to dashboard
+	if (!id) {
+		return <Navigate to="/" replace />
+	}
+
+	const { data: application, isLoading, error } = useApplication(id)
 	const deleteApplicationMutation = useDeleteApplication()
-	const addStatusMutation = useAddStatus(id!)
-	const deleteStatusMutation = useDeleteStatus(id!)
+	const addStatusMutation = useAddStatus(id)
+	const deleteStatusMutation = useDeleteStatus(id)
 
 	const [isNewStatusOpen, setIsNewStatusOpen] = useState(false)
 	const [statusToDelete, setStatusToDelete] = useState<string | null>(null)
@@ -64,8 +70,8 @@ export default function ApplicationView() {
 			})
 			setIsNewStatusOpen(false)
 			toast.success('Status history updated!')
-		} catch {
-			toast.error('Failed to update status')
+		} catch (err) {
+			toast.error(getErrorMessage(err, 'Failed to update status'))
 		}
 	}
 
@@ -74,9 +80,8 @@ export default function ApplicationView() {
 		try {
 			await deleteStatusMutation.mutateAsync(statusToDelete)
 			toast.success('Status entry deleted.')
-		} catch (err: unknown) {
-			const error = err as { response?: { data?: { message?: string } } }
-			toast.error(error.response?.data?.message || 'Failed to delete status entry')
+		} catch (err) {
+			toast.error(getErrorMessage(err, 'Failed to delete status entry'))
 		} finally {
 			setStatusToDelete(null)
 		}
@@ -84,11 +89,11 @@ export default function ApplicationView() {
 
 	const onDeleteApplication = async () => {
 		try {
-			await deleteApplicationMutation.mutateAsync(id!)
+			await deleteApplicationMutation.mutateAsync(id)
 			toast.success('Application deleted successfully')
 			navigate('/')
-		} catch {
-			toast.error('Failed to delete application')
+		} catch (err) {
+			toast.error(getErrorMessage(err, 'Failed to delete application'))
 		} finally {
 			setIsDeleteDialogOpen(false)
 		}

@@ -27,7 +27,7 @@ export const statusController = {
 	// Get history for a specific application
 	getByApplication: async (req: Request, res: Response) => {
 		try {
-			const userId = (req as any).user.id
+			const userId = req.user!.id
 			const { applicationId } = req.params as { applicationId: string }
 
 			// Verify ownership
@@ -56,7 +56,7 @@ export const statusController = {
 	// Add a new status entry
 	create: async (req: Request, res: Response) => {
 		try {
-			const userId = (req as any).user.id
+			const userId = req.user!.id
 			const { applicationId } = req.params as { applicationId: string }
 			const validation = createStatusSchema.safeParse(req.body)
 
@@ -75,11 +75,8 @@ export const statusController = {
 				return
 			}
 
-			const statusDate = new Date(validation.data.date)
-			if (isNaN(statusDate.getTime())) {
-				res.status(400).json({ message: 'Invalid date provided' })
-				return
-			}
+			// Date is already validated by Zod schema - use string format for date column
+			const statusDate = validation.data.date
 
 			const [newStatus] = await db
 				.insert(statusHistory)
@@ -108,18 +105,18 @@ export const statusController = {
 	// Delete a status entry
 	delete: async (req: Request, res: Response) => {
 		try {
-			const userId = (req as any).user.id
+			const userId = req.user!.id
 			const { id } = req.params as { id: string }
 
 			// Find the status entry and join with applications to check ownership
-			const statusEntry = (await db.query.statusHistory.findFirst({
+			const statusEntry = await db.query.statusHistory.findFirst({
 				where: eq(statusHistory.id, id),
 				with: {
 					application: true,
 				},
-			})) as any
+			})
 
-			if (!statusEntry || statusEntry.application.userId !== userId) {
+			if (!statusEntry || (statusEntry.application as { userId: string }).userId !== userId) {
 				res.status(404).json({ message: 'Status entry not found' })
 				return
 			}

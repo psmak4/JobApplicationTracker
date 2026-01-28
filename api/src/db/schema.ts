@@ -95,7 +95,7 @@ export const statusHistory = pgTable('status_history', {
 		.notNull()
 		.references(() => applications.id, { onDelete: 'cascade' }),
 	status: applicationStatusEnum('status').notNull(),
-	date: timestamp('date').notNull(),
+	date: date('date').notNull(),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 

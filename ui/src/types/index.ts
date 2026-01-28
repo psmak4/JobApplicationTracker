@@ -14,7 +14,7 @@ export interface StatusHistoryEntry {
 	id: string // UUID
 	status: ApplicationStatus
 	date: string // ISO timestamp
-	createdAt: string // ISO timestap
+	createdAt: string // ISO timestamp
 }
 
 export interface Application {
@@ -28,6 +28,6 @@ export interface Application {
 	contactInfo?: string
 	notes?: string
 	statusHistory: StatusHistoryEntry[]
-	createdAt: string // ISO timestmap string
-	updatedAt: string // ISO timestmap string
+	createdAt: string // ISO timestamp
+	updatedAt: string // ISO timestamp
 }

@@ -8,7 +8,7 @@ import { Checkbox } from '../components/ui/checkbox'
 import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { useApplicationPrefetch, useApplications } from '../hooks/useApplications'
-import { cn, formatDisplayDate } from '../lib/utils'
+import { cn, formatDisplayDate, safeLocalStorage } from '../lib/utils'
 import type { Application } from '../types'
 
 type SortKey = 'company' | 'status' | 'lastStatusUpdate'
@@ -52,7 +52,7 @@ export default function Dashboard() {
 	const prefetchApplication = useApplicationPrefetch()
 
 	const [viewMode, setViewMode] = useState<'table' | 'card'>(() => {
-		const saved = localStorage.getItem('dashboard_view_mode')
+		const saved = safeLocalStorage.getItem('dashboard_view_mode')
 		return saved === 'card' ? 'card' : 'table'
 	})
 	const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -60,21 +60,13 @@ export default function Dashboard() {
 		direction: 'desc',
 	})
 	const [filterConfig, setFilterConfig] = useState<FilterConfig>(() => {
-		const saved = localStorage.getItem('dashboard_filter_config')
-		if (saved) {
-			try {
-				return JSON.parse(saved)
-			} catch (e) {
-				console.error('Failed to parse saved filters', e)
-			}
-		}
-		return {
+		return safeLocalStorage.getJSON<FilterConfig>('dashboard_filter_config', {
 			company: '',
 			status: [],
-		}
+		})
 	})
 	const [isFiltersOpen, setIsFiltersOpen] = useState(() => {
-		const saved = localStorage.getItem('dashboard_controls_open')
+		const saved = safeLocalStorage.getItem('dashboard_controls_open')
 		return saved ? saved === 'true' : false
 	})
 
@@ -157,15 +149,15 @@ export default function Dashboard() {
 	}, [applications, sortConfig, filterConfig])
 
 	useEffect(() => {
-		localStorage.setItem('dashboard_view_mode', viewMode)
+		safeLocalStorage.setItem('dashboard_view_mode', viewMode)
 	}, [viewMode])
 
 	useEffect(() => {
-		localStorage.setItem('dashboard_filter_config', JSON.stringify(filterConfig))
+		safeLocalStorage.setJSON('dashboard_filter_config', filterConfig)
 	}, [filterConfig])
 
 	useEffect(() => {
-		localStorage.setItem('dashboard_controls_open', isFiltersOpen.toString())
+		safeLocalStorage.setItem('dashboard_controls_open', isFiltersOpen.toString())
 	}, [isFiltersOpen])
 
 	if (isLoading) return <div className="p-8 text-center">Loading applications...</div>
