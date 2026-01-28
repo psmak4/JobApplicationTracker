@@ -1,19 +1,27 @@
-import { AlertTriangle, Menu, Shield } from 'lucide-react'
+import { AlertTriangle, LogOut, Menu, User } from 'lucide-react'
 import { useState } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useStopImpersonating } from '@/hooks/useAdmin'
 import { signOut, useSession } from '@/lib/auth-client'
 import { ThemeToggle } from './ThemeToggle'
 import { Button } from './ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from './ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 
 export default function Layout() {
 	const [open, setOpen] = useState(false)
 	const { data: session } = useSession()
 	const stopImpersonating = useStopImpersonating()
+	const navigate = useNavigate()
 
 	// Check if user is admin
-	const user = session?.user as { role?: string; name?: string } | undefined
+	const user = session?.user as { role?: string; name?: string; email?: string } | undefined
 	const isAdmin = user?.role === 'admin'
 
 	// Check if currently impersonating (session has impersonatedBy field)
@@ -68,16 +76,39 @@ export default function Layout() {
 										to="/admin"
 										className="text-muted-foreground transition-colors hover:text-primary flex items-center gap-1"
 									>
-										<Shield className="h-4 w-4" />
 										Admin
 									</Link>
 								)}
 							</nav>
 							<div className="flex items-center gap-2">
 								<ThemeToggle />
-								<Button variant="outline" size="lg" onClick={handleSignOut} className="cursor-pointer">
-									Sign Out
-								</Button>
+								{/* User Dropdown */}
+								<DropdownMenu>
+									<DropdownMenuTrigger
+										render={
+											<Button variant="outline" size="lg" className="gap-2">
+												<User className="h-4 w-4" />
+												<span className="max-w-32 truncate">{user?.name ?? 'Account'}</span>
+											</Button>
+										}
+									/>
+									<DropdownMenuContent align="end">
+										<div className="px-3 py-2">
+											<p className="text-sm font-medium">{user?.name}</p>
+											<p className="text-xs text-muted-foreground">{user?.email}</p>
+										</div>
+										<DropdownMenuSeparator />
+										<DropdownMenuItem onClick={() => navigate('/profile')}>
+											<User className="h-4 w-4 mr-2" />
+											Profile Settings
+										</DropdownMenuItem>
+										<DropdownMenuSeparator />
+										<DropdownMenuItem onClick={handleSignOut}>
+											<LogOut className="h-4 w-4 mr-2" />
+											Sign Out
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
 							</div>
 						</div>
 
@@ -93,7 +124,13 @@ export default function Layout() {
 								/>
 								<SheetContent>
 									<div className="flex flex-col gap-4 mt-14">
-										<nav className="flex flex-col text-base font-medium border-t border-b">
+										{/* User info */}
+										<div className="px-4 py-2 border-b border-border">
+											<p className="font-medium">{user?.name}</p>
+											<p className="text-sm text-muted-foreground">{user?.email}</p>
+										</div>
+
+										<nav className="flex flex-col text-base font-medium border-b">
 											<Link
 												to="/"
 												onClick={() => setOpen(false)}
@@ -101,13 +138,20 @@ export default function Layout() {
 											>
 												Dashboard
 											</Link>
+											<Link
+												to="/profile"
+												onClick={() => setOpen(false)}
+												className="p-4 text-muted-foreground transition-colors hover:text-primary font-normal hover:bg-muted flex items-center gap-2"
+											>
+												<User className="h-4 w-4" />
+												Profile Settings
+											</Link>
 											{isAdmin && (
 												<Link
 													to="/admin"
 													onClick={() => setOpen(false)}
 													className="p-4 text-muted-foreground transition-colors hover:text-primary font-normal hover:bg-muted flex items-center gap-2"
 												>
-													<Shield className="h-4 w-4" />
 													Admin
 												</Link>
 											)}
@@ -118,6 +162,7 @@ export default function Layout() {
 											onClick={handleSignOut}
 											className="cursor-pointer mx-4"
 										>
+											<LogOut className="h-4 w-4 mr-2" />
 											Sign Out
 										</Button>
 									</div>

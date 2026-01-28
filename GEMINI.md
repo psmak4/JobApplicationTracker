@@ -132,6 +132,16 @@ The application uses Better Auth's Admin plugin for user management:
   4. Alternatively, use `authClient.admin.setRole()` to promote users programmatically.
 - **Admin Hooks:** Use hooks from `ui/src/hooks/useAdmin.ts` for admin operations.
 
+### User Profile
+
+Users can manage their account settings at `/app/profile`:
+
+- **Profile Settings:** Update display name and view account information.
+- **Profile Hooks:** Use hooks from `ui/src/hooks/useProfile.ts`:
+  - `useUpdateProfile()` - Update user's name (and other fields in the future).
+  - `useChangePassword()` - Change the user's password.
+- **Access:** Via user dropdown menu in the header or directly at `/app/profile`.
+
 ---
 
 ## Deployment (Netlify)

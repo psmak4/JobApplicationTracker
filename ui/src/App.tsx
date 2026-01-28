@@ -17,6 +17,7 @@ const ApplicationEdit = lazy(() => import('./pages/ApplicationEdit'))
 const Login = lazy(() => import('./pages/auth/Login'))
 const Signup = lazy(() => import('./pages/auth/Signup'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const Profile = lazy(() => import('./pages/Profile'))
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -125,6 +126,7 @@ function App() {
 								}
 							>
 								<Route index element={<Dashboard />} />
+								<Route path="profile" element={<Profile />} />
 								<Route path="applications/new" element={<NewApplication />} />
 								<Route path="applications/:id" element={<ApplicationView />} />
 								<Route path="applications/:id/edit" element={<ApplicationEdit />} />
