@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import * as z from 'zod'
+import { APPLICATION_STATUS_OPTIONS, WORK_TYPE_OPTIONS } from '@/constants'
 import apiClient from '@/lib/api-client'
 import { Button } from '../components/ui/button'
 import {
@@ -21,33 +21,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Textarea } from '../components/ui/textarea'
 import { useCreateApplication } from '../hooks/useMutations'
 import { getErrorMessage, isAxiosError, isRateLimitError } from '../lib/error-utils'
+import { type NewApplicationFormValues, newApplicationSchema } from '../lib/schemas'
 import type { ApplicationStatus, WorkType } from '../types'
-
-const applicationSchema = z.object({
-	company: z.string().min(1, 'Company name is required'),
-	jobTitle: z.string().min(1, 'Job title is required'),
-	jobDescriptionUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-	salary: z.string().optional(),
-	location: z.string().optional(),
-	workType: z.enum(['Remote', 'Hybrid', 'On-site'] as [string, ...string[]]).optional(),
-	contactInfo: z.string().optional(),
-	notes: z.string().optional(),
-	initialStatus: z.enum([
-		'Applied',
-		'Phone Screen',
-		'Technical Interview',
-		'On-site Interview',
-		'Offer',
-		'Rejected',
-		'Withdrawn',
-		'Other',
-	] as [string, ...string[]]),
-	initialStatusDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-		message: 'Invalid date',
-	}),
-})
-
-type ApplicationFormValues = z.infer<typeof applicationSchema>
 
 interface ParsedJobData {
 	company?: string
@@ -72,8 +47,8 @@ export default function NewApplication() {
 		control,
 		watch,
 		formState: { errors, isSubmitting },
-	} = useForm<ApplicationFormValues>({
-		resolver: zodResolver(applicationSchema),
+	} = useForm<NewApplicationFormValues>({
+		resolver: zodResolver(newApplicationSchema),
 		defaultValues: {
 			company: '',
 			jobTitle: '',
@@ -185,7 +160,7 @@ export default function NewApplication() {
 		}
 	}
 
-	const onSubmit = async (data: ApplicationFormValues) => {
+	const onSubmit = async (data: NewApplicationFormValues) => {
 		try {
 			await createMutation.mutateAsync({
 				company: data.company,
@@ -320,9 +295,11 @@ export default function NewApplication() {
 										<SelectValue placeholder="Select work type" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="Remote">Remote</SelectItem>
-										<SelectItem value="Hybrid">Hybrid</SelectItem>
-										<SelectItem value="On-site">On-site</SelectItem>
+										{WORK_TYPE_OPTIONS.map((type) => (
+											<SelectItem key={type} value={type}>
+												{type}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 								<FieldError errors={[errors.workType]} />
@@ -354,14 +331,11 @@ export default function NewApplication() {
 										<SelectValue placeholder="Select status" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="Applied">Applied</SelectItem>
-										<SelectItem value="Phone Screen">Phone Screen</SelectItem>
-										<SelectItem value="Technical Interview">Technical Interview</SelectItem>
-										<SelectItem value="On-site Interview">On-site Interview</SelectItem>
-										<SelectItem value="Offer">Offer</SelectItem>
-										<SelectItem value="Rejected">Rejected</SelectItem>
-										<SelectItem value="Withdrawn">Withdrawn</SelectItem>
-										<SelectItem value="Other">Other</SelectItem>
+										{APPLICATION_STATUS_OPTIONS.map((status) => (
+											<SelectItem key={status} value={status}>
+												{status}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 								<FieldError errors={[errors.initialStatus]} />

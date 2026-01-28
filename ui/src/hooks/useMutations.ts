@@ -60,7 +60,7 @@ export const useDeleteStatus = (applicationId: string) => {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: async (statusId: string) => {
-			await apiClient.delete(`/statuses/${statusId}`) // I need to implement this endpoint or similar
+			await apiClient.delete(`/statuses/${statusId}`)
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['applications', applicationId] })

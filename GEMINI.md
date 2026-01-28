@@ -1,32 +1,36 @@
 # GEMINI.md
 
 ## Project Overview
+
 **Job Application Tracker** is a comprehensive full-stack application designed to help job seekers manage their applications, interview stages, and history. It consists of a decoupled architecture with a Node.js backend and a React frontend.
 
 ### Architecture & Tech Stack
+
 - **Frontend (`/ui`):**
-    - **Framework:** React 19 with Vite.
-    - **Structure:** Multi-Page Application (MPA) with a static landing page (`index.html`) and a React SPA (`app.html` mounted at `/app`).
-    - **Routing:** `react-router-dom` with a `/app` basename.
-    - **State & Data:** `@tanstack/react-query` for server state, `axios` for API calls.
-    - **Authentication:** `better-auth` React client.
-    - **Styling:** Tailwind CSS, `shadcn/ui` components, and `next-themes` for dark mode support.
+  - **Framework:** React 19 with Vite.
+  - **Structure:** Multi-Page Application (MPA) with a static landing page (`index.html`) and a React SPA (`app.html` mounted at `/app`).
+  - **Routing:** `react-router-dom` with a `/app` basename.
+  - **State & Data:** `@tanstack/react-query` for server state, `axios` for API calls.
+  - **Authentication:** `better-auth` React client.
+  - **Styling:** Tailwind CSS, `shadcn/ui` components, and `next-themes` for dark mode support.
 - **Backend (`/api`):**
-    - **Server:** Express 5.
-    - **Database:** PostgreSQL managed via **Drizzle ORM**.
-    - **Authentication:** `better-auth` Node.js handler with rate limiting.
-    - **Validation:** `zod`.
-    - **Security:** Rate limiting via `express-rate-limit` and `express-slow-down`.
+  - **Server:** Express 5.
+  - **Database:** PostgreSQL managed via **Drizzle ORM**.
+  - **Authentication:** `better-auth` Node.js handler with rate limiting.
+  - **Validation:** `zod`.
+  - **Security:** Rate limiting via `express-rate-limit` and `express-slow-down`.
 
 ---
 
 ## Building and Running
 
 ### Prerequisites
+
 - Node.js (v18+)
 - PostgreSQL instance
 
 ### Backend (`/api`)
+
 1.  **Install dependencies:** `npm install`
 2.  **Environment Variables:** Copy `.env.example` to `.env` and configure:
     - `DATABASE_URL` - PostgreSQL connection string
@@ -41,6 +45,7 @@
 4.  **Run Development Server:** `npm run dev` (starts on http://localhost:4000)
 
 ### Frontend (`/ui`)
+
 1.  **Install dependencies:** `npm install`
 2.  **Environment Variables:** Copy `.env.example` to `.env` and configure:
     - `VITE_API_URL` - API base URL (e.g., `http://localhost:4000/api`)
@@ -56,27 +61,53 @@
 ## Development Conventions
 
 ### Type Safety
+
 - **Express Request Extension:** The `Request` type is extended in `api/src/types/express.d.ts` to include `user` and `session` properties. Avoid using `(req as any)`.
 - **Error Handling:** Use the `getErrorMessage()` utility from `ui/src/lib/error-utils.ts` for consistent error handling in catch blocks.
 - **Safe Storage:** Use `safeLocalStorage` from `ui/src/lib/utils.ts` for localStorage operations to handle cases where storage is unavailable.
 
+### Centralized Constants & Schemas
+
+- **Status Options:** Use `APPLICATION_STATUS_OPTIONS` from `ui/src/constants/index.ts` instead of hardcoding status arrays.
+- **Work Type Options:** Use `WORK_TYPE_OPTIONS` from `ui/src/constants/index.ts` for work type dropdowns.
+- **Form Schemas:** Use shared Zod schemas from `ui/src/lib/schemas.ts` (`applicationSchema`, `newApplicationSchema`) instead of duplicating validation logic.
+
 ### Routing & Navigation
+
 - The app uses a hybrid MPA/SPA approach.
 - Static content belongs in `ui/index.html`.
 - Dynamic application logic belongs in `ui/app.html` and the `ui/src` directory.
 - **Redirection Logic:** Always ensure redirects after login/logout point to either `/app` (dashboard) or `/` (static landing).
 - **404 Handling:** Unknown routes redirect to a Not Found page.
+- **URL State:** Dashboard filters are persisted to URL query params (for bookmarkability) AND localStorage (for preference memory).
+
+### Error Handling & Boundaries
+
+- **ErrorBoundary:** The app is wrapped in `ErrorBoundary` component (`ui/src/components/ErrorBoundary.tsx`) to catch React errors gracefully.
+- **LoadingSpinner:** Use `LoadingSpinner` or `LoadingFallback` from `ui/src/components/LoadingSpinner.tsx` for consistent loading states.
+
+### Rules of Hooks
+
+- **Important:** All React hooks must be called before any conditional returns in components. If you need to redirect based on missing params, call hooks first with fallback values (e.g., `useApplication(id ?? '')`), then do the conditional check.
 
 ### UI & Styling
+
 - **Colors:** Uses `oklch` color variables defined in `ui/src/index.css` to match the brand identity.
-- **Dark Mode:** Supports automatic dark mode via `prefers-color-scheme`. Ensure any new components respect the CSS variables.
+- **Dark Mode:** Full dark mode support via `.dark` class. Variables are defined for both light and dark themes in `index.css`.
 - **Components:** Prefer using existing `shadcn/ui` components located in `ui/src/components/ui`.
+- **Accessibility:** Always add `aria-label` to icon-only buttons.
+
+### Performance
+
+- **React.memo:** Use `React.memo` for list item components that receive stable props (e.g., `ApplicationRow`, `ApplicationCard` in Dashboard).
+- **useCallback:** Wrap event handlers passed to memoized children with `useCallback` to maintain referential equality.
 
 ### Database & API
+
 - **Schema:** Managed in `api/src/db/schema.ts`. Always run `npm run db:generate` after changing the schema.
 - **Better Auth:** Authentication tables are integrated into the Drizzle schema.
 - **API Client:** Use the pre-configured `apiClient` in `ui/src/lib/api-client.ts` which handles `withCredentials` for session cookies.
-- **Rate Limiting:** 
+- **Rate Limiting:**
   - Auth routes: 5 requests/15 min (strict)
   - Create/Update: 20 requests/min
   - Delete: 10 requests/min
@@ -85,7 +116,7 @@
 ---
 
 ## Deployment (Netlify)
+
 - The frontend is optimized for Netlify deployment.
 - A `_redirects` file in `ui/public` handles the `/app/*` rewrites to `app.html` for clean URLs and SPA routing.
 - **Environment Variables:** Set `VITE_API_URL` and `VITE_AUTH_URL` in Netlify build settings for production API endpoints.
-

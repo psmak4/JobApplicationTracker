@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
+import { APPLICATION_STATUS_OPTIONS } from '@/constants'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -41,15 +42,11 @@ export default function ApplicationView() {
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
 
-	// Handle missing id - redirect to dashboard
-	if (!id) {
-		return <Navigate to="/" replace />
-	}
-
-	const { data: application, isLoading, error } = useApplication(id)
+	// All hooks must be called before any conditional returns
+	const { data: application, isLoading, error } = useApplication(id ?? '')
 	const deleteApplicationMutation = useDeleteApplication()
-	const addStatusMutation = useAddStatus(id)
-	const deleteStatusMutation = useDeleteStatus(id)
+	const addStatusMutation = useAddStatus(id ?? '')
+	const deleteStatusMutation = useDeleteStatus(id ?? '')
 
 	const [isNewStatusOpen, setIsNewStatusOpen] = useState(false)
 	const [statusToDelete, setStatusToDelete] = useState<string | null>(null)
@@ -58,6 +55,11 @@ export default function ApplicationView() {
 	// New Status State
 	const [newStatus, setNewStatus] = useState<ApplicationStatus>('Applied')
 	const [newStatusDate, setNewStatusDate] = useState(new Date().toLocaleDateString('en-CA'))
+
+	// Handle missing id - redirect to dashboard (after all hooks)
+	if (!id) {
+		return <Navigate to="/" replace />
+	}
 
 	if (isLoading) return <div className="p-8 text-center">Loading...</div>
 	if (error || !application) return <div className="p-8 text-center text-destructive">Application not found</div>
@@ -107,7 +109,7 @@ export default function ApplicationView() {
 	return (
 		<div className="space-y-6">
 			<div className="flex items-start gap-4">
-				<Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+				<Button variant="ghost" size="icon" onClick={() => navigate('/')} aria-label="Back to dashboard">
 					<ArrowLeft className="h-4 w-4" />
 				</Button>
 				<div>
@@ -258,7 +260,12 @@ export default function ApplicationView() {
 									Update
 								</Button>
 							) : (
-								<Button size="sm" variant="ghost" onClick={() => setIsNewStatusOpen(false)}>
+								<Button
+									size="sm"
+									variant="ghost"
+									onClick={() => setIsNewStatusOpen(false)}
+									aria-label="Close status form"
+								>
 									<X className="h-4 w-4" />
 								</Button>
 							)}
@@ -279,16 +286,11 @@ export default function ApplicationView() {
 													<SelectValue />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="Applied">Applied</SelectItem>
-													<SelectItem value="Phone Screen">Phone Screen</SelectItem>
-													<SelectItem value="Technical Interview">
-														Technical Interview
-													</SelectItem>
-													<SelectItem value="On-site Interview">On-site Interview</SelectItem>
-													<SelectItem value="Offer">Offer</SelectItem>
-													<SelectItem value="Rejected">Rejected</SelectItem>
-													<SelectItem value="Withdrawn">Withdrawn</SelectItem>
-													<SelectItem value="Other">Other</SelectItem>
+													{APPLICATION_STATUS_OPTIONS.map((status) => (
+														<SelectItem key={status} value={status}>
+															{status}
+														</SelectItem>
+													))}
 												</SelectContent>
 											</Select>
 										</div>
@@ -328,9 +330,9 @@ export default function ApplicationView() {
 														size="icon"
 														className="h-6 w-6 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
 														onClick={() => setStatusToDelete(entry.id)}
+														aria-label={`Delete ${entry.status} status`}
 													>
 														<Trash2 className="h-3 w-3" />
-														<span className="sr-only">Delete</span>
 													</Button>
 												)}
 											</div>

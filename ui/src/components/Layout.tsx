@@ -1,7 +1,6 @@
 import { Menu } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Outlet } from 'react-router-dom'
-import { Toaster } from 'sonner'
 import { signOut } from '@/lib/auth-client'
 import { Button } from './ui/button'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
@@ -42,7 +41,7 @@ export default function Layout() {
 							<Sheet open={open} onOpenChange={setOpen}>
 								<SheetTrigger
 									render={
-										<Button size="icon-lg" variant="ghost">
+										<Button size="icon-lg" variant="ghost" aria-label="Open navigation menu">
 											<Menu />
 										</Button>
 									}
@@ -76,7 +75,6 @@ export default function Layout() {
 			<main className="container mx-auto py-6 px-4">
 				<Outlet />
 			</main>
-			<Toaster position="bottom-right" richColors />
 		</div>
 	)
 }

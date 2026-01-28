@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import * as z from 'zod'
+import { WORK_TYPE_OPTIONS } from '@/constants'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from '../components/ui/field'
@@ -14,32 +14,16 @@ import { Textarea } from '../components/ui/textarea'
 import { useApplication } from '../hooks/useApplications'
 import { useUpdateApplication } from '../hooks/useMutations'
 import { getErrorMessage } from '../lib/error-utils'
+import { type ApplicationFormValues, applicationSchema } from '../lib/schemas'
 import type { WorkType } from '../types'
-
-const applicationSchema = z.object({
-	company: z.string().min(1, 'Company name is required'),
-	jobTitle: z.string().min(1, 'Job title is required'),
-	jobDescriptionUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-	salary: z.string().optional(),
-	location: z.string().optional(),
-	workType: z.enum(['Remote', 'Hybrid', 'On-site'] as [string, ...string[]]).optional(),
-	contactInfo: z.string().optional(),
-	notes: z.string().optional(),
-})
-
-type ApplicationFormValues = z.infer<typeof applicationSchema>
 
 export default function ApplicationEdit() {
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
 
-	// Handle missing id - redirect to dashboard
-	if (!id) {
-		return <Navigate to="/" replace />
-	}
-
-	const { data: application, isLoading } = useApplication(id)
-	const updateMutation = useUpdateApplication(id)
+	// All hooks must be called before any conditional returns
+	const { data: application, isLoading } = useApplication(id ?? '')
+	const updateMutation = useUpdateApplication(id ?? '')
 
 	const {
 		register,
@@ -77,6 +61,16 @@ export default function ApplicationEdit() {
 		}
 	}, [application, reset])
 
+	const currentWorkType = useWatch({ control, name: 'workType' })
+
+	// Handle missing id - redirect to dashboard (after all hooks)
+	if (!id) {
+		return <Navigate to="/" replace />
+	}
+
+	if (isLoading) return <div className="p-8 text-center">Loading...</div>
+	if (!application) return <div className="p-8 text-center text-destructive">Application not found</div>
+
 	const onUpdateDetails = async (data: ApplicationFormValues) => {
 		try {
 			await updateMutation.mutateAsync(data)
@@ -87,15 +81,15 @@ export default function ApplicationEdit() {
 		}
 	}
 
-	const currentWorkType = useWatch({ control, name: 'workType' })
-
-	if (isLoading) return <div className="p-8 text-center">Loading...</div>
-	if (!application) return <div className="p-8 text-center text-destructive">Application not found</div>
-
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center gap-4">
-				<Button variant="ghost" size="icon" onClick={() => navigate(`/applications/${id}`)}>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={() => navigate(`/applications/${id}`)}
+					aria-label="Back to application"
+				>
 					<ArrowLeft className="h-4 w-4" />
 				</Button>
 				<div>
@@ -152,9 +146,11 @@ export default function ApplicationEdit() {
 													<SelectValue placeholder="Select work type" />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="Remote">Remote</SelectItem>
-													<SelectItem value="Hybrid">Hybrid</SelectItem>
-													<SelectItem value="On-site">On-site</SelectItem>
+													{WORK_TYPE_OPTIONS.map((type) => (
+														<SelectItem key={type} value={type}>
+															{type}
+														</SelectItem>
+													))}
 												</SelectContent>
 											</Select>
 										</Field>

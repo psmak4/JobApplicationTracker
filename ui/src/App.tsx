@@ -4,7 +4,9 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from 'sonner'
+import ErrorBoundary from './components/ErrorBoundary'
 import Layout from './components/Layout'
+import { LoadingFallback } from './components/LoadingSpinner'
 import { useSession } from './lib/auth-client'
 
 // Lazy load pages
@@ -47,14 +49,6 @@ const localStoragePersister = createAsyncStoragePersister({
 	key: 'job-application-tracker-cache',
 })
 
-function LoadingFallback() {
-	return (
-		<div className="flex items-center justify-center h-screen bg-background text-muted-foreground animate-pulse">
-			Loading...
-		</div>
-	)
-}
-
 function NotFound() {
 	return (
 		<div className="flex flex-col items-center justify-center h-screen bg-background text-center px-4">
@@ -90,31 +84,33 @@ function App() {
 			}}
 		>
 			<BrowserRouter basename="/app">
-				<Suspense fallback={<LoadingFallback />}>
-					<Routes>
-						<Route path="/login" element={<Login />} />
-						<Route path="/signup" element={<Signup />} />
+				<ErrorBoundary>
+					<Suspense fallback={<LoadingFallback />}>
+						<Routes>
+							<Route path="/login" element={<Login />} />
+							<Route path="/signup" element={<Signup />} />
 
-						<Route
-							path="/"
-							element={
-								<ProtectedRoute>
-									<Layout />
-								</ProtectedRoute>
-							}
-						>
-							<Route index element={<Dashboard />} />
-							<Route path="applications/new" element={<NewApplication />} />
-							<Route path="applications/:id" element={<ApplicationView />} />
-							<Route path="applications/:id/edit" element={<ApplicationEdit />} />
-						</Route>
+							<Route
+								path="/"
+								element={
+									<ProtectedRoute>
+										<Layout />
+									</ProtectedRoute>
+								}
+							>
+								<Route index element={<Dashboard />} />
+								<Route path="applications/new" element={<NewApplication />} />
+								<Route path="applications/:id" element={<ApplicationView />} />
+								<Route path="applications/:id/edit" element={<ApplicationEdit />} />
+							</Route>
 
-						{/* Catch-all route for 404 */}
-						<Route path="*" element={<NotFound />} />
-					</Routes>
-				</Suspense>
+							{/* Catch-all route for 404 */}
+							<Route path="*" element={<NotFound />} />
+						</Routes>
+					</Suspense>
+				</ErrorBoundary>
 			</BrowserRouter>
-			<Toaster />
+			<Toaster position="bottom-right" richColors />
 		</PersistQueryClientProvider>
 	)
 }
