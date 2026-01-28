@@ -16,6 +16,7 @@ const ApplicationView = lazy(() => import('./pages/ApplicationView'))
 const ApplicationEdit = lazy(() => import('./pages/ApplicationEdit'))
 const Login = lazy(() => import('./pages/auth/Login'))
 const Signup = lazy(() => import('./pages/auth/Signup'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -71,6 +72,31 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 	return <>{children}</>
 }
 
+function AdminProtectedRoute({ children }: { children: React.ReactNode }) {
+	const { data: session, isPending } = useSession()
+
+	if (isPending) return <LoadingFallback />
+
+	if (!session) return <Navigate to="/login" replace />
+
+	// Check if user has admin role
+	const user = session.user as { role?: string } | undefined
+	if (user?.role !== 'admin') {
+		return (
+			<div className="flex flex-col items-center justify-center h-screen bg-background text-center px-4">
+				<h1 className="text-6xl font-bold text-destructive mb-4">403</h1>
+				<p className="text-xl text-muted-foreground mb-8">Access Denied</p>
+				<p className="text-muted-foreground mb-8">You need admin privileges to access this page.</p>
+				<Link to="/" className="text-primary hover:underline">
+					Go back to Dashboard
+				</Link>
+			</div>
+		)
+	}
+
+	return <>{children}</>
+}
+
 function App() {
 	return (
 		<PersistQueryClientProvider
@@ -102,6 +128,18 @@ function App() {
 								<Route path="applications/new" element={<NewApplication />} />
 								<Route path="applications/:id" element={<ApplicationView />} />
 								<Route path="applications/:id/edit" element={<ApplicationEdit />} />
+							</Route>
+
+							{/* Admin Routes */}
+							<Route
+								path="/admin"
+								element={
+									<AdminProtectedRoute>
+										<Layout />
+									</AdminProtectedRoute>
+								}
+							>
+								<Route index element={<AdminDashboard />} />
 							</Route>
 
 							{/* Catch-all route for 404 */}

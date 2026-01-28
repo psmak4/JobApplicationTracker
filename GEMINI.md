@@ -38,6 +38,7 @@
     - `CORS_ORIGINS` - Comma-separated list of allowed frontend origins
     - `BETTER_AUTH_SECRET` - Secret key for Better Auth
     - `BETTER_AUTH_URL` - API URL for Better Auth
+    - `ADMIN_USER_IDS` - Comma-separated list of user IDs with admin privileges
 3.  **Database Setup:**
     - `npm run db:generate` - Generate migrations.
     - `npm run db:push` - Push schema to DB (or `db:migrate`).
@@ -112,6 +113,24 @@
   - Create/Update: 20 requests/min
   - Delete: 10 requests/min
   - General API: 100 requests/15 min
+
+### Admin Plugin
+
+The application uses Better Auth's Admin plugin for user management:
+
+- **Admin Route:** `/app/admin` - Protected route accessible only to users with `admin` role.
+- **Admin Features:**
+  - **List Users:** View all registered users with pagination and search.
+  - **Ban/Unban Users:** Temporarily or permanently ban users from signing in.
+  - **Role Management:** Assign `admin` or `user` roles to users.
+  - **Impersonation:** Log in as any user to debug issues (shows a banner when active).
+  - **Delete Users:** Permanently remove users and their data.
+- **Setting Up Admins:**
+  1. Sign up and get your user ID from the database (via Drizzle Studio: `npm run db:studio`).
+  2. Add your user ID to `ADMIN_USER_IDS` in the `.env` file.
+  3. Restart the API server.
+  4. Alternatively, use `authClient.admin.setRole()` to promote users programmatically.
+- **Admin Hooks:** Use hooks from `ui/src/hooks/useAdmin.ts` for admin operations.
 
 ---
 

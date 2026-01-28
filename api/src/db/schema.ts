@@ -24,6 +24,11 @@ export const user = pgTable('user', {
 	image: text('image'),
 	createdAt: timestamp('createdAt').notNull(),
 	updatedAt: timestamp('updatedAt').notNull(),
+	// Admin plugin fields
+	role: text('role').default('user'),
+	banned: boolean('banned').default(false),
+	banReason: text('banReason'),
+	banExpires: timestamp('banExpires'),
 })
 
 export const session = pgTable('session', {
@@ -37,6 +42,8 @@ export const session = pgTable('session', {
 	userId: text('userId')
 		.notNull()
 		.references(() => user.id),
+	// Admin plugin field for impersonation
+	impersonatedBy: text('impersonatedBy'),
 })
 
 export const account = pgTable('account', {
