@@ -2,6 +2,7 @@ import { Menu } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 import { signOut } from '@/lib/auth-client'
+import { ThemeToggle } from './ThemeToggle'
 import { Button } from './ui/button'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 
@@ -32,12 +33,16 @@ export default function Layout() {
 									Dashboard
 								</Link>
 							</nav>
-							<Button variant="outline" size="lg" onClick={handleSignOut} className="cursor-pointer">
-								Sign Out
-							</Button>
+							<div className="flex items-center gap-2">
+								<ThemeToggle />
+								<Button variant="outline" size="lg" onClick={handleSignOut} className="cursor-pointer">
+									Sign Out
+								</Button>
+							</div>
 						</div>
 
-						<div className="flex sm:hidden items-center ml-auto">
+						<div className="flex sm:hidden items-center ml-auto gap-2">
+							<ThemeToggle />
 							<Sheet open={open} onOpenChange={setOpen}>
 								<SheetTrigger
 									render={
