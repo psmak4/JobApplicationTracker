@@ -25,7 +25,7 @@ function Header() {
 				<Menu className="h-5 w-5" />
 			</Button>
 			<div className="flex-1 flex justify-center">
-				<span className="font-semibold text-lg">Job Application Tracker</span>
+				<span className="font-bold text-xl text-primary">Job Application Tracker</span>
 			</div>
 			<div className="w-9" /> {/* Spacer to balance the menu button */}
 		</header>
