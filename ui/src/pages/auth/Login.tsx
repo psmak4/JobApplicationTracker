@@ -1,17 +1,23 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import { LoadingFallback } from '@/components/LoadingSpinner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { signIn } from '@/lib/auth-client'
+import { signIn, useSession } from '@/lib/auth-client'
 
 export default function Login() {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
+	const { data: session, isPending } = useSession()
+
+	// Redirect to dashboard if already logged in
+	if (isPending) return <LoadingFallback />
+	if (session) return <Navigate to="/" replace />
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault()

@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import { LoadingFallback } from '@/components/LoadingSpinner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { signUp } from '@/lib/auth-client'
+import { signUp, useSession } from '@/lib/auth-client'
 
 export default function Signup() {
 	const [email, setEmail] = useState('')
@@ -13,6 +14,11 @@ export default function Signup() {
 	const [name, setName] = useState('')
 	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
+	const { data: session, isPending } = useSession()
+
+	// Redirect to dashboard if already logged in
+	if (isPending) return <LoadingFallback />
+	if (session) return <Navigate to="/" replace />
 
 	const handleSignup = async (e: React.FormEvent) => {
 		e.preventDefault()
