@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import express from 'express'
 import { auth } from './auth'
 import { authProtection } from './middleware/rateLimiter'
+import adminRoutes from './routes/admin'
 import applicationRoutes from './routes/applications'
 import parserRoutes from './routes/parser'
 import statusRoutes from './routes/statuses'
@@ -31,6 +32,7 @@ app.use(express.json())
 app.all('/api/auth/*path', ...authProtection, toNodeHandler(auth))
 
 // API Routes
+app.use('/api/admin', adminRoutes)
 app.use('/api/applications', applicationRoutes)
 app.use('/api/statuses', statusRoutes)
 app.use('/api/parser', parserRoutes)

@@ -81,6 +81,12 @@
 - **Redirection Logic:** Always ensure redirects after login/logout point to either `/app` (dashboard) or `/` (static landing).
 - **404 Handling:** Unknown routes redirect to a Not Found page.
 - **URL State:** Dashboard filters are persisted to URL query params (for bookmarkability) AND localStorage (for preference memory).
+- **Auth Routes:**
+  - `/app/login` - User login page
+  - `/app/signup` - User registration page
+  - `/app/forgot-password` - Request password reset email
+  - `/app/reset-password` - Set new password (accessed via email link with token)
+  - `/app/verify-email` - Email verification callback (accessed via email link with token)
 
 ### Error Handling & Boundaries
 
@@ -119,18 +125,22 @@
 The application uses Better Auth's Admin plugin for user management:
 
 - **Admin Route:** `/app/admin` - Protected route accessible only to users with `admin` role.
+- **Admin Layout:** The admin section uses a sidebar navigation (`ui/src/components/AdminLayout.tsx`) that is always visible on desktop and collapsible on mobile. To add new admin pages, update the `adminNavItems` array in `AdminLayout.tsx`.
 - **Admin Features:**
-  - **List Users:** View all registered users with pagination and search.
-  - **Ban/Unban Users:** Temporarily or permanently ban users from signing in.
-  - **Role Management:** Assign `admin` or `user` roles to users.
-  - **Impersonation:** Log in as any user to debug issues (shows a banner when active).
-  - **Delete Users:** Permanently remove users and their data.
+  - **User Management (`/app/admin`):** View, search, ban/unban, and manage roles for all registered users.
+  - **Email Testing (`/app/admin/email`):** Send test emails to your admin email address to preview email templates.
+- **Admin API Endpoints (`api/src/routes/admin.ts`):**
+  - `GET /api/admin/email/templates` - List available email templates.
+  - `POST /api/admin/email/test` - Send a test email (requires `templateType` in body).
+  - All admin endpoints are protected by `requireAdmin` middleware.
 - **Setting Up Admins:**
   1. Sign up and get your user ID from the database (via Drizzle Studio: `npm run db:studio`).
   2. Add your user ID to `ADMIN_USER_IDS` in the `.env` file.
   3. Restart the API server.
   4. Alternatively, use `authClient.admin.setRole()` to promote users programmatically.
-- **Admin Hooks:** Use hooks from `ui/src/hooks/useAdmin.ts` for admin operations.
+- **Admin Hooks:**
+  - Use hooks from `ui/src/hooks/useAdmin.ts` for user management operations.
+  - Use hooks from `ui/src/hooks/useAdminEmail.ts` for email testing operations.
 
 ### User Profile
 

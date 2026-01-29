@@ -4,6 +4,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from 'sonner'
+import AdminLayout from './components/AdminLayout'
 import ErrorBoundary from './components/ErrorBoundary'
 import Layout from './components/Layout'
 import { LoadingFallback } from './components/LoadingSpinner'
@@ -16,7 +17,11 @@ const ApplicationView = lazy(() => import('./pages/ApplicationView'))
 const ApplicationEdit = lazy(() => import('./pages/ApplicationEdit'))
 const Login = lazy(() => import('./pages/auth/Login'))
 const Signup = lazy(() => import('./pages/auth/Signup'))
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'))
+const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'))
+const VerifyEmail = lazy(() => import('./pages/auth/VerifyEmail'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const EmailTesting = lazy(() => import('./pages/admin/EmailTesting'))
 const Profile = lazy(() => import('./pages/Profile'))
 
 const queryClient = new QueryClient({
@@ -116,6 +121,9 @@ function App() {
 						<Routes>
 							<Route path="/login" element={<Login />} />
 							<Route path="/signup" element={<Signup />} />
+							<Route path="/forgot-password" element={<ForgotPassword />} />
+							<Route path="/reset-password" element={<ResetPassword />} />
+							<Route path="/verify-email" element={<VerifyEmail />} />
 
 							<Route
 								path="/"
@@ -132,16 +140,19 @@ function App() {
 								<Route path="applications/:id/edit" element={<ApplicationEdit />} />
 							</Route>
 
-							{/* Admin Routes */}
+							{/* Admin Routes - Uses AdminLayout with sidebar */}
 							<Route
 								path="/admin"
 								element={
 									<AdminProtectedRoute>
-										<Layout />
+										<Layout>
+											<AdminLayout />
+										</Layout>
 									</AdminProtectedRoute>
 								}
 							>
 								<Route index element={<AdminDashboard />} />
+								<Route path="email" element={<EmailTesting />} />
 							</Route>
 
 							{/* Catch-all route for 404 */}

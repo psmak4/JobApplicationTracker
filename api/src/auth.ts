@@ -3,6 +3,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { admin } from 'better-auth/plugins'
 import { db } from './db/index'
 import * as schema from './db/schema'
+import { notificationService } from './services/notifications'
 
 // Parse trusted origins from environment variable, fallback to localhost for development
 const trustedOrigins = process.env.CORS_ORIGINS
@@ -19,6 +20,16 @@ export const auth = betterAuth({
 	}),
 	emailAndPassword: {
 		enabled: true,
+		requireEmailVerification: true, // Enable email verification
+		sendResetPassword: async ({ user, url }) => {
+			await notificationService.sendPasswordReset(user.email, user.name, url)
+		},
+	},
+	emailVerification: {
+		sendVerificationEmail: async ({ user, url }) => {
+			await notificationService.sendVerificationEmail(user.email, user.name, url)
+		},
+		sendOnSignUp: true,
 	},
 	trustedOrigins,
 	plugins: [

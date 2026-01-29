@@ -1,5 +1,5 @@
 import { AlertTriangle, LogOut, Menu, User } from 'lucide-react'
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useStopImpersonating } from '@/hooks/useAdmin'
 import { signOut, useSession } from '@/lib/auth-client'
@@ -14,7 +14,11 @@ import {
 } from './ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
 
-export default function Layout() {
+interface LayoutProps {
+	children?: ReactNode
+}
+
+export default function Layout({ children }: LayoutProps) {
 	const [open, setOpen] = useState(false)
 	const { data: session } = useSession()
 	const stopImpersonating = useStopImpersonating()
@@ -172,9 +176,7 @@ export default function Layout() {
 					</div>
 				</div>
 			</header>
-			<main className="container mx-auto py-6 px-4">
-				<Outlet />
-			</main>
+			<main className={children ? '' : 'container mx-auto py-6 px-4'}>{children ?? <Outlet />}</main>
 		</div>
 	)
 }
