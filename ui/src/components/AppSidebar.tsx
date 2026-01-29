@@ -20,7 +20,6 @@ import {
 	SidebarGroup,
 	SidebarGroupContent,
 	SidebarGroupLabel,
-	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
@@ -100,22 +99,6 @@ export function AppSidebar() {
 
 	return (
 		<Sidebar>
-			<SidebarHeader>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton size="lg" onClick={() => navigate('/')} className="cursor-pointer">
-							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-								<Home className="size-4" />
-							</div>
-							<div className="flex flex-col gap-0.5 leading-none">
-								<span className="font-semibold">Job Tracker</span>
-								<span className="text-xs text-muted-foreground">Track your applications</span>
-							</div>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				</SidebarMenu>
-			</SidebarHeader>
-
 			<SidebarContent>
 				{/* Main Navigation */}
 				<SidebarGroup>

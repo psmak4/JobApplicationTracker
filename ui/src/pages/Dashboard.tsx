@@ -472,7 +472,7 @@ export default function Dashboard() {
 				</div>
 
 				{/* View Toggle */}
-				<div className="flex items-center border rounded-md">
+				<div className="flex items-center border rounded-2xl">
 					<Button
 						variant={viewMode === 'table' ? 'secondary' : 'ghost'}
 						size="sm"

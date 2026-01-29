@@ -1,11 +1,35 @@
+import { Menu } from 'lucide-react'
 import { type ReactNode } from 'react'
 import { Outlet } from 'react-router-dom'
 import { AppSidebar } from './AppSidebar'
 import { ThemeToggle } from './ThemeToggle'
-import { SidebarInset, SidebarProvider, SidebarTrigger } from './ui/sidebar'
+import { Button } from './ui/button'
+import { SidebarInset, SidebarProvider, useSidebar } from './ui/sidebar'
 
 interface LayoutProps {
 	children?: ReactNode
+}
+
+function Header() {
+	const { toggleSidebar } = useSidebar()
+
+	return (
+		<header className="flex h-14 shrink-0 items-center border-b px-4">
+			<Button
+				variant="ghost"
+				size="icon-sm"
+				onClick={toggleSidebar}
+				className="-ml-1"
+				aria-label="Toggle sidebar"
+			>
+				<Menu className="h-5 w-5" />
+			</Button>
+			<div className="flex-1 flex justify-center">
+				<span className="font-semibold text-lg">Job Application Tracker</span>
+			</div>
+			<div className="w-9" /> {/* Spacer to balance the menu button */}
+		</header>
+	)
 }
 
 export default function Layout({ children }: LayoutProps) {
@@ -13,9 +37,7 @@ export default function Layout({ children }: LayoutProps) {
 		<SidebarProvider>
 			<AppSidebar />
 			<SidebarInset>
-				<header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-					<SidebarTrigger className="-ml-1" />
-				</header>
+				<Header />
 				<main className="flex-1 p-4 md:p-6">{children ?? <Outlet />}</main>
 				<footer className="border-t px-4 py-3">
 					<div className="flex items-center justify-between text-sm text-muted-foreground">
