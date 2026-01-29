@@ -5,75 +5,107 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Dracula Theme Color Palette
+ * 
+ * Light Mode (Alucard):
+ *   Background: #FFFBEB
+ *   Foreground: #1F1F1F
+ *   Current Line: #CFCFDE
+ *   Comment: #6C664B
+ *   Primary (Purple): #644AC9
+ *   Pink: #A3144D
+ *   Cyan: #036A96
+ *   Green: #14710A
+ *   Orange: #A34D14
+ *   Red: #CB3A2A
+ *   Yellow: #846E15
+ *
+ * Dark Mode (Dracula Classic):
+ *   Background: #282A36
+ *   Foreground: #F8F8F2
+ *   Current Line: #44475A
+ *   Comment: #6272A4
+ *   Primary (Purple): #BD93F9
+ *   Pink: #FF79C6
+ *   Cyan: #8BE9FD
+ *   Green: #50FA7B
+ *   Orange: #FFB86C
+ *   Red: #FF5555
+ *   Yellow: #F1FA8C
+ */
+
 :root {
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.61 0.11 222);
-	--primary-foreground: oklch(1 0 0);
-	--secondary: oklch(0.967 0.001 286.375);
-	--secondary-foreground: oklch(0.21 0.006 285.885);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.58 0.22 27);
-	--destructive-foreground: oklch(0.985 0 0);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.87 0.12 207);
-	--chart-2: oklch(0.8 0.13 212);
-	--chart-3: oklch(0.71 0.13 215);
-	--chart-4: oklch(0.61 0.11 222);
-	--chart-5: oklch(0.52 0.09 223);
-	--radius: 0.875rem;
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.61 0.11 222);
-	--sidebar-primary-foreground: oklch(1 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
+	/* Alucard Light Theme */
+	--background: #fffbeb;
+	--foreground: #1f1f1f;
+	--card: #fffbeb;
+	--card-foreground: #1f1f1f;
+	--popover: #fffbeb;
+	--popover-foreground: #1f1f1f;
+	--primary: #644ac9;
+	--primary-foreground: #fffbeb;
+	--secondary: #efeddc;
+	--secondary-foreground: #1f1f1f;
+	--muted: #ece9df;
+	--muted-foreground: #6c664b;
+	--accent: #dedccf;
+	--accent-foreground: #1f1f1f;
+	--destructive: #cb3a2a;
+	--destructive-foreground: #fffbeb;
+	--border: #ceccc0;
+	--input: #ceccc0;
+	--ring: #644ac9;
+	--chart-1: #644ac9;
+	--chart-2: #a3144d;
+	--chart-3: #036a96;
+	--chart-4: #14710a;
+	--chart-5: #a34d14;
+	--radius: 0.625rem;
+	--sidebar: #efeddc;
+	--sidebar-foreground: #1f1f1f;
+	--sidebar-primary: #644ac9;
+	--sidebar-primary-foreground: #fffbeb;
+	--sidebar-accent: #dedccf;
+	--sidebar-accent-foreground: #1f1f1f;
+	--sidebar-border: #ceccc0;
+	--sidebar-ring: #644ac9;
 }
 
 .dark {
-	--background: oklch(0.13 0.01 260);
-	--foreground: oklch(0.95 0 0);
-	--card: oklch(0.16 0.01 260);
-	--card-foreground: oklch(0.95 0 0);
-	--popover: oklch(0.16 0.01 260);
-	--popover-foreground: oklch(0.95 0 0);
-	--primary: oklch(0.65 0.13 222);
-	--primary-foreground: oklch(0.13 0 0);
-	--secondary: oklch(0.22 0.01 260);
-	--secondary-foreground: oklch(0.9 0 0);
-	--muted: oklch(0.2 0.01 260);
-	--muted-foreground: oklch(0.65 0 0);
-	--accent: oklch(0.22 0.01 260);
-	--accent-foreground: oklch(0.95 0 0);
-	--destructive: oklch(0.55 0.2 27);
-	--destructive-foreground: oklch(0.95 0 0);
-	--border: oklch(0.25 0.01 260);
-	--input: oklch(0.25 0.01 260);
-	--ring: oklch(0.5 0.08 222);
-	--chart-1: oklch(0.65 0.15 207);
-	--chart-2: oklch(0.6 0.15 212);
-	--chart-3: oklch(0.55 0.14 215);
-	--chart-4: oklch(0.5 0.12 222);
-	--chart-5: oklch(0.45 0.1 223);
-	--sidebar: oklch(0.15 0.01 260);
-	--sidebar-foreground: oklch(0.95 0 0);
-	--sidebar-primary: oklch(0.65 0.13 222);
-	--sidebar-primary-foreground: oklch(0.13 0 0);
-	--sidebar-accent: oklch(0.22 0.01 260);
-	--sidebar-accent-foreground: oklch(0.95 0 0);
-	--sidebar-border: oklch(0.25 0.01 260);
-	--sidebar-ring: oklch(0.5 0.08 222);
+	/* Dracula Classic Dark Theme */
+	--background: #282a36;
+	--foreground: #f8f8f2;
+	--card: #21222c;
+	--card-foreground: #f8f8f2;
+	--popover: #21222c;
+	--popover-foreground: #f8f8f2;
+	--primary: #bd93f9;
+	--primary-foreground: #282a36;
+	--secondary: #44475a;
+	--secondary-foreground: #f8f8f2;
+	--muted: #44475a;
+	--muted-foreground: #6272a4;
+	--accent: #44475a;
+	--accent-foreground: #f8f8f2;
+	--destructive: #ff5555;
+	--destructive-foreground: #282a36;
+	--border: #44475a;
+	--input: #44475a;
+	--ring: #bd93f9;
+	--chart-1: #bd93f9;
+	--chart-2: #ff79c6;
+	--chart-3: #8be9fd;
+	--chart-4: #50fa7b;
+	--chart-5: #ffb86c;
+	--sidebar: #21222c;
+	--sidebar-foreground: #f8f8f2;
+	--sidebar-primary: #bd93f9;
+	--sidebar-primary-foreground: #282a36;
+	--sidebar-accent: #44475a;
+	--sidebar-accent-foreground: #f8f8f2;
+	--sidebar-border: #44475a;
+	--sidebar-ring: #bd93f9;
 }
 
 @theme inline {
@@ -117,6 +149,16 @@
 	--radius-2xl: calc(var(--radius) + 8px);
 	--radius-3xl: calc(var(--radius) + 12px);
 	--radius-4xl: calc(var(--radius) + 16px);
+
+	/* Dracula accent colors for utility classes */
+	--color-dracula-purple: #bd93f9;
+	--color-dracula-pink: #ff79c6;
+	--color-dracula-cyan: #8be9fd;
+	--color-dracula-green: #50fa7b;
+	--color-dracula-orange: #ffb86c;
+	--color-dracula-red: #ff5555;
+	--color-dracula-yellow: #f1fa8c;
+	--color-dracula-comment: #6272a4;
 }
 
 @layer base {

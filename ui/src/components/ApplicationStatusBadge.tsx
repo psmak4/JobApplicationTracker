@@ -8,24 +8,33 @@ interface Props {
 
 type BadgeVariant = 'default' | 'destructive' | 'secondary' | 'outline'
 
+/**
+ * Dracula-themed status colors:
+ * - Cyan (#8BE9FD): Applied, Phone Screen
+ * - Purple (#BD93F9): Technical Interview
+ * - Orange (#FFB86C): On-site Interview
+ * - Green (#50FA7B): Offer
+ * - Red (#FF5555): Rejected
+ * - Comment (#6272A4): Withdrawn, Other
+ */
 const getStatusColor = (status: ApplicationStatus | 'Unknown'): string => {
 	switch (status) {
 		case 'Applied':
-			return 'bg-blue-100 text-blue-800 hover:bg-blue-100/80 border-transparent dark:bg-blue-900/30 dark:text-blue-400'
+			return 'bg-[#8BE9FD]/15 text-[#036A96] hover:bg-[#8BE9FD]/25 border-transparent dark:bg-[#8BE9FD]/20 dark:text-[#8BE9FD]'
 		case 'Phone Screen':
-			return 'bg-indigo-100 text-indigo-800 hover:bg-indigo-100/80 border-transparent dark:bg-indigo-900/30 dark:text-indigo-400'
+			return 'bg-[#8BE9FD]/15 text-[#036A96] hover:bg-[#8BE9FD]/25 border-transparent dark:bg-[#8BE9FD]/20 dark:text-[#8BE9FD]'
 		case 'Technical Interview':
-			return 'bg-purple-100 text-purple-800 hover:bg-purple-100/80 border-transparent dark:bg-purple-900/30 dark:text-purple-400'
+			return 'bg-[#BD93F9]/15 text-[#644AC9] hover:bg-[#BD93F9]/25 border-transparent dark:bg-[#BD93F9]/20 dark:text-[#BD93F9]'
 		case 'On-site Interview':
-			return 'bg-orange-100 text-orange-800 hover:bg-orange-100/80 border-transparent dark:bg-orange-900/30 dark:text-orange-400'
+			return 'bg-[#FFB86C]/15 text-[#A34D14] hover:bg-[#FFB86C]/25 border-transparent dark:bg-[#FFB86C]/20 dark:text-[#FFB86C]'
 		case 'Offer':
-			return 'bg-green-100 text-green-800 hover:bg-green-100/80 border-transparent dark:bg-green-900/30 dark:text-green-400'
+			return 'bg-[#50FA7B]/15 text-[#14710A] hover:bg-[#50FA7B]/25 border-transparent dark:bg-[#50FA7B]/20 dark:text-[#50FA7B]'
 		case 'Rejected':
-			return 'destructive'
+			return 'bg-[#FF5555]/15 text-[#CB3A2A] hover:bg-[#FF5555]/25 border-transparent dark:bg-[#FF5555]/20 dark:text-[#FF5555]'
 		case 'Withdrawn':
-			return 'secondary'
+			return 'bg-[#6272A4]/15 text-[#6C664B] hover:bg-[#6272A4]/25 border-transparent dark:bg-[#6272A4]/20 dark:text-[#6272A4]'
 		case 'Other':
-			return 'bg-slate-100 text-slate-800 hover:bg-slate-100/80 border-transparent dark:bg-slate-900/30 dark:text-slate-400'
+			return 'bg-[#6272A4]/15 text-[#6C664B] hover:bg-[#6272A4]/25 border-transparent dark:bg-[#6272A4]/20 dark:text-[#6272A4]'
 		default:
 			return 'outline'
 	}
