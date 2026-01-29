@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { authClient } from '@/lib/auth-client'
 import { getErrorMessage } from '@/lib/error-utils'
+import { adminQueryKeys } from '@/lib/queryKeys'
 
 export interface AdminUser {
 	id: string
@@ -32,17 +33,14 @@ export interface ListUsersResponse {
 	offset?: number
 }
 
-// Query keys for caching
-export const adminQueryKeys = {
-	users: ['admin', 'users'] as const,
-	usersList: (params: ListUsersParams) => ['admin', 'users', params] as const,
-	userSessions: (userId: string) => ['admin', 'sessions', userId] as const,
-}
-
 // Hook to list all users with pagination and search
 export function useAdminUsers(params: ListUsersParams = {}) {
 	return useQuery({
-		queryKey: adminQueryKeys.usersList(params),
+		queryKey: adminQueryKeys.usersList({
+			limit: params.limit,
+			offset: params.offset,
+			searchValue: params.searchValue,
+		}),
 		queryFn: async (): Promise<ListUsersResponse> => {
 			const { data, error } = await authClient.admin.listUsers({
 				query: {

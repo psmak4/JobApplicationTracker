@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import apiClient from '../lib/api-client'
+import { applicationQueryKeys } from '../lib/queryKeys'
 import type { Application } from '../types'
 
 export const useApplications = () => {
 	return useQuery<Application[]>({
-		queryKey: ['applications'],
+		queryKey: applicationQueryKeys.all,
 		queryFn: async () => {
 			const response = await apiClient.get('/applications')
 			return response.data
@@ -14,7 +15,7 @@ export const useApplications = () => {
 
 export const useApplication = (id: string) => {
 	return useQuery<Application>({
-		queryKey: ['applications', id],
+		queryKey: applicationQueryKeys.detail(id),
 		queryFn: async () => {
 			const response = await apiClient.get(`/applications/${id}`)
 			return response.data
@@ -28,7 +29,7 @@ export const useApplicationPrefetch = () => {
 
 	return (id: string) => {
 		queryClient.prefetchQuery({
-			queryKey: ['applications', id],
+			queryKey: applicationQueryKeys.detail(id),
 			queryFn: async () => {
 				const response = await apiClient.get(`/applications/${id}`)
 				return response.data
@@ -44,7 +45,7 @@ export const useDeleteApplication = () => {
 			await apiClient.delete(`/applications/${id}`)
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['applications'] })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
 		},
 	})
 }

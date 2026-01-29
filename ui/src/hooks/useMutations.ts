@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from '../lib/api-client'
+import { applicationQueryKeys } from '../lib/queryKeys'
 import type { ApplicationStatus } from '../types'
 
 export interface CreateApplicationData {
@@ -23,7 +24,7 @@ export const useCreateApplication = () => {
 			return response.data
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['applications'] })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
 		},
 	})
 }
@@ -36,8 +37,8 @@ export const useUpdateApplication = (id: string) => {
 			return response.data
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['applications'] })
-			queryClient.invalidateQueries({ queryKey: ['applications', id] })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(id) })
 		},
 	})
 }
@@ -50,8 +51,8 @@ export const useAddStatus = (applicationId: string) => {
 			return response.data
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['applications', applicationId] })
-			queryClient.invalidateQueries({ queryKey: ['applications'] })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
 		},
 	})
 }
@@ -63,7 +64,7 @@ export const useDeleteStatus = (applicationId: string) => {
 			await apiClient.delete(`/statuses/${statusId}`)
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['applications', applicationId] })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
 		},
 	})
 }

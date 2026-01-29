@@ -72,6 +72,24 @@
 - **Status Options:** Use `APPLICATION_STATUS_OPTIONS` from `ui/src/constants/index.ts` instead of hardcoding status arrays.
 - **Work Type Options:** Use `WORK_TYPE_OPTIONS` from `ui/src/constants/index.ts` for work type dropdowns.
 - **Form Schemas:** Use shared Zod schemas from `ui/src/lib/schemas.ts` (`applicationSchema`, `newApplicationSchema`) instead of duplicating validation logic.
+- **Query Keys:** Use centralized query key factories from `ui/src/lib/queryKeys.ts` for React Query cache keys:
+  - `applicationQueryKeys.all` - List of all applications
+  - `applicationQueryKeys.detail(id)` - Single application by ID
+  - `adminQueryKeys.users` / `adminQueryKeys.usersList(params)` - Admin user management
+  - `emailQueryKeys.templates` - Email templates
+
+### Component Organization
+
+- **Dashboard Components:** Extracted into `ui/src/components/dashboard/`:
+  - `DashboardToolbar.tsx` - Desktop filter/sort controls
+  - `DashboardMobileFilters.tsx` - Mobile sheet with filters
+  - `ApplicationTable.tsx` - Table view with memoized rows
+  - `ApplicationGrid.tsx` - Card grid view with memoized cards
+- **Shared Components:**
+  - `AuthPageLayout.tsx` - Wrapper for auth pages (Login, Signup, etc.)
+  - `ApplicationFormFields.tsx` - Shared form fields for New/Edit application
+- **Custom Hooks:**
+  - `useDashboardFilters.ts` - Manages filter/sort state with URL sync and localStorage persistence
 
 ### Routing & Navigation
 

@@ -1,21 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft } from 'lucide-react'
 import { useEffect } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { WORK_TYPE_OPTIONS } from '@/constants'
+import { ApplicationFormFields } from '@/components/ApplicationFormFields'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
-import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from '../components/ui/field'
-import { Input } from '../components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
-import { Textarea } from '../components/ui/textarea'
 import { useApplication } from '../hooks/useApplications'
 import { useUpdateApplication } from '../hooks/useMutations'
 import { getErrorMessage } from '../lib/error-utils'
 import { type ApplicationFormValues, applicationSchema } from '../lib/schemas'
-import type { WorkType } from '../types'
 
 export default function ApplicationEdit() {
 	const { id } = useParams<{ id: string }>()
@@ -61,8 +56,6 @@ export default function ApplicationEdit() {
 		}
 	}, [application, reset])
 
-	const currentWorkType = useWatch({ control, name: 'workType' })
-
 	// Handle missing id - redirect to dashboard (after all hooks)
 	if (!id) {
 		return <Navigate to="/" replace />
@@ -106,65 +99,13 @@ export default function ApplicationEdit() {
 					</CardHeader>
 					<CardContent>
 						<form onSubmit={handleSubmit(onUpdateDetails)} className="space-y-6">
-							<FieldSet>
-								<FieldGroup>
-									<Field>
-										<FieldLabel htmlFor="company">Company</FieldLabel>
-										<Input id="company" {...register('company')} />
-										<FieldError errors={[errors.company]} />
-									</Field>
-									<Field>
-										<FieldLabel htmlFor="jobTitle">Job Title</FieldLabel>
-										<Input id="jobTitle" {...register('jobTitle')} />
-										<FieldError errors={[errors.jobTitle]} />
-									</Field>
-									<Field>
-										<FieldLabel htmlFor="jobDescriptionUrl">Job Description URL</FieldLabel>
-										<Input id="jobDescriptionUrl" {...register('jobDescriptionUrl')} />
-										<FieldError errors={[errors.jobDescriptionUrl]} />
-									</Field>
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<Field>
-											<FieldLabel htmlFor="salary">Salary</FieldLabel>
-											<Input id="salary" {...register('salary')} />
-										</Field>
-										<Field>
-											<FieldLabel htmlFor="location">Location</FieldLabel>
-											<Input id="location" {...register('location')} />
-										</Field>
-									</div>
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<Field>
-											<FieldLabel>Work Type</FieldLabel>
-											<Select
-												value={currentWorkType}
-												onValueChange={(value) =>
-													setValue('workType', value as WorkType, { shouldDirty: true })
-												}
-											>
-												<SelectTrigger>
-													<SelectValue placeholder="Select work type" />
-												</SelectTrigger>
-												<SelectContent>
-													{WORK_TYPE_OPTIONS.map((type) => (
-														<SelectItem key={type} value={type}>
-															{type}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</Field>
-										<Field>
-											<FieldLabel htmlFor="contactInfo">Contact Info</FieldLabel>
-											<Input id="contactInfo" {...register('contactInfo')} />
-										</Field>
-									</div>
-									<Field>
-										<FieldLabel htmlFor="notes">Notes</FieldLabel>
-										<Textarea id="notes" className="min-h-37.5" {...register('notes')} />
-									</Field>
-								</FieldGroup>
-							</FieldSet>
+							<ApplicationFormFields
+								register={register}
+								setValue={setValue}
+								control={control}
+								errors={errors}
+								showJobDescriptionUrl={true}
+							/>
 							<div className="flex justify-end space-x-2">
 								<Button type="button" variant="outline" onClick={() => navigate(`/applications/${id}`)}>
 									Cancel

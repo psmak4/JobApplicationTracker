@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
+import { AuthPageLayout } from '@/components/AuthPageLayout'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { authClient } from '@/lib/auth-client'
@@ -19,22 +19,17 @@ export default function ResetPassword() {
 	// If no token, show error state
 	if (!token) {
 		return (
-			<div className="flex items-center justify-center min-h-[80vh] px-4 sm:px-0">
-				<Card className="w-full max-w-md">
-					<CardHeader>
-						<CardTitle className="text-2xl text-destructive">Invalid Reset Link</CardTitle>
-						<CardDescription>This password reset link is invalid or has expired.</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<p className="text-sm text-muted-foreground">Please request a new password reset link.</p>
-					</CardContent>
-					<CardFooter>
-						<Link to="/forgot-password" className="w-full">
-							<Button className="w-full">Request New Link</Button>
-						</Link>
-					</CardFooter>
-				</Card>
-			</div>
+			<AuthPageLayout
+				title="Invalid Reset Link"
+				description="This password reset link is invalid or has expired."
+				footer={
+					<Link to="/forgot-password" className="w-full">
+						<Button className="w-full">Request New Link</Button>
+					</Link>
+				}
+			>
+				<p className="text-sm text-muted-foreground">Please request a new password reset link.</p>
+			</AuthPageLayout>
 		)
 	}
 
@@ -68,53 +63,49 @@ export default function ResetPassword() {
 	}
 
 	return (
-		<div className="flex items-center justify-center min-h-[80vh] px-4 sm:px-0">
-			<form onSubmit={handleSubmit} className="w-full max-w-md">
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-2xl">Reset Password</CardTitle>
-						<CardDescription>Enter your new password below.</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-4">
-						<div className="space-y-2">
-							<Label htmlFor="password">New Password</Label>
-							<Input
-								id="password"
-								type="password"
-								placeholder="Enter new password"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								required
-								minLength={8}
-								autoFocus
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="confirmPassword">Confirm Password</Label>
-							<Input
-								id="confirmPassword"
-								type="password"
-								placeholder="Confirm new password"
-								value={confirmPassword}
-								onChange={(e) => setConfirmPassword(e.target.value)}
-								required
-								minLength={8}
-							/>
-						</div>
-					</CardContent>
-					<CardFooter className="flex flex-col space-y-4">
-						<Button type="submit" className="w-full" disabled={loading}>
-							{loading ? 'Resetting...' : 'Reset Password'}
-						</Button>
-						<p className="text-sm text-center text-muted-foreground">
-							Remember your password?{' '}
-							<Link to="/login" className="text-primary hover:underline">
-								Back to Login
-							</Link>
-						</p>
-					</CardFooter>
-				</Card>
-			</form>
-		</div>
+		<AuthPageLayout
+			title="Reset Password"
+			description="Enter your new password below."
+			onSubmit={handleSubmit}
+			footer={
+				<>
+					<Button type="submit" className="w-full" disabled={loading}>
+						{loading ? 'Resetting...' : 'Reset Password'}
+					</Button>
+					<p className="text-sm text-center text-muted-foreground">
+						Remember your password?{' '}
+						<Link to="/login" className="text-primary hover:underline">
+							Back to Login
+						</Link>
+					</p>
+				</>
+			}
+		>
+			<div className="space-y-2">
+				<Label htmlFor="password">New Password</Label>
+				<Input
+					id="password"
+					type="password"
+					placeholder="Enter new password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					required
+					minLength={8}
+					autoFocus
+				/>
+			</div>
+			<div className="space-y-2">
+				<Label htmlFor="confirmPassword">Confirm Password</Label>
+				<Input
+					id="confirmPassword"
+					type="password"
+					placeholder="Confirm new password"
+					value={confirmPassword}
+					onChange={(e) => setConfirmPassword(e.target.value)}
+					required
+					minLength={8}
+				/>
+			</div>
+		</AuthPageLayout>
 	)
 }

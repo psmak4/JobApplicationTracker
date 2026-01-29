@@ -4,7 +4,8 @@ import { useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { APPLICATION_STATUS_OPTIONS, WORK_TYPE_OPTIONS } from '@/constants'
+import { ApplicationFormFields } from '@/components/ApplicationFormFields'
+import { APPLICATION_STATUS_OPTIONS } from '@/constants'
 import apiClient from '@/lib/api-client'
 import { Button } from '../components/ui/button'
 import {
@@ -18,7 +19,6 @@ import {
 } from '../components/ui/field'
 import { Input } from '../components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
-import { Textarea } from '../components/ui/textarea'
 import { useCreateApplication } from '../hooks/useMutations'
 import { getErrorMessage, isAxiosError, isRateLimitError } from '../lib/error-utils'
 import { type NewApplicationFormValues, newApplicationSchema } from '../lib/schemas'
@@ -64,6 +64,7 @@ export default function NewApplication() {
 	})
 
 	const jobDescriptionUrl = watch('jobDescriptionUrl')
+	const currentStatus = useWatch({ control, name: 'initialStatus' })
 
 	const handleCancelParse = () => {
 		if (abortControllerRef.current) {
@@ -181,8 +182,68 @@ export default function NewApplication() {
 		}
 	}
 
-	const currentStatus = useWatch({ control, name: 'initialStatus' })
-	const currentWorkType = useWatch({ control, name: 'workType' })
+	// Custom URL field with auto-fill button
+	const urlFieldContent = (
+		<>
+			<Field>
+				<FieldLabel htmlFor="jobDescriptionUrl">URL</FieldLabel>
+				<div className="flex gap-2">
+					<Input
+						id="jobDescriptionUrl"
+						placeholder="https://linkedin.com/jobs/..."
+						{...register('jobDescriptionUrl')}
+						className="flex-1"
+						disabled={isParsing}
+					/>
+					{isParsing ? (
+						<>
+							<Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+							<Button
+								type="button"
+								onClick={handleCancelParse}
+								variant="destructive"
+								size="sm"
+								className="shrink-0"
+							>
+								<X className="h-4 w-4 mr-1" />
+								Cancel
+							</Button>
+						</>
+					) : (
+						<Button
+							type="button"
+							onClick={handleParseJob}
+							disabled={!jobDescriptionUrl}
+							variant="secondary"
+							className="shrink-0"
+						>
+							<Sparkles className="h-4 w-4 mr-2" />
+							Auto-fill
+						</Button>
+					)}
+				</div>
+				<FieldDescription>
+					Paste a job posting URL from LinkedIn, Indeed, or other supported sites to auto-fill details.
+				</FieldDescription>
+				<FieldError errors={[errors.jobDescriptionUrl]} />
+			</Field>
+			{parsedData && (
+				<div className="p-4 bg-muted/50 rounded-lg border">
+					<p className="text-sm font-medium mb-2">
+						Auto-filled from {parsedData.confidence === 'high' ? '✓' : '⚠️'} {parsedData.confidence}{' '}
+						confidence
+					</p>
+					<ul className="text-sm text-muted-foreground space-y-1">
+						{parsedData.company && <li>• Company: {parsedData.company}</li>}
+						{parsedData.jobTitle && <li>• Job Title: {parsedData.jobTitle}</li>}
+						{parsedData.location && <li>• Location: {parsedData.location}</li>}
+						{parsedData.salary && <li>• Salary: {parsedData.salary}</li>}
+						{parsedData.workType && <li>• Work Type: {parsedData.workType}</li>}
+					</ul>
+				</div>
+			)}
+		</>
+	)
 
 	return (
 		<div className="max-w-2xl mx-auto">
@@ -192,131 +253,22 @@ export default function NewApplication() {
 			</div>
 
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+				{/* Custom Job URL section with auto-fill */}
 				<FieldSet>
 					<FieldLegend>Job Description URL</FieldLegend>
-					<FieldGroup>
-						<Field>
-							<FieldLabel htmlFor="jobDescriptionUrl">URL</FieldLabel>
-							<div className="flex gap-2">
-								<Input
-									id="jobDescriptionUrl"
-									placeholder="https://linkedin.com/jobs/..."
-									{...register('jobDescriptionUrl')}
-									className="flex-1"
-									disabled={isParsing}
-								/>
-								{isParsing ? (
-									<>
-										<Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-										<Button
-											type="button"
-											onClick={handleCancelParse}
-											variant="destructive"
-											size="sm"
-											className="shrink-0"
-										>
-											<X className="h-4 w-4 mr-1" />
-											Cancel
-										</Button>
-									</>
-								) : (
-									<Button
-										type="button"
-										onClick={handleParseJob}
-										disabled={!jobDescriptionUrl}
-										variant="secondary"
-										className="shrink-0"
-									>
-										<Sparkles className="h-4 w-4 mr-2" />
-										Auto-fill
-									</Button>
-								)}
-							</div>
-							<FieldDescription>
-								Paste a job posting URL from LinkedIn, Indeed, or other supported sites to auto-fill
-								details.
-							</FieldDescription>
-							<FieldError errors={[errors.jobDescriptionUrl]} />
-						</Field>
-						{parsedData && (
-							<div className="p-4 bg-muted/50 rounded-lg border">
-								<p className="text-sm font-medium mb-2">
-									Auto-filled from {parsedData.confidence === 'high' ? '✓' : '⚠️'}{' '}
-									{parsedData.confidence} confidence
-								</p>
-								<ul className="text-sm text-muted-foreground space-y-1">
-									{parsedData.company && <li>• Company: {parsedData.company}</li>}
-									{parsedData.jobTitle && <li>• Job Title: {parsedData.jobTitle}</li>}
-									{parsedData.location && <li>• Location: {parsedData.location}</li>}
-									{parsedData.salary && <li>• Salary: {parsedData.salary}</li>}
-									{parsedData.workType && <li>• Work Type: {parsedData.workType}</li>}
-								</ul>
-							</div>
-						)}
-					</FieldGroup>
+					<FieldGroup>{urlFieldContent}</FieldGroup>
 				</FieldSet>
 
-				<FieldSet>
-					<FieldLegend>Basic Information</FieldLegend>
-					<FieldGroup>
-						<Field>
-							<FieldLabel htmlFor="company">Company</FieldLabel>
-							<Input id="company" placeholder="Acme Inc." {...register('company')} />
-							<FieldError errors={[errors.company]} />
-						</Field>
+				{/* Shared form fields (without URL since we handle it custom) */}
+				<ApplicationFormFields
+					register={register}
+					setValue={setValue}
+					control={control}
+					errors={errors}
+					showJobDescriptionUrl={false}
+				/>
 
-						<Field>
-							<FieldLabel htmlFor="jobTitle">Job Title</FieldLabel>
-							<Input id="jobTitle" placeholder="Software Engineer" {...register('jobTitle')} />
-							<FieldError errors={[errors.jobTitle]} />
-						</Field>
-
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Field>
-								<FieldLabel htmlFor="salary">Salary / Compensation</FieldLabel>
-								<Input id="salary" placeholder="$120k - $150k" {...register('salary')} />
-								<FieldError errors={[errors.salary]} />
-							</Field>
-							<Field>
-								<FieldLabel htmlFor="location">Location (City, State)</FieldLabel>
-								<Input id="location" placeholder="San Francisco, CA" {...register('location')} />
-								<FieldError errors={[errors.location]} />
-							</Field>
-						</div>
-
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Field>
-								<FieldLabel>Work Type</FieldLabel>
-								<Select
-									onValueChange={(value) => setValue('workType', value as WorkType)}
-									value={currentWorkType}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Select work type" />
-									</SelectTrigger>
-									<SelectContent>
-										{WORK_TYPE_OPTIONS.map((type) => (
-											<SelectItem key={type} value={type}>
-												{type}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<FieldError errors={[errors.workType]} />
-							</Field>
-							<Field>
-								<FieldLabel htmlFor="contactInfo">Contact Info</FieldLabel>
-								<Input
-									id="contactInfo"
-									placeholder="Recruiter Name / Email"
-									{...register('contactInfo')}
-								/>
-								<FieldError errors={[errors.contactInfo]} />
-							</Field>
-						</div>
-					</FieldGroup>
-				</FieldSet>
-
+				{/* Status section (only for new applications) */}
 				<FieldSet>
 					<FieldLegend>Status</FieldLegend>
 					<FieldGroup>
@@ -348,13 +300,6 @@ export default function NewApplication() {
 							</Field>
 						</div>
 					</FieldGroup>
-				</FieldSet>
-
-				<FieldSet>
-					<FieldLegend>Notes</FieldLegend>
-					<Field>
-						<Textarea placeholder="Any additional notes..." className="min-h-25" {...register('notes')} />
-					</Field>
 				</FieldSet>
 
 				<div className="flex justify-end space-x-4">
