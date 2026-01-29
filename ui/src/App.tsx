@@ -160,7 +160,7 @@ function App() {
 				</ErrorBoundary>
 			</BrowserRouter>
 			<Toaster position="bottom-right" richColors />
-			<ReactQueryDevtools initialIsOpen={false} />
+			<ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
 		</PersistQueryClientProvider>
 	)
 }

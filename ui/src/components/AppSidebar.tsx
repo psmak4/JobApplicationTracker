@@ -219,8 +219,8 @@ export function AppSidebar() {
 							/>
 							<DropdownMenuContent
 								className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-								side="top"
-								align="end"
+								side="right"
+								align="start"
 								sideOffset={4}
 							>
 								<DropdownMenuItem onClick={() => navigate('/profile')}>
