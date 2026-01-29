@@ -1,191 +1,32 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { AlertTriangle, LogOut, Menu, User } from 'lucide-react'
-import { type ReactNode, useState } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
-import { useStopImpersonating } from '@/hooks/useAdmin'
-import { signOut, useSession } from '@/lib/auth-client'
-import { safeLocalStorage } from '@/lib/utils'
+import { type ReactNode } from 'react'
+import { Outlet } from 'react-router-dom'
+import { AppSidebar } from './AppSidebar'
 import { ThemeToggle } from './ThemeToggle'
-import { Button } from './ui/button'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from './ui/dropdown-menu'
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
+import { SidebarInset, SidebarProvider, SidebarTrigger } from './ui/sidebar'
 
 interface LayoutProps {
 	children?: ReactNode
 }
 
 export default function Layout({ children }: LayoutProps) {
-	const [open, setOpen] = useState(false)
-	const { data: session } = useSession()
-	const stopImpersonating = useStopImpersonating()
-	const navigate = useNavigate()
-	const queryClient = useQueryClient()
-
-	// Check if user is admin
-	const user = session?.user as { role?: string; name?: string; email?: string } | undefined
-	const isAdmin = user?.role === 'admin'
-
-	// Check if currently impersonating (session has impersonatedBy field)
-	const sessionData = session?.session as { impersonatedBy?: string } | undefined
-	const isImpersonating = !!sessionData?.impersonatedBy
-
-	const handleSignOut = async () => {
-		// Clear React Query cache to prevent stale data from previous user
-		queryClient.clear()
-
-		// Clear persisted localStorage cache
-		safeLocalStorage.removeItem('job-application-tracker-cache')
-
-		await signOut({
-			fetchOptions: {
-				onSuccess: () => {
-					window.location.href = '/'
-				},
-			},
-		})
-	}
-
-	const handleStopImpersonating = async () => {
-		await stopImpersonating.mutateAsync()
-	}
-
 	return (
-		<div className="min-h-screen bg-background font-sans antialiased">
-			{/* Impersonation Banner */}
-			{isImpersonating && (
-				<div className="bg-amber-500 text-amber-950 px-4 py-2 text-center text-sm font-medium flex items-center justify-center gap-2">
-					<AlertTriangle className="h-4 w-4" />
-					<span>You are currently impersonating {user?.name ?? 'a user'}</span>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={handleStopImpersonating}
-						className="ml-2 bg-amber-100 border-amber-300 hover:bg-amber-200 text-amber-900"
-					>
-						Stop Impersonating
-					</Button>
-				</div>
-			)}
-
-			<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-				<div className="container mx-auto px-4">
-					<div className="flex h-16 items-center gap-8">
-						<Link to="/" className="text-xl sm:text-2xl font-extrabold text-primary">
-							Job Application Tracker
-						</Link>
-						<div className="hidden sm:flex grow items-center justify-between">
-							<nav className="flex items-center gap-4 text-base font-medium mr-auto">
-								<Link to="/" className="text-muted-foreground transition-colors hover:text-primary">
-									Dashboard
-								</Link>
-								{isAdmin && (
-									<Link
-										to="/admin"
-										className="text-muted-foreground transition-colors hover:text-primary flex items-center gap-1"
-									>
-										Admin
-									</Link>
-								)}
-							</nav>
-							<div className="flex items-center gap-2">
-								<ThemeToggle />
-								{/* User Dropdown */}
-								<DropdownMenu>
-									<DropdownMenuTrigger
-										render={
-											<Button variant="outline" size="lg" className="gap-2">
-												<User className="h-4 w-4" />
-												<span className="max-w-32 truncate">{user?.name ?? 'Account'}</span>
-											</Button>
-										}
-									/>
-									<DropdownMenuContent align="end">
-										<div className="px-3 py-2">
-											<p className="text-sm font-medium">{user?.name}</p>
-											<p className="text-xs text-muted-foreground">{user?.email}</p>
-										</div>
-										<DropdownMenuSeparator />
-										<DropdownMenuItem onClick={() => navigate('/profile')}>
-											<User className="h-4 w-4 mr-2" />
-											Profile Settings
-										</DropdownMenuItem>
-										<DropdownMenuSeparator />
-										<DropdownMenuItem onClick={handleSignOut}>
-											<LogOut className="h-4 w-4 mr-2" />
-											Sign Out
-										</DropdownMenuItem>
-									</DropdownMenuContent>
-								</DropdownMenu>
-							</div>
-						</div>
-
-						<div className="flex sm:hidden items-center ml-auto gap-2">
+		<SidebarProvider>
+			<AppSidebar />
+			<SidebarInset>
+				<header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+					<SidebarTrigger className="-ml-1" />
+				</header>
+				<main className="flex-1 p-4 md:p-6">{children ?? <Outlet />}</main>
+				<footer className="border-t px-4 py-3">
+					<div className="flex items-center justify-between text-sm text-muted-foreground">
+						<span>© {new Date().getFullYear()} Job Application Tracker</span>
+						<div className="flex items-center gap-2">
+							<span className="text-xs">Theme</span>
 							<ThemeToggle />
-							<Sheet open={open} onOpenChange={setOpen}>
-								<SheetTrigger
-									render={
-										<Button size="icon-lg" variant="ghost" aria-label="Open navigation menu">
-											<Menu />
-										</Button>
-									}
-								/>
-								<SheetContent>
-									<div className="flex flex-col gap-4 mt-14">
-										{/* User info */}
-										<div className="px-4 py-2 border-b border-border">
-											<p className="font-medium">{user?.name}</p>
-											<p className="text-sm text-muted-foreground">{user?.email}</p>
-										</div>
-
-										<nav className="flex flex-col text-base font-medium border-b">
-											<Link
-												to="/"
-												onClick={() => setOpen(false)}
-												className="p-4 text-muted-foreground transition-colors hover:text-primary font-normal hover:bg-muted"
-											>
-												Dashboard
-											</Link>
-											<Link
-												to="/profile"
-												onClick={() => setOpen(false)}
-												className="p-4 text-muted-foreground transition-colors hover:text-primary font-normal hover:bg-muted flex items-center gap-2"
-											>
-												<User className="h-4 w-4" />
-												Profile Settings
-											</Link>
-											{isAdmin && (
-												<Link
-													to="/admin"
-													onClick={() => setOpen(false)}
-													className="p-4 text-muted-foreground transition-colors hover:text-primary font-normal hover:bg-muted flex items-center gap-2"
-												>
-													Admin
-												</Link>
-											)}
-										</nav>
-										<Button
-											variant="outline"
-											size="lg"
-											onClick={handleSignOut}
-											className="cursor-pointer mx-4"
-										>
-											<LogOut className="h-4 w-4 mr-2" />
-											Sign Out
-										</Button>
-									</div>
-								</SheetContent>
-							</Sheet>
 						</div>
 					</div>
-				</div>
-			</header>
-			<main className={children ? '' : 'container mx-auto py-6 px-4'}>{children ?? <Outlet />}</main>
-		</div>
+				</footer>
+			</SidebarInset>
+		</SidebarProvider>
 	)
 }

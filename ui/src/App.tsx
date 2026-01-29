@@ -5,7 +5,6 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from 'sonner'
-import AdminLayout from './components/AdminLayout'
 import ErrorBoundary from './components/ErrorBoundary'
 import Layout from './components/Layout'
 import { LoadingFallback } from './components/LoadingSpinner'
@@ -135,20 +134,18 @@ function App() {
 								}
 							>
 								<Route index element={<Dashboard />} />
+								<Route path="new" element={<NewApplication />} />
 								<Route path="profile" element={<Profile />} />
-								<Route path="applications/new" element={<NewApplication />} />
 								<Route path="applications/:id" element={<ApplicationView />} />
 								<Route path="applications/:id/edit" element={<ApplicationEdit />} />
 							</Route>
 
-							{/* Admin Routes - Uses AdminLayout with sidebar */}
+							{/* Admin Routes - Uses main layout with sidebar */}
 							<Route
 								path="/admin"
 								element={
 									<AdminProtectedRoute>
-										<Layout>
-											<AdminLayout />
-										</Layout>
+										<Layout />
 									</AdminProtectedRoute>
 								}
 							>

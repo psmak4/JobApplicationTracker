@@ -75,9 +75,14 @@
 
 ### Routing & Navigation
 
-- The app uses a hybrid MPA/SPA approach.
+- The app uses a hybrid MPA/SPA approach with a **sidebar navigation** using ShadCN's Sidebar component.
 - Static content belongs in `ui/index.html`.
 - Dynamic application logic belongs in `ui/app.html` and the `ui/src` directory.
+- **Sidebar Navigation:** The main app uses `AppSidebar.tsx` which includes:
+  - Dashboard (`/app`)
+  - New Application (`/app/new`)
+  - Admin section (collapsible, admin-only): Users (`/app/admin`), Email Testing (`/app/admin/email`)
+  - User footer with profile link and sign out
 - **Redirection Logic:** Always ensure redirects after login/logout point to either `/app` (dashboard) or `/` (static landing).
 - **404 Handling:** Unknown routes redirect to a Not Found page.
 - **URL State:** Dashboard filters are persisted to URL query params (for bookmarkability) AND localStorage (for preference memory).

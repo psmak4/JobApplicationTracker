@@ -40,10 +40,16 @@ export const apiLimiter = rateLimit({
 })
 
 // Stricter rate limiter for authentication endpoints
+// Only applies to mutation endpoints (login, signup, password reset)
 export const authLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 5, // Limit each IP to 5 login/signup attempts per windowMs
 	skipSuccessfulRequests: true, // Don't count successful auth attempts
+	// Skip read-only auth endpoints that don't need brute-force protection
+	skip: (req) => {
+		const readOnlyPaths = ['/api/auth/get-session', '/api/auth/session', '/api/auth/csrf']
+		return readOnlyPaths.some((path) => req.path.startsWith(path))
+	},
 	message: {
 		error: 'Too many authentication attempts',
 		message: 'You have exceeded the maximum number of login attempts. Please try again in 15 minutes.',
@@ -146,14 +152,21 @@ export const apiSpeedLimiter = slowDown({
 })
 
 // Speed limiter for authentication endpoints
+// Only apply to mutation endpoints (login, signup, password reset)
+// Skip read-only endpoints like get-session that are called frequently
 export const authSpeedLimiter = slowDown({
 	windowMs: 15 * 60 * 1000, // 15 minutes
-	delayAfter: 3, // Allow 3 requests at full speed
+	delayAfter: 5, // Allow 5 requests at full speed (was 3)
 	delayMs: (hits) => {
-		// Progressive delay: 500ms, 1000ms, 1500ms, etc.
-		return (hits - 3) * 500
+		// Progressive delay: 300ms, 600ms, 900ms, etc. (was 500ms increments)
+		return (hits - 5) * 300
 	},
-	maxDelayMs: 10000, // Maximum delay of 10 seconds
+	maxDelayMs: 5000, // Maximum delay of 5 seconds (was 10)
+	// Skip read-only auth endpoints that don't need brute-force protection
+	skip: (req) => {
+		const readOnlyPaths = ['/api/auth/get-session', '/api/auth/session', '/api/auth/csrf']
+		return readOnlyPaths.some((path) => req.path.startsWith(path))
+	},
 })
 
 // Speed limiter for create/update operations
