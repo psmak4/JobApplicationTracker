@@ -1,5 +1,6 @@
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
@@ -162,6 +163,7 @@ function App() {
 				</ErrorBoundary>
 			</BrowserRouter>
 			<Toaster position="bottom-right" richColors />
+			<ReactQueryDevtools initialIsOpen={false} />
 		</PersistQueryClientProvider>
 	)
 }
