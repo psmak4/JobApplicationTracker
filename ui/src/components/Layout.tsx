@@ -1,8 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { AlertTriangle, LogOut, Menu, User } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useStopImpersonating } from '@/hooks/useAdmin'
 import { signOut, useSession } from '@/lib/auth-client'
+import { safeLocalStorage } from '@/lib/utils'
 import { ThemeToggle } from './ThemeToggle'
 import { Button } from './ui/button'
 import {
@@ -23,6 +25,7 @@ export default function Layout({ children }: LayoutProps) {
 	const { data: session } = useSession()
 	const stopImpersonating = useStopImpersonating()
 	const navigate = useNavigate()
+	const queryClient = useQueryClient()
 
 	// Check if user is admin
 	const user = session?.user as { role?: string; name?: string; email?: string } | undefined
@@ -33,6 +36,12 @@ export default function Layout({ children }: LayoutProps) {
 	const isImpersonating = !!sessionData?.impersonatedBy
 
 	const handleSignOut = async () => {
+		// Clear React Query cache to prevent stale data from previous user
+		queryClient.clear()
+
+		// Clear persisted localStorage cache
+		safeLocalStorage.removeItem('job-application-tracker-cache')
+
 		await signOut({
 			fetchOptions: {
 				onSuccess: () => {

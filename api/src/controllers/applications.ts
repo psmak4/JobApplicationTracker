@@ -96,7 +96,9 @@ export const applicationController = {
 			}
 
 			const { status, date, ...appData } = validation.data
-			const statusDate = date ? new Date(date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+			const statusDate = date
+				? new Date(date).toISOString().split('T')[0]
+				: new Date().toISOString().split('T')[0]
 
 			// Transaction to create app and initial status
 			const result = await db.transaction(async (tx) => {
@@ -171,7 +173,9 @@ export const applicationController = {
 					.limit(1)
 
 				if (!latestStatus || latestStatus.status !== status) {
-					const statusDate = date ? new Date(date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+					const statusDate = date
+						? new Date(date).toISOString().split('T')[0]
+						: new Date().toISOString().split('T')[0]
 
 					await db.insert(statusHistory).values({
 						applicationId: applicationId,
