@@ -1,19 +1,23 @@
-import { and, desc, eq, inArray } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import { Request, Response } from 'express'
 import { z } from 'zod'
 import { db } from '../db/index'
 import { applicationStatusEnum, applications, statusHistory } from '../db/schema'
+import { errorResponse, successResponse } from '../utils/responses'
 
-// Zod schemas for validation
+// Helper to get request ID from request object
+const getRequestId = (req: Request): string => req.requestId || 'unknown'
+
+// Zod schemas for validation with input sanitization (trim whitespace)
 const createApplicationSchema = z.object({
-	company: z.string().min(1, 'Company name is required'),
-	jobTitle: z.string().min(1, 'Job title is required'),
+	company: z.string().min(1, 'Company name is required').transform((v) => v.trim()),
+	jobTitle: z.string().min(1, 'Job title is required').transform((v) => v.trim()),
 	jobDescriptionUrl: z.string().url().optional().or(z.literal('')),
-	salary: z.string().optional(),
-	location: z.string().optional(),
+	salary: z.string().optional().transform((v) => (v ? v.trim() : v)),
+	location: z.string().optional().transform((v) => (v ? v.trim() : v)),
 	workType: z.enum(['Remote', 'Hybrid', 'On-site']).optional(),
-	contactInfo: z.string().optional(),
-	notes: z.string().optional(),
+	contactInfo: z.string().optional().transform((v) => (v ? v.trim() : v)),
+	notes: z.string().optional().transform((v) => (v ? v.trim() : v)),
 	status: z.enum(applicationStatusEnum.enumValues).default('Applied'), // Initial status
 	date: z.string().optional(),
 })
@@ -22,41 +26,33 @@ const updateApplicationSchema = createApplicationSchema.partial()
 
 export const applicationController = {
 	// Get all applications for the logged-in user
+	// Uses Drizzle relational queries to avoid N+1 problem
 	getAll: async (req: Request, res: Response) => {
 		try {
 			const userId = req.user!.id
 
-			const userApplications = await db
-				.select()
-				.from(applications)
-				.where(eq(applications.userId, userId))
-				.orderBy(desc(applications.updatedAt))
+			// Use relational query to fetch applications with their status history in one query
+			const userApplications = await db.query.applications.findMany({
+				where: eq(applications.userId, userId),
+				with: {
+					statusHistory: {
+						orderBy: [desc(statusHistory.date)],
+					},
+				},
+				orderBy: [desc(applications.updatedAt)],
+			})
 
-			if (userApplications.length === 0) {
-				res.json([])
-				return
-			}
-
-			const appIds = userApplications.map((app) => app.id)
-			const allHistories = await db
-				.select()
-				.from(statusHistory)
-				.where(inArray(statusHistory.applicationId, appIds))
-				.orderBy(desc(statusHistory.date))
-
-			const appsWithHistory = userApplications.map((app) => ({
-				...app,
-				statusHistory: allHistories.filter((h) => h.applicationId === app.id),
-			}))
-
-			res.json(appsWithHistory)
+			res.json(successResponse(userApplications, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching applications:', error)
-			res.status(500).json({ message: 'Failed to fetch applications' })
+			res.status(500).json(
+				errorResponse('INTERNAL_ERROR', 'Failed to fetch applications', getRequestId(req)),
+			)
 		}
 	},
 
 	// Get a single application details (including history)
+	// Uses Drizzle relational queries to fetch application and status history in one query
 	getOne: async (req: Request, res: Response) => {
 		try {
 			const userId = req.user!.id
@@ -64,23 +60,26 @@ export const applicationController = {
 
 			const application = await db.query.applications.findFirst({
 				where: and(eq(applications.id, applicationId), eq(applications.userId, userId)),
+				with: {
+					statusHistory: {
+						orderBy: [desc(statusHistory.date)],
+					},
+				},
 			})
 
 			if (!application) {
-				res.status(404).json({ message: 'Application not found' })
+				res.status(404).json(
+					errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)),
+				)
 				return
 			}
 
-			const statusHistoryList = await db
-				.select()
-				.from(statusHistory)
-				.where(eq(statusHistory.applicationId, applicationId))
-				.orderBy(desc(statusHistory.date))
-
-			res.json({ ...application, statusHistory: statusHistoryList })
+			res.json(successResponse(application, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching application:', error)
-			res.status(500).json({ message: 'Failed to fetch application' })
+			res.status(500).json(
+				errorResponse('INTERNAL_ERROR', 'Failed to fetch application', getRequestId(req)),
+			)
 		}
 	},
 
@@ -91,8 +90,8 @@ export const applicationController = {
 			const validation = createApplicationSchema.safeParse(req.body)
 
 			if (!validation.success) {
-				res.status(400).json({ errors: validation.error.format() })
-				return
+				// Let the error handler middleware handle Zod errors for consistent formatting
+				throw validation.error
 			}
 
 			const { status, date, ...appData } = validation.data
@@ -122,10 +121,12 @@ export const applicationController = {
 				return { ...newApp, currentStatus: initialStatus }
 			})
 
-			res.status(201).json(result)
+			res.status(201).json(successResponse(result, getRequestId(req)))
 		} catch (error) {
 			console.error('Error creating application:', error)
-			res.status(500).json({ message: 'Failed to create application' })
+			res.status(500).json(
+				errorResponse('INTERNAL_ERROR', 'Failed to create application', getRequestId(req)),
+			)
 		}
 	},
 
@@ -137,8 +138,8 @@ export const applicationController = {
 			const validation = updateApplicationSchema.safeParse(req.body)
 
 			if (!validation.success) {
-				res.status(400).json({ errors: validation.error.format() })
-				return
+				// Let the error handler middleware handle Zod errors for consistent formatting
+				throw validation.error
 			}
 
 			// Ensure user owns the application
@@ -147,7 +148,9 @@ export const applicationController = {
 			})
 
 			if (!existingApp) {
-				res.status(404).json({ message: 'Application not found' })
+				res.status(404).json(
+					errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)),
+				)
 				return
 			}
 
@@ -185,10 +188,12 @@ export const applicationController = {
 				}
 			}
 
-			res.json(updatedApp)
+			res.json(successResponse(updatedApp, getRequestId(req)))
 		} catch (error) {
 			console.error('Error updating application:', error)
-			res.status(500).json({ message: 'Failed to update application' })
+			res.status(500).json(
+				errorResponse('INTERNAL_ERROR', 'Failed to update application', getRequestId(req)),
+			)
 		}
 	},
 
@@ -204,14 +209,23 @@ export const applicationController = {
 				.returning()
 
 			if (!deleted) {
-				res.status(404).json({ message: 'Application not found' })
+				res.status(404).json(
+					errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)),
+				)
 				return
 			}
 
-			res.json({ message: 'Application deleted successfully' })
+			res.json(
+				successResponse(
+					{ message: 'Application deleted successfully' },
+					getRequestId(req),
+				),
+			)
 		} catch (error) {
 			console.error('Error deleting application:', error)
-			res.status(500).json({ message: 'Failed to delete application' })
+			res.status(500).json(
+				errorResponse('INTERNAL_ERROR', 'Failed to delete application', getRequestId(req)),
+			)
 		}
 	},
 }

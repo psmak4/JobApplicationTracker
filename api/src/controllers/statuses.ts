@@ -3,6 +3,10 @@ import { Request, Response } from 'express'
 import { z } from 'zod'
 import { db } from '../db/index'
 import { applicationStatusEnum, applications, statusHistory } from '../db/schema'
+import { errorResponse, successResponse } from '../utils/responses'
+
+// Helper to get request ID from request object
+const getRequestId = (req: Request): string => req.requestId || 'unknown'
 
 const createStatusSchema = z.object({
 	status: z.enum(applicationStatusEnum.enumValues),
@@ -36,7 +40,9 @@ export const statusController = {
 			})
 
 			if (!app) {
-				res.status(404).json({ message: 'Application not found' })
+				res.status(404).json(
+					errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)),
+				)
 				return
 			}
 
@@ -46,10 +52,12 @@ export const statusController = {
 				.where(eq(statusHistory.applicationId, applicationId))
 				.orderBy(desc(statusHistory.date))
 
-			res.json(history)
+			res.json(successResponse(history, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching status history:', error)
-			res.status(500).json({ message: 'Failed to fetch status history' })
+			res.status(500).json(
+				errorResponse('INTERNAL_ERROR', 'Failed to fetch status history', getRequestId(req)),
+			)
 		}
 	},
 
@@ -61,8 +69,8 @@ export const statusController = {
 			const validation = createStatusSchema.safeParse(req.body)
 
 			if (!validation.success) {
-				res.status(400).json({ errors: validation.error.format() })
-				return
+				// Let the error handler middleware handle Zod errors for consistent formatting
+				throw validation.error
 			}
 
 			// Verify ownership
@@ -71,7 +79,9 @@ export const statusController = {
 			})
 
 			if (!app) {
-				res.status(404).json({ message: 'Application not found' })
+				res.status(404).json(
+					errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)),
+				)
 				return
 			}
 
@@ -90,16 +100,18 @@ export const statusController = {
 			// Update the application's updatedAt timestamp
 			await db.update(applications).set({ updatedAt: new Date() }).where(eq(applications.id, applicationId))
 
-			res.status(201).json(newStatus)
+			res.status(201).json(successResponse(newStatus, getRequestId(req)))
 		} catch (error) {
 			console.error('Error creating status entry:', error)
-			res.status(500).json({ message: 'Failed to create status entry' })
+			res.status(500).json(
+				errorResponse('INTERNAL_ERROR', 'Failed to create status entry', getRequestId(req)),
+			)
 		}
 	},
 
 	// Get available status types (for dropdowns)
-	getTypes: (_req: Request, res: Response) => {
-		res.json(applicationStatusEnum.enumValues)
+	getTypes: (req: Request, res: Response) => {
+		res.json(successResponse(applicationStatusEnum.enumValues, getRequestId(req)))
 	},
 
 	// Delete a status entry
@@ -108,7 +120,7 @@ export const statusController = {
 			const userId = req.user!.id
 			const { id } = req.params as { id: string }
 
-			// Find the status entry and join with applications to check ownership
+			// Find the status entry with its related application to check ownership
 			const statusEntry = await db.query.statusHistory.findFirst({
 				where: eq(statusHistory.id, id),
 				with: {
@@ -116,8 +128,11 @@ export const statusController = {
 				},
 			})
 
-			if (!statusEntry || (statusEntry.application as { userId: string }).userId !== userId) {
-				res.status(404).json({ message: 'Status entry not found' })
+			// Type-safe check: statusEntry.application is properly typed via Drizzle relations
+			if (!statusEntry || !statusEntry.application || statusEntry.application.userId !== userId) {
+				res.status(404).json(
+					errorResponse('NOT_FOUND', 'Status entry not found', getRequestId(req)),
+				)
 				return
 			}
 
@@ -128,16 +143,26 @@ export const statusController = {
 				.where(eq(statusHistory.applicationId, statusEntry.applicationId))
 
 			if (count.length <= 1) {
-				res.status(400).json({ message: 'Cannot delete the only status entry' })
+				res.status(400).json(
+					errorResponse(
+						'VALIDATION_ERROR',
+						'Cannot delete the only status entry',
+						getRequestId(req),
+					),
+				)
 				return
 			}
 
 			await db.delete(statusHistory).where(eq(statusHistory.id, id))
 
-			res.json({ message: 'Status entry deleted' })
+			res.json(
+				successResponse({ message: 'Status entry deleted' }, getRequestId(req)),
+			)
 		} catch (error) {
 			console.error('Error deleting status entry:', error)
-			res.status(500).json({ message: 'Failed to delete status entry' })
+			res.status(500).json(
+				errorResponse('INTERNAL_ERROR', 'Failed to delete status entry', getRequestId(req)),
+			)
 		}
 	},
 }
