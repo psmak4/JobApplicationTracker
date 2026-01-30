@@ -8,6 +8,7 @@ const getRequestId = (req: Request): string => req.requestId || 'unknown'
 
 const parseJobSchema = z.object({
 	url: z.url('Must be a valid URL'),
+	skipCache: z.boolean().optional().default(false),
 })
 
 export const parserController = {
@@ -21,10 +22,10 @@ export const parserController = {
 				throw validation.error
 			}
 
-			const { url } = validation.data
+			const { url, skipCache } = validation.data
 
-			// Parse the job posting
-			const result = await jobParser.parse(url)
+			// Parse the job posting (with optional cache bypass)
+			const result = await jobParser.parse(url, skipCache)
 
 			if (!result.success) {
 				res.status(400).json(

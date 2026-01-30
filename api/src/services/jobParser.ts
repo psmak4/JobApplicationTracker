@@ -11,6 +11,7 @@ import { GenericParser } from './parsers/generic'
 import { GlassdoorParser } from './parsers/glassdoor'
 import { IndeedParser } from './parsers/indeed'
 import { LinkedInParser } from './parsers/linkedin'
+import { clearCachedJob, getCachedJob, setCachedJob } from './jobParserCache'
 import type { JobParserStrategy, ParsedJobData } from './parsers/types'
 
 interface ParserResult {
@@ -68,12 +69,31 @@ class JobParser {
 	}
 
 	/**
-	 * Main parsing method using Strategy pattern
+	 * Main parsing method using Strategy pattern with caching support
+	 * @param url - Job posting URL to parse
+	 * @param skipCache - If true, bypass cache and re-parse (for refreshing data)
 	 */
-	async parse(url: string): Promise<ParserResult> {
+	async parse(url: string, skipCache = false): Promise<ParserResult> {
 		const startTime = Date.now()
 
 		try {
+			// Check cache first (unless skipCache is true)
+			if (!skipCache) {
+				const cached = getCachedJob(url)
+				if (cached) {
+					const processingTime = Date.now() - startTime
+					return {
+						success: true,
+						data: cached.data,
+						debugInfo: {
+							domain: urlParse(url).hostname.replace(/^www\./, ''),
+							parserUsed: 'cache',
+							processingTime,
+						},
+					}
+				}
+			}
+
 			// Validate URL
 			const validation = await this.validateUrl(url)
 			if (!validation.valid) {
@@ -135,15 +155,22 @@ class JobParser {
 
 			const processingTime = Date.now() - startTime
 
+			const result: ParsedJobData = {
+				...parsedData,
+				description: markdown.slice(0, 2000), // First 2000 chars
+				confidence,
+				source: hostname,
+				extractedFields,
+			}
+
+			// Cache the result (unless skipCache is true)
+			if (!skipCache) {
+				setCachedJob(url, result)
+			}
+
 			return {
 				success: true,
-				data: {
-					...parsedData,
-					description: markdown.slice(0, 2000), // First 2000 chars
-					confidence,
-					source: hostname,
-					extractedFields,
-				} as ParsedJobData,
+				data: result,
 				rawText: readableText.slice(0, 1000),
 				debugInfo: {
 					domain: hostname,
@@ -163,6 +190,13 @@ class JobParser {
 				},
 			}
 		}
+	}
+
+	/**
+	 * Clear cache for a specific URL (useful for forcing re-parse)
+	 */
+	clearCache(url: string): void {
+		clearCachedJob(url)
 	}
 
 	/**
