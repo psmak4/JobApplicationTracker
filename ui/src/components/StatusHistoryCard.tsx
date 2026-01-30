@@ -78,7 +78,7 @@ export function StatusHistoryCard({ application }: StatusHistoryCardProps) {
 					) : (
 						<Button
 							size="icon-sm"
-							variant="ghost"
+							variant="outline"
 							onClick={() => setIsNewStatusOpen(false)}
 							aria-label="Close status form"
 						>

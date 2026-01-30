@@ -16,7 +16,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '../components/ui/alert-dialog'
-import { Button, buttonVariants } from '../components/ui/button'
+import { Button } from '../components/ui/button'
 import { useApplication, useDeleteApplication } from '../hooks/useApplications'
 import { getErrorMessage } from '../lib/error-utils'
 
@@ -58,13 +58,18 @@ export default function ApplicationView() {
 				subtitle={application.jobTitle}
 				backUrl="/"
 				actions={[
-					<Link
-						to={`/applications/${application.id}/edit`}
-						className={buttonVariants({ variant: 'outline', size: 'sm' })}
-					>
-						<Edit className="h-4 w-4 mr-2" />
-						Edit
-					</Link>,
+					<Button
+						render={
+							<Link to={`/applications/${application.id}/edit`}>
+								<Edit className="h-4 w-4 mr-2" />
+								Edit
+							</Link>
+						}
+						variant="outline"
+						size="sm"
+						aria-label="Edit application"
+						nativeButton={false}
+					/>,
 					<AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
 						<AlertDialogTrigger
 							render={
@@ -77,6 +82,7 @@ export default function ApplicationView() {
 									Delete
 								</Button>
 							}
+							nativeButton={true}
 						/>
 						<AlertDialogContent>
 							<AlertDialogHeader>

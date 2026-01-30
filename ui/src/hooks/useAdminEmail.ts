@@ -1,7 +1,12 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import apiClient from '@/lib/api-client'
 import { getErrorMessage } from '@/lib/error-utils'
 import { emailQueryKeys } from '@/lib/queryKeys'
+import type { ApiSuccessResponse } from '@/types'
+
+// Helper to extract data from API response
+const extractData = <T>(response: ApiSuccessResponse<T>): T => response.data
 
 export interface EmailTemplate {
 	id: string
@@ -18,7 +23,6 @@ export interface SendTestEmailParams {
 }
 
 export interface SendTestEmailResponse {
-	success: boolean
 	message: string
 }
 
@@ -29,8 +33,8 @@ export function useEmailTemplates() {
 	return useQuery({
 		queryKey: emailQueryKeys.templates,
 		queryFn: async (): Promise<EmailTemplatesResponse> => {
-			const { data } = await apiClient.get<EmailTemplatesResponse>('/admin/email/templates')
-			return data
+			const { data } = await apiClient.get<ApiSuccessResponse<EmailTemplatesResponse>>('/admin/email/templates')
+			return extractData(data)
 		},
 	})
 }
@@ -41,12 +45,14 @@ export function useEmailTemplates() {
 export function useSendTestEmail() {
 	return useMutation({
 		mutationFn: async (params: SendTestEmailParams): Promise<SendTestEmailResponse> => {
-			try {
-				const { data } = await apiClient.post<SendTestEmailResponse>('/admin/email/test', params)
-				return data
-			} catch (error) {
-				throw new Error(getErrorMessage(error))
-			}
+			const { data } = await apiClient.post<ApiSuccessResponse<SendTestEmailResponse>>('/admin/email/test', params)
+			return extractData(data)
+		},
+		onSuccess: (data) => {
+			toast.success('Success', { description: data.message })
+		},
+		onError: (error) => {
+			toast.error('Error', { description: getErrorMessage(error) })
 		},
 	})
 }

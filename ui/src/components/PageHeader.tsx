@@ -1,5 +1,5 @@
 import { ArrowLeft } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from './ui/button'
 
@@ -23,13 +23,20 @@ const PageHeader = ({ title, subtitle, backUrl, actions }: Props) => {
 					variant="ghost"
 					size="icon"
 					aria-label="Back to application"
+					nativeButton={false}
 				/>
 			)}
 			<div>
 				<h1 className="text-3xl font-bold tracking-tight">{title}</h1>
 				<p className="text-muted-foreground">{subtitle}</p>
 			</div>
-			{actions && <div className="flex gap-2 ml-auto">{actions}</div>}
+			{actions && (
+				<div className="flex gap-2 ml-auto">
+					{actions?.map((action, idx) => (
+						<Fragment key={idx}>{action}</Fragment>
+					))}
+				</div>
+			)}
 		</div>
 	)
 }

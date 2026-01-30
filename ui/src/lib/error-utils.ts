@@ -13,7 +13,16 @@ export function getErrorMessage(error: unknown, fallbackMessage = 'An unexpected
 	if (error instanceof AxiosError) {
 		const data = error.response?.data
 
-		// Handle common API error response formats
+		// Handle new standardized API error format
+		// Format: { success: false, error: { code: "...", message: "...", details: {...} } }
+		if (data?.success === false && data?.error) {
+			// Return the error message from the standardized format
+			if (typeof data.error.message === 'string') {
+				return data.error.message
+			}
+		}
+
+		// Handle common API error response formats (legacy support)
 		if (data) {
 			// Format: { message: "Error message" }
 			if (typeof data.message === 'string') {
@@ -23,6 +32,11 @@ export function getErrorMessage(error: unknown, fallbackMessage = 'An unexpected
 			// Format: { error: "Error message" }
 			if (typeof data.error === 'string') {
 				return data.error
+			}
+
+			// Format: { error: { message: "..." } }
+			if (typeof data.error?.message === 'string') {
+				return data.error.message
 			}
 
 			// Format: { errors: { field: { _errors: ["message"] } } } (Zod format)

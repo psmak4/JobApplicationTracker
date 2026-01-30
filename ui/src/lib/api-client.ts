@@ -7,18 +7,41 @@ const apiClient = axios.create({
 })
 
 // Track if we've shown a rate limit warning recently
-let rateLimitWarningShown = false
-let rateLimitWarningTimeout: ReturnType<typeof setTimeout> | null = null
+// Using a Map to track per-session to avoid memory leaks across page refreshes
+const warningState = {
+	rateLimitShown: false,
+	timeoutId: null as ReturnType<typeof setTimeout> | null,
+}
 
-// Add response interceptor to handle rate limiting and slowdowns
+// Add request interceptor to handle slow requests
+apiClient.interceptors.request.use((config) => {
+	// Add request timestamp for timing
+	config.metadata = { startTime: Date.now() }
+	return config
+})
+
+// Add response interceptor to handle rate limiting, slowdowns, and errors
 apiClient.interceptors.response.use(
 	(response) => {
+		const endTime = Date.now()
+		const startTime = response.config.metadata?.startTime || endTime
+		const duration = endTime - startTime
+
 		// Reset rate limit warning if request succeeds
-		if (rateLimitWarningShown && rateLimitWarningTimeout) {
-			clearTimeout(rateLimitWarningTimeout)
-			rateLimitWarningTimeout = null
-			rateLimitWarningShown = false
+		if (warningState.rateLimitShown && warningState.timeoutId) {
+			clearTimeout(warningState.timeoutId)
+			warningState.timeoutId = null
+			warningState.rateLimitShown = false
 		}
+
+		// Warn user if request took longer than 3 seconds (likely being slowed down)
+		if (duration > 3000 && !warningState.rateLimitShown) {
+			toast.warning('Slow Response', {
+				description: 'You may be making requests too quickly. Consider slowing down.',
+				duration: 3000,
+			})
+		}
+
 		return response
 	},
 	(error) => {
@@ -48,12 +71,12 @@ apiClient.interceptors.response.use(
 			})
 
 			// Set flag to prevent spam
-			rateLimitWarningShown = true
-			if (rateLimitWarningTimeout) {
-				clearTimeout(rateLimitWarningTimeout)
+			warningState.rateLimitShown = true
+			if (warningState.timeoutId) {
+				clearTimeout(warningState.timeoutId)
 			}
-			rateLimitWarningTimeout = setTimeout(() => {
-				rateLimitWarningShown = false
+			warningState.timeoutId = setTimeout(() => {
+				warningState.rateLimitShown = false
 			}, 5000)
 		}
 
@@ -71,35 +94,6 @@ apiClient.interceptors.response.use(
 			})
 		}
 
-		return Promise.reject(error)
-	},
-)
-
-// Add request interceptor to handle slow requests
-apiClient.interceptors.request.use((config) => {
-	// Add request timestamp for timing
-	config.metadata = { startTime: Date.now() }
-	return config
-})
-
-// Add response timing
-apiClient.interceptors.response.use(
-	(response) => {
-		const endTime = Date.now()
-		const startTime = response.config.metadata?.startTime || endTime
-		const duration = endTime - startTime
-
-		// Warn user if request took longer than 3 seconds (likely being slowed down)
-		if (duration > 3000 && !rateLimitWarningShown) {
-			toast.warning('Slow Response', {
-				description: 'You may be making requests too quickly. Consider slowing down.',
-				duration: 3000,
-			})
-		}
-
-		return response
-	},
-	(error) => {
 		return Promise.reject(error)
 	},
 )
