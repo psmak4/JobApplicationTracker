@@ -1,6 +1,10 @@
 import { Request, Response } from 'express'
 import { z } from 'zod'
+import { errorResponse, successResponse } from '../utils/responses'
 import { jobParser } from '../services/jobParser'
+
+// Helper to get request ID from request object
+const getRequestId = (req: Request): string => req.requestId || 'unknown'
 
 const parseJobSchema = z.object({
 	url: z.url('Must be a valid URL'),
@@ -13,8 +17,8 @@ export const parserController = {
 			const validation = parseJobSchema.safeParse(req.body)
 
 			if (!validation.success) {
-				res.status(400).json({ errors: validation.error.format() })
-				return
+				// Let the error handler middleware handle Zod errors for consistent formatting
+				throw validation.error
 			}
 
 			const { url } = validation.data
@@ -23,35 +27,41 @@ export const parserController = {
 			const result = await jobParser.parse(url)
 
 			if (!result.success) {
-				res.status(400).json({
-					success: false,
-					error: result.error,
-					message: 'Failed to parse job posting from the provided URL',
-				})
+				res.status(400).json(
+					errorResponse(
+						'PARSING_ERROR',
+						result.error || 'Failed to parse job posting from the provided URL',
+						getRequestId(req),
+					),
+				)
 				return
 			}
 
-			res.json({
-				success: true,
-				data: result.data,
-				rawText: result.rawText,
-				message:
-					result.data?.confidence === 'low'
-						? 'Some information could not be extracted. Please verify and fill in missing details.'
-						: 'Job posting parsed successfully',
-			})
+			const message =
+				result.data?.confidence === 'low'
+					? 'Some information could not be extracted. Please verify and fill in missing details.'
+					: 'Job posting parsed successfully'
+
+			res.json(
+				successResponse(
+					{
+						data: result.data,
+						rawText: result.rawText,
+						message,
+					},
+					getRequestId(req),
+				),
+			)
 		} catch (error) {
 			console.error('Error parsing job:', error)
-			res.status(500).json({
-				success: false,
-				error: 'Internal server error',
-				message: 'Failed to parse job posting',
-			})
+			res.status(500).json(
+				errorResponse('INTERNAL_ERROR', 'Failed to parse job posting', getRequestId(req)),
+			)
 		}
 	},
 
 	// Get list of supported job boards
-	getSupportedSites: (_req: Request, res: Response) => {
+	getSupportedSites: (req: Request, res: Response) => {
 		const supportedSites = [
 			{ name: 'LinkedIn', domain: 'linkedin.com', popular: true },
 			{ name: 'Indeed', domain: 'indeed.com', popular: true },
@@ -66,6 +76,6 @@ export const parserController = {
 			{ name: 'Workday', domain: 'workday.com', popular: false },
 		]
 
-		res.json({ supportedSites })
+		res.json(successResponse({ supportedSites }, getRequestId(req)))
 	},
 }
