@@ -39,7 +39,8 @@
 	/* Alucard Light Theme */
 	--background: #fffbeb;
 	--foreground: #1f1f1f;
-	--card: #fffbeb;
+	/* --card: #fffbeb; */
+	--card: #ffffff;
 	--card-foreground: #1f1f1f;
 	--popover: #fffbeb;
 	--popover-foreground: #1f1f1f;

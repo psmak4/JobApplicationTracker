@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ApplicationFormFields } from '@/components/ApplicationFormFields'
+import PageHeader from '@/components/PageHeader'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { useApplication } from '../hooks/useApplications'
@@ -76,20 +76,7 @@ export default function ApplicationEdit() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center gap-4">
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={() => navigate(`/applications/${id}`)}
-					aria-label="Back to application"
-				>
-					<ArrowLeft className="h-4 w-4" />
-				</Button>
-				<div>
-					<h1 className="text-2xl font-bold tracking-tight">Edit Application</h1>
-					<p className="text-muted-foreground">{application.company}</p>
-				</div>
-			</div>
+			<PageHeader title="Edit Application" subtitle={application.company} backUrl={`/applications/${id}`} />
 
 			<div className="max-w-3xl mx-auto">
 				<Card>

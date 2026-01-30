@@ -1,7 +1,9 @@
 import { Plus } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import PageHeader from '@/components/PageHeader'
 import { ApplicationGrid, ApplicationTable, DashboardMobileFilters, DashboardToolbar } from '@/components/dashboard'
+import { Card, CardContent } from '@/components/ui/card'
 import { useDashboardFilters } from '@/hooks/useDashboardFilters'
 import { buttonVariants } from '../components/ui/button'
 import { useApplicationPrefetch, useApplications } from '../hooks/useApplications'
@@ -98,87 +100,90 @@ export default function Dashboard() {
 	return (
 		<div className="space-y-6">
 			{/* Header */}
-			<div className="flex gap-4 justify-between">
-				<div>
-					<h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-					<p className="hidden sm:block text-muted-foreground">Overview of your job applications.</p>
-				</div>
+			<PageHeader
+				title="Dashboard"
+				subtitle="Overview of your job applications."
+				actions={[
+					<Link
+						to="/new"
+						className={cn(
+							buttonVariants({ variant: 'default', size: 'lg' }),
+							'hidden sm:flex items-center gap-2',
+						)}
+					>
+						<Plus className="h-4 w-4" /> New Application
+					</Link>,
+					<Link
+						to="/new"
+						className={cn(buttonVariants({ variant: 'default', size: 'icon-lg' }), 'sm:hidden')}
+						aria-label="Create new application"
+					>
+						<Plus className="h-4 w-4" />
+					</Link>,
+				]}
+			/>
 
-				<Link
-					to="/new"
-					className={cn(
-						buttonVariants({ variant: 'default', size: 'lg' }),
-						'hidden sm:flex items-center gap-2',
+			<Card>
+				<CardContent className="p-6 space-y-6">
+					{/* Desktop Toolbar */}
+					<DashboardToolbar
+						filterConfig={filterConfig}
+						sortConfig={sortConfig}
+						viewMode={viewMode}
+						activeFilterCount={activeFilterCount}
+						uniqueCompanies={uniqueCompanies}
+						onFilterChange={setFilterConfig}
+						onSortChange={setSortConfig}
+						onViewModeChange={setViewMode}
+						onToggleStatus={toggleStatus}
+						onResetFilters={resetFilters}
+						onToggleSortDirection={toggleSortDirection}
+					/>
+
+					{/* Mobile Toolbar */}
+					<DashboardMobileFilters
+						filterConfig={filterConfig}
+						sortConfig={sortConfig}
+						viewMode={viewMode}
+						activeFilterCount={activeFilterCount}
+						uniqueCompanies={uniqueCompanies}
+						filteredCount={filteredAndSortedApplications.length}
+						onFilterChange={setFilterConfig}
+						onSortChange={setSortConfig}
+						onViewModeChange={setViewMode}
+						onToggleStatus={toggleStatus}
+						onResetFilters={resetFilters}
+					/>
+
+					{/* Results Count */}
+					<div className="text-sm text-muted-foreground">
+						{filteredAndSortedApplications.length} application
+						{filteredAndSortedApplications.length !== 1 ? 's' : ''}
+						{activeFilterCount > 0 && ` (filtered from ${applications.length})`}
+					</div>
+
+					{/* Table or Card View */}
+					{viewMode === 'table' ? (
+						<ApplicationTable
+							applications={filteredAndSortedApplications}
+							getCurrentStatus={getCurrentStatus}
+							getLastStatusDate={getLastStatusDate}
+							getStalenessColor={getStalenessColor}
+							onNavigate={handleNavigate}
+							onPrefetch={handlePrefetch}
+						/>
+					) : (
+						<ApplicationGrid
+							applications={filteredAndSortedApplications}
+							getCurrentStatus={getCurrentStatus}
+							getLastStatusDate={getLastStatusDate}
+							getStalenessColor={getStalenessColor}
+							onNavigate={handleNavigate}
+							onPrefetch={handlePrefetch}
+						/>
 					)}
-				>
-					<Plus className="h-4 w-4" /> New Application
-				</Link>
-				<Link
-					to="/new"
-					className={cn(buttonVariants({ variant: 'default', size: 'icon-lg' }), 'sm:hidden')}
-					aria-label="Create new application"
-				>
-					<Plus className="h-4 w-4" />
-				</Link>
-			</div>
-
-			{/* Desktop Toolbar */}
-			<DashboardToolbar
-				filterConfig={filterConfig}
-				sortConfig={sortConfig}
-				viewMode={viewMode}
-				activeFilterCount={activeFilterCount}
-				uniqueCompanies={uniqueCompanies}
-				onFilterChange={setFilterConfig}
-				onSortChange={setSortConfig}
-				onViewModeChange={setViewMode}
-				onToggleStatus={toggleStatus}
-				onResetFilters={resetFilters}
-				onToggleSortDirection={toggleSortDirection}
-			/>
-
-			{/* Mobile Toolbar */}
-			<DashboardMobileFilters
-				filterConfig={filterConfig}
-				sortConfig={sortConfig}
-				viewMode={viewMode}
-				activeFilterCount={activeFilterCount}
-				uniqueCompanies={uniqueCompanies}
-				filteredCount={filteredAndSortedApplications.length}
-				onFilterChange={setFilterConfig}
-				onSortChange={setSortConfig}
-				onViewModeChange={setViewMode}
-				onToggleStatus={toggleStatus}
-				onResetFilters={resetFilters}
-			/>
-
-			{/* Results Count */}
-			<div className="text-sm text-muted-foreground">
-				{filteredAndSortedApplications.length} application
-				{filteredAndSortedApplications.length !== 1 ? 's' : ''}
-				{activeFilterCount > 0 && ` (filtered from ${applications.length})`}
-			</div>
-
-			{/* Table or Card View */}
-			{viewMode === 'table' ? (
-				<ApplicationTable
-					applications={filteredAndSortedApplications}
-					getCurrentStatus={getCurrentStatus}
-					getLastStatusDate={getLastStatusDate}
-					getStalenessColor={getStalenessColor}
-					onNavigate={handleNavigate}
-					onPrefetch={handlePrefetch}
-				/>
-			) : (
-				<ApplicationGrid
-					applications={filteredAndSortedApplications}
-					getCurrentStatus={getCurrentStatus}
-					getLastStatusDate={getLastStatusDate}
-					getStalenessColor={getStalenessColor}
-					onNavigate={handleNavigate}
-					onPrefetch={handlePrefetch}
-				/>
-			)}
+				</CardContent>
+			</Card>
 		</div>
 	)
 }

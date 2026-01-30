@@ -1,9 +1,9 @@
-import { ArrowLeft, Edit, Trash2 } from 'lucide-react'
+import { Edit, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ApplicationDetailsCard } from '@/components/ApplicationDetailsCard'
-import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
+import PageHeader from '@/components/PageHeader'
 import { StatusHistoryCard } from '@/components/StatusHistoryCard'
 import {
 	AlertDialog,
@@ -50,34 +50,21 @@ export default function ApplicationView() {
 		}
 	}
 
-	const currentStatus =
-		application.statusHistory && application.statusHistory.length > 0
-			? application.statusHistory[0].status // Backend returns sorted desc
-			: 'Unknown'
-
 	return (
 		<div className="space-y-6">
 			{/* Header */}
-			<div className="flex items-start gap-4">
-				<Button variant="ghost" size="icon" onClick={() => navigate('/')} aria-label="Back to dashboard">
-					<ArrowLeft className="h-4 w-4" />
-				</Button>
-				<div>
-					<div className="flex items-center gap-3">
-						<h1 className="text-2xl font-bold tracking-tight">{application.company}</h1>
-						<ApplicationStatusBadge currentStatus={currentStatus} />
-					</div>
-					<p className="text-muted-foreground">{application.jobTitle}</p>
-				</div>
-				<div className="ml-auto flex items-center gap-2">
+			<PageHeader
+				title={application.company}
+				subtitle={application.jobTitle}
+				backUrl="/"
+				actions={[
 					<Link
 						to={`/applications/${application.id}/edit`}
 						className={buttonVariants({ variant: 'outline', size: 'sm' })}
 					>
 						<Edit className="h-4 w-4 mr-2" />
 						Edit
-					</Link>
-
+					</Link>,
 					<AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
 						<AlertDialogTrigger
 							render={
@@ -110,9 +97,9 @@ export default function ApplicationView() {
 								</AlertDialogAction>
 							</AlertDialogFooter>
 						</AlertDialogContent>
-					</AlertDialog>
-				</div>
-			</div>
+					</AlertDialog>,
+				]}
+			/>
 
 			{/* Content Grid */}
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

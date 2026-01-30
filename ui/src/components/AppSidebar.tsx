@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { ChevronUp, Home, LogOut, Mail, PlusCircle, Shield, User, Users } from 'lucide-react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useStopImpersonating } from '@/hooks/useAdmin'
 import { signOut, useSession } from '@/lib/auth-client'
 import { safeLocalStorage } from '@/lib/utils'
@@ -109,8 +109,7 @@ export function AppSidebar() {
 								<SidebarMenuItem key={item.title}>
 									<SidebarMenuButton
 										isActive={location.pathname === item.url}
-										onClick={() => navigate(item.url)}
-										className="cursor-pointer"
+										render={<Link to={item.url} />}
 									>
 										<item.icon />
 										<span>{item.title}</span>
@@ -145,8 +144,7 @@ export function AppSidebar() {
 															? location.pathname === '/admin'
 															: location.pathname.startsWith(item.url)
 													}
-													onClick={() => navigate(item.url)}
-													className="cursor-pointer"
+													render={<Link to={item.url} />}
 												>
 													<item.icon />
 													<span>{item.title}</span>

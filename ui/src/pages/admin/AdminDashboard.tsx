@@ -14,6 +14,7 @@ import {
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
+import PageHeader from '@/components/PageHeader'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -265,12 +266,7 @@ export default function AdminDashboard() {
 	return (
 		<div className="space-y-6">
 			{/* Header */}
-			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-				<div>
-					<h1 className="text-3xl font-bold">User Management</h1>
-					<p className="text-muted-foreground">Manage users, roles, and permissions</p>
-				</div>
-			</div>
+			<PageHeader title="User Management" subtitle="Manage users, roles, and permissions" />
 
 			{/* Stats Cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

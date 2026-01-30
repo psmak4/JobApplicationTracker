@@ -5,9 +5,11 @@ import { useForm, useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ApplicationFormFields } from '@/components/ApplicationFormFields'
+import PageHeader from '@/components/PageHeader'
 import { APPLICATION_STATUS_OPTIONS } from '@/constants'
 import apiClient from '@/lib/api-client'
 import { Button } from '../components/ui/button'
+import { Card, CardContent } from '../components/ui/card'
 import {
 	Field,
 	FieldDescription,
@@ -246,71 +248,80 @@ export default function NewApplication() {
 	)
 
 	return (
-		<div className="max-w-2xl mx-auto">
-			<div className="mb-6">
-				<h1 className="text-3xl font-bold tracking-tight">New Application</h1>
-				<p className="text-muted-foreground">Track a new job application.</p>
+		<div className="space-y-6">
+			<PageHeader title="New Application" subtitle="Track a new job application." backUrl="/" />
+
+			<div className="max-w-2xl mx-auto">
+				<Card>
+					<CardContent className="p-6">
+						<form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+							{/* Custom Job URL section with auto-fill */}
+							<FieldSet>
+								<FieldLegend>Job Description URL</FieldLegend>
+								<FieldGroup>{urlFieldContent}</FieldGroup>
+							</FieldSet>
+
+							{/* Shared form fields (without URL since we handle it custom) */}
+							<ApplicationFormFields
+								register={register}
+								setValue={setValue}
+								control={control}
+								errors={errors}
+								showJobDescriptionUrl={false}
+							/>
+
+							{/* Status section (only for new applications) */}
+							<FieldSet>
+								<FieldLegend>Status</FieldLegend>
+								<FieldGroup>
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<Field>
+											<FieldLabel>Initial Status</FieldLabel>
+											<Select
+												onValueChange={(value) =>
+													setValue('initialStatus', value as ApplicationStatus)
+												}
+												value={currentStatus}
+											>
+												<SelectTrigger>
+													<SelectValue placeholder="Select status" />
+												</SelectTrigger>
+												<SelectContent>
+													{APPLICATION_STATUS_OPTIONS.map((status) => (
+														<SelectItem key={status} value={status}>
+															{status}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<FieldError errors={[errors.initialStatus]} />
+										</Field>
+
+										<Field>
+											<FieldLabel htmlFor="initialStatusDate">Date</FieldLabel>
+											<Input
+												type="date"
+												id="initialStatusDate"
+												{...register('initialStatusDate')}
+											/>
+											<FieldError errors={[errors.initialStatusDate]} />
+										</Field>
+									</div>
+								</FieldGroup>
+							</FieldSet>
+
+							<div className="flex justify-end space-x-4">
+								<Button variant="outline" type="button" onClick={() => navigate('/')}>
+									Cancel
+								</Button>
+								<Button type="submit" disabled={isSubmitting}>
+									Save Application
+								</Button>
+							</div>
+						</form>
+					</CardContent>
+				</Card>
 			</div>
-
-			<form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-				{/* Custom Job URL section with auto-fill */}
-				<FieldSet>
-					<FieldLegend>Job Description URL</FieldLegend>
-					<FieldGroup>{urlFieldContent}</FieldGroup>
-				</FieldSet>
-
-				{/* Shared form fields (without URL since we handle it custom) */}
-				<ApplicationFormFields
-					register={register}
-					setValue={setValue}
-					control={control}
-					errors={errors}
-					showJobDescriptionUrl={false}
-				/>
-
-				{/* Status section (only for new applications) */}
-				<FieldSet>
-					<FieldLegend>Status</FieldLegend>
-					<FieldGroup>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Field>
-								<FieldLabel>Initial Status</FieldLabel>
-								<Select
-									onValueChange={(value) => setValue('initialStatus', value as ApplicationStatus)}
-									value={currentStatus}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Select status" />
-									</SelectTrigger>
-									<SelectContent>
-										{APPLICATION_STATUS_OPTIONS.map((status) => (
-											<SelectItem key={status} value={status}>
-												{status}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								<FieldError errors={[errors.initialStatus]} />
-							</Field>
-
-							<Field>
-								<FieldLabel htmlFor="initialStatusDate">Date</FieldLabel>
-								<Input type="date" id="initialStatusDate" {...register('initialStatusDate')} />
-								<FieldError errors={[errors.initialStatusDate]} />
-							</Field>
-						</div>
-					</FieldGroup>
-				</FieldSet>
-
-				<div className="flex justify-end space-x-4">
-					<Button variant="outline" type="button" onClick={() => navigate('/')}>
-						Cancel
-					</Button>
-					<Button type="submit" disabled={isSubmitting}>
-						Save Application
-					</Button>
-				</div>
-			</form>
 		</div>
 	)
 }

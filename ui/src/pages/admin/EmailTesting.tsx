@@ -2,6 +2,7 @@ import { CheckCircle, Loader2, Mail, Send } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
+import PageHeader from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { type EmailTemplate, useEmailTemplates, useSendTestEmail } from '@/hooks/useAdminEmail'
@@ -36,12 +37,10 @@ export default function EmailTesting() {
 	return (
 		<div className="space-y-6">
 			{/* Header */}
-			<div>
-				<h1 className="text-3xl font-bold">Email Testing</h1>
-				<p className="text-muted-foreground">
-					Test email templates by sending them to your admin email address
-				</p>
-			</div>
+			<PageHeader
+				title="Email Testing"
+				subtitle="Test email templates by sending them to your admin email address"
+			/>
 
 			{/* Info Card */}
 			<Card className="bg-gradient-to-br from-primary/5 to-background border-primary/20">
