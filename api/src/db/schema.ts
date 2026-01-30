@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { boolean, date, pgEnum, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core'
+import { boolean, date, index, pgEnum, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core'
 
 // Enums
 export const applicationStatusEnum = pgEnum('application_status', [
@@ -74,37 +74,55 @@ export const verification = pgTable('verification', {
 })
 
 // Applications table - using text id to match Better Auth
-export const applications = pgTable('applications', {
-	id: text('id')
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
-	userId: text('user_id')
-		.notNull()
-		.references(() => user.id, { onDelete: 'cascade' }),
-	company: varchar('company', { length: 255 }).notNull(),
-	jobTitle: varchar('job_title', { length: 255 }).notNull(),
-	jobDescriptionUrl: text('job_description_url'),
-	salary: varchar('salary', { length: 255 }),
-	location: varchar('location', { length: 255 }),
-	workType: workTypeEnum('work_type'),
-	contactInfo: text('contact_info'),
-	notes: text('notes'),
-	createdAt: timestamp('created_at').notNull().defaultNow(),
-	updatedAt: timestamp('updated_at').notNull().defaultNow(),
-})
+export const applications = pgTable(
+	'applications',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		company: varchar('company', { length: 255 }).notNull(),
+		jobTitle: varchar('job_title', { length: 255 }).notNull(),
+		jobDescriptionUrl: text('job_description_url'),
+		salary: varchar('salary', { length: 255 }),
+		location: varchar('location', { length: 255 }),
+		workType: workTypeEnum('work_type'),
+		contactInfo: text('contact_info'),
+		notes: text('notes'),
+		createdAt: timestamp('created_at').notNull().defaultNow(),
+		updatedAt: timestamp('updated_at').notNull().defaultNow(),
+	},
+	(table) => [
+		// Index for filtering applications by user
+		index('applications_user_id_idx').on(table.userId),
+		// Index for sorting by updatedAt (descending order is most common)
+		index('applications_updated_at_idx').on(table.updatedAt),
+	],
+)
 
 // Status History table - using text id
-export const statusHistory = pgTable('status_history', {
-	id: text('id')
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
-	applicationId: text('application_id')
-		.notNull()
-		.references(() => applications.id, { onDelete: 'cascade' }),
-	status: applicationStatusEnum('status').notNull(),
-	date: date('date').notNull(),
-	createdAt: timestamp('created_at').notNull().defaultNow(),
-})
+export const statusHistory = pgTable(
+	'status_history',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		applicationId: text('application_id')
+			.notNull()
+			.references(() => applications.id, { onDelete: 'cascade' }),
+		status: applicationStatusEnum('status').notNull(),
+		date: date('date').notNull(),
+		createdAt: timestamp('created_at').notNull().defaultNow(),
+	},
+	(table) => [
+		// Index for joining status history with applications
+		index('status_history_application_id_idx').on(table.applicationId),
+		// Index for sorting by date (most recent first)
+		index('status_history_date_idx').on(table.date),
+	],
+)
 
 export const applicationsRelations = relations(applications, ({ many }) => ({
 	statusHistory: many(statusHistory),
