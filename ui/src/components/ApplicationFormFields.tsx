@@ -23,6 +23,9 @@ export interface ApplicationFormFieldsValues {
 }
 
 interface ApplicationFormFieldsProps {
+	// Using `any` is necessary here because this component is designed to be reusable
+	// with different form value shapes (ApplicationFormValues vs NewApplicationFormValues).
+	// The component only uses fields that exist in all form types (company, jobTitle, etc.)
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	register: UseFormRegister<any>
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,69 +96,102 @@ export function ApplicationFormFields({
 			)}
 
 			<FieldSet>
-				<FieldLegend>Basic Information</FieldLegend>
+				<FieldLegend>Job Details</FieldLegend>
 				<FieldGroup>
-					<Field>
-						<FieldLabel htmlFor="company">Company</FieldLabel>
-						<Input id="company" placeholder={companyPlaceholder} {...register('company')} />
-						<FieldErrorComponent errors={[getFieldError(errors.company)]} />
-					</Field>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<Field>
+							<FieldLabel htmlFor="company">
+								Company <span className="text-red-500">*</span>
+							</FieldLabel>
+							<Input
+								id="company"
+								placeholder={companyPlaceholder}
+								{...register('company')}
+							/>
+							<FieldErrorComponent errors={[getFieldError(errors.company)]} />
+						</Field>
 
-					<Field>
-						<FieldLabel htmlFor="jobTitle">Job Title</FieldLabel>
-						<Input id="jobTitle" placeholder={jobTitlePlaceholder} {...register('jobTitle')} />
-						<FieldErrorComponent errors={[getFieldError(errors.jobTitle)]} />
-					</Field>
+						<Field>
+							<FieldLabel htmlFor="jobTitle">
+								Job Title <span className="text-red-500">*</span>
+							</FieldLabel>
+							<Input
+								id="jobTitle"
+								placeholder={jobTitlePlaceholder}
+								{...register('jobTitle')}
+							/>
+							<FieldErrorComponent errors={[getFieldError(errors.jobTitle)]} />
+						</Field>
+					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<Field>
-							<FieldLabel htmlFor="salary">Salary / Compensation</FieldLabel>
-							<Input id="salary" placeholder="$120k - $150k" {...register('salary')} />
-							<FieldErrorComponent errors={[getFieldError(errors.salary)]} />
-						</Field>
-						<Field>
-							<FieldLabel htmlFor="location">Location (City, State)</FieldLabel>
-							<Input id="location" placeholder="San Francisco, CA" {...register('location')} />
+							<FieldLabel htmlFor="location">Location</FieldLabel>
+							<Input
+								id="location"
+								placeholder="City, State or Remote"
+								{...register('location')}
+							/>
 							<FieldErrorComponent errors={[getFieldError(errors.location)]} />
 						</Field>
+
+						<Field>
+							<FieldLabel htmlFor="salary">Salary Range</FieldLabel>
+							<Input
+								id="salary"
+								placeholder="e.g., $100k - $150k"
+								{...register('salary')}
+							/>
+							<FieldErrorComponent errors={[getFieldError(errors.salary)]} />
+						</Field>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<Field>
-							<FieldLabel>Work Type</FieldLabel>
-							<Select
-								onValueChange={(value) =>
-									setValue('workType', value as WorkType, { shouldDirty: true })
-								}
-								value={currentWorkType}
-							>
-								<SelectTrigger>
-									<SelectValue placeholder="Select work type" />
-								</SelectTrigger>
-								<SelectContent>
-									{WORK_TYPE_OPTIONS.map((type) => (
-										<SelectItem key={type} value={type}>
-											{type}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							<FieldErrorComponent errors={[getFieldError(errors.workType)]} />
-						</Field>
-						<Field>
-							<FieldLabel htmlFor="contactInfo">Contact Info</FieldLabel>
-							<Input id="contactInfo" placeholder="Recruiter Name / Email" {...register('contactInfo')} />
-							<FieldErrorComponent errors={[getFieldError(errors.contactInfo)]} />
-						</Field>
-					</div>
+					<Field>
+						<FieldLabel htmlFor="workType">Work Type</FieldLabel>
+						<Select
+							value={currentWorkType || ''}
+							onValueChange={(value) => setValue('workType', value as WorkType, { shouldValidate: true })}
+						>
+							<SelectTrigger id="workType">
+								<SelectValue placeholder="Select work type" />
+							</SelectTrigger>
+							<SelectContent>
+								{WORK_TYPE_OPTIONS.map((option) => (
+									<SelectItem key={option.value} value={option.value}>
+										{option.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						<FieldErrorComponent errors={[getFieldError(errors.workType)]} />
+					</Field>
 				</FieldGroup>
 			</FieldSet>
 
 			<FieldSet>
-				<FieldLegend>Notes</FieldLegend>
-				<Field>
-					<Textarea placeholder="Any additional notes..." className="min-h-25" {...register('notes')} />
-				</Field>
+				<FieldLegend>Additional Information</FieldLegend>
+				<FieldGroup>
+					<Field>
+						<FieldLabel htmlFor="contactInfo">Contact Information</FieldLabel>
+						<Input
+							id="contactInfo"
+							placeholder="Recruiter email, phone, or LinkedIn"
+							{...register('contactInfo')}
+						/>
+						<FieldErrorComponent errors={[getFieldError(errors.contactInfo)]} />
+					</Field>
+
+					<Field>
+						<FieldLabel htmlFor="notes">Notes</FieldLabel>
+						<Textarea
+							id="notes"
+							placeholder="Interview details, follow-up dates, or any other relevant information..."
+							{...register('notes')}
+							rows={4}
+						/>
+						<FieldErrorComponent errors={[getFieldError(errors.notes)]} />
+					</Field>
+				</FieldGroup>
 			</FieldSet>
 		</>
 	)

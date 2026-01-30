@@ -1,3 +1,5 @@
+import type { AxiosError } from 'axios'
+
 export type ApplicationStatus =
 	| 'Applied'
 	| 'Phone Screen'
@@ -64,17 +66,10 @@ export function isApiSuccess<T>(response: ApiResponse<T>): response is ApiSucces
 	return response.success === true
 }
 
-export interface Application {
-	id: string // UUID
-	company: string
-	jobTitle: string
-	jobDescriptionUrl?: string
-	salary?: string
-	location?: string // City, State
-	workType?: WorkType
-	contactInfo?: string
-	notes?: string
-	statusHistory: StatusHistoryEntry[]
-	createdAt: string // ISO timestamp
-	updatedAt: string // ISO timestamp
+// Error types for mutations
+export type MutationError = Error | AxiosError<ApiErrorResponse>
+
+// Type guard to check if error is an Axios error
+export function isAxiosError(error: MutationError): error is AxiosError<ApiErrorResponse> {
+	return 'isAxiosError' in error && error.isAxiosError === true
 }

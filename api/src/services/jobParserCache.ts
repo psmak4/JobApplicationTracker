@@ -106,16 +106,14 @@ export function clearCachedJob(url: string): void {
 /**
  * Get cache statistics for monitoring
  */
-export function getCacheStats(): {
+interface CacheStats {
 	size: number
 	maxSize: number
-	hits: number
-	misses: number
-} {
+}
+
+export function getCacheStats(): CacheStats {
 	return {
 		size: cache.size,
 		maxSize: cache.max,
-		hits: (cache as any).hits || 0,
-		misses: (cache as any).misses || 0,
 	}
 }

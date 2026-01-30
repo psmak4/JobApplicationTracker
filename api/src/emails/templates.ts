@@ -1,5 +1,11 @@
+import { escapeHtml } from '../utils/htmlEscape'
+
 export const emailTemplates = {
-	verification: (url: string, userName: string) => `
+	verification: (url: string, userName: string) => {
+		// Escape user-provided content to prevent XSS
+		const safeUserName = escapeHtml(userName)
+
+		return `
 		<!DOCTYPE html>
 		<html>
 		<head>
@@ -20,7 +26,7 @@ export const emailTemplates = {
 		</head>
 		<body>
 			<div class="container">
-				<h2>Welcome to Job Application Tracker, ${userName}!</h2>
+				<h2>Welcome to Job Application Tracker, ${safeUserName}!</h2>
 				<p>Thanks for signing up. Please verify your email address to get started:</p>
 				<a href="${url}" class="button">Verify Email Address</a>
 				<p>This link will expire in 24 hours.</p>
@@ -31,9 +37,14 @@ export const emailTemplates = {
 			</div>
 		</body>
 		</html>
-	`,
+		`
+	},
 
-	passwordReset: (url: string, userName: string) => `
+	passwordReset: (url: string, userName: string) => {
+		// Escape user-provided content to prevent XSS
+		const safeUserName = escapeHtml(userName)
+
+		return `
 		<!DOCTYPE html>
 		<html>
 		<head>
@@ -55,7 +66,7 @@ export const emailTemplates = {
 		<body>
 			<div class="container">
 				<h2>Password Reset Request</h2>
-				<p>Hi ${userName},</p>
+				<p>Hi ${safeUserName},</p>
 				<p>We received a request to reset your password. Click the button below to create a new password:</p>
 				<a href="${url}" class="button">Reset Password</a>
 				<p>This link will expire in 1 hour.</p>
@@ -66,5 +77,6 @@ export const emailTemplates = {
 			</div>
 		</body>
 		</html>
-	`,
+		`
+	},
 }

@@ -107,10 +107,11 @@ class JobParser {
 			let html: string
 			try {
 				html = await this.fetchContent(url)
-			} catch (error: any) {
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : 'Failed to fetch job posting'
 				return {
 					success: false,
-					error: error.message || 'Failed to fetch job posting',
+					error: errorMessage,
 				}
 			}
 
@@ -178,11 +179,12 @@ class JobParser {
 					processingTime,
 				},
 			}
-		} catch (error: any) {
+		} catch (error) {
 			console.error('Job parser error:', error)
+			const errorMessage = error instanceof Error ? error.message : 'Failed to parse job posting'
 			return {
 				success: false,
-				error: error.message || 'Failed to parse job posting',
+				error: errorMessage,
 				debugInfo: {
 					domain: urlParse(url).hostname,
 					parserUsed: 'error',

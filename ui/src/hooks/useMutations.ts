@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import apiClient from '../lib/api-client'
 import { applicationQueryKeys } from '../lib/queryKeys'
-import type { ApiSuccessResponse, ApplicationStatus } from '../types'
+import type { ApiSuccessResponse, ApplicationStatus, MutationError } from '../types'
 
 // Helper to extract data from API response
 const extractData = <T>(response: ApiSuccessResponse<T>): T => response.data
@@ -31,8 +31,11 @@ export const useCreateApplication = () => {
 			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
 			toast.success('Application created successfully')
 		},
-		onError: (error: any) => {
-			const message = error.response?.data?.error?.message || 'Failed to create application'
+		onError: (error: MutationError) => {
+			const message =
+				('response' in error && error.response?.data?.error?.message) ||
+				error.message ||
+				'Failed to create application'
 			toast.error('Error', { description: message })
 		},
 	})
@@ -50,8 +53,11 @@ export const useUpdateApplication = (id: string) => {
 			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(id) })
 			toast.success('Application updated successfully')
 		},
-		onError: (error: any) => {
-			const message = error.response?.data?.error?.message || 'Failed to update application'
+		onError: (error: MutationError) => {
+			const message =
+				('response' in error && error.response?.data?.error?.message) ||
+				error.message ||
+				'Failed to update application'
 			toast.error('Error', { description: message })
 		},
 	})
@@ -69,8 +75,11 @@ export const useAddStatus = (applicationId: string) => {
 			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
 			toast.success('Status added successfully')
 		},
-		onError: (error: any) => {
-			const message = error.response?.data?.error?.message || 'Failed to add status'
+		onError: (error: MutationError) => {
+			const message =
+				('response' in error && error.response?.data?.error?.message) ||
+				error.message ||
+				'Failed to add status'
 			toast.error('Error', { description: message })
 		},
 	})
@@ -86,8 +95,11 @@ export const useDeleteStatus = (applicationId: string) => {
 			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
 			toast.success('Status deleted successfully')
 		},
-		onError: (error: any) => {
-			const message = error.response?.data?.error?.message || 'Failed to delete status'
+		onError: (error: MutationError) => {
+			const message =
+				('response' in error && error.response?.data?.error?.message) ||
+				error.message ||
+				'Failed to delete status'
 			toast.error('Error', { description: message })
 		},
 	})

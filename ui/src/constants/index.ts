@@ -18,4 +18,8 @@ export const APPLICATION_STATUS_OPTIONS: ApplicationStatus[] = [
 /**
  * Work type options for dropdowns.
  */
-export const WORK_TYPE_OPTIONS: WorkType[] = ['Remote', 'Hybrid', 'On-site']
+export const WORK_TYPE_OPTIONS: { value: WorkType; label: string }[] = [
+	{ value: 'Remote', label: 'Remote' },
+	{ value: 'Hybrid', label: 'Hybrid' },
+	{ value: 'On-site', label: 'On-site' },
+]

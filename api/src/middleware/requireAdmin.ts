@@ -1,6 +1,7 @@
 import { fromNodeHeaders } from 'better-auth/node'
 import { NextFunction, Request, Response } from 'express'
 import { auth } from '../auth'
+import { errorResponse } from '../utils/responses'
 
 /**
  * Middleware that requires the user to be authenticated AND have admin role.
@@ -13,14 +14,14 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 		})
 
 		if (!session) {
-			res.status(401).json({ message: 'Unauthorized' })
+			res.status(401).json(errorResponse('UNAUTHORIZED', 'Authentication required', 'auth'))
 			return
 		}
 
 		// Check if user has admin role
 		const user = session.user as { role?: string }
 		if (user.role !== 'admin') {
-			res.status(403).json({ message: 'Forbidden: Admin access required' })
+			res.status(403).json(errorResponse('FORBIDDEN', 'Admin access required', 'auth'))
 			return
 		}
 
@@ -31,6 +32,6 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 		next()
 	} catch (error) {
 		console.error('Admin middleware error:', error)
-		res.status(500).json({ message: 'Internal Server Error' })
+		res.status(500).json(errorResponse('INTERNAL_ERROR', 'Authorization check failed', 'auth'))
 	}
 }

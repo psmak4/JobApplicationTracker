@@ -30,9 +30,10 @@ async function testParser() {
 				console.log('✗ Failed')
 				console.log(`Error: ${result.error}`)
 			}
-		} catch (error: any) {
+		} catch (error) {
 			console.log('✗ Exception')
-			console.log(`Error: ${error.message}`)
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+			console.log(`Error: ${errorMessage}`)
 		}
 	}
 

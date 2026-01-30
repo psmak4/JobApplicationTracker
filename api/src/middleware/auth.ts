@@ -1,6 +1,7 @@
 import { fromNodeHeaders } from 'better-auth/node'
 import { NextFunction, Request, Response } from 'express'
 import { auth } from '../auth'
+import { errorResponse } from '../utils/responses'
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -9,7 +10,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 		})
 
 		if (!session) {
-			res.status(401).json({ message: 'Unauthorized' })
+			res.status(401).json(errorResponse('UNAUTHORIZED', 'Authentication required', 'auth'))
 			return
 		}
 
@@ -21,7 +22,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 		next()
 	} catch (error) {
 		console.error('Auth middleware error:', error)
-		res.status(500).json({ message: 'Internal Server Error' })
+		res.status(500).json(errorResponse('INTERNAL_ERROR', 'Authentication check failed', 'auth'))
 	}
 }
 
