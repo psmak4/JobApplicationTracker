@@ -90,7 +90,7 @@ export default function ApplicationView() {
 								<AlertDialogCancel>Cancel</AlertDialogCancel>
 								<AlertDialogAction
 									onClick={onDeleteApplication}
-									className="bg-destructive text-(--destructive-foreground) hover:bg-destructive/90"
+									className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 									disabled={deleteApplicationMutation.isPending}
 								>
 									{deleteApplicationMutation.isPending ? 'Deleting...' : 'Delete'}

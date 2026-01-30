@@ -77,7 +77,7 @@ export function StatusHistoryCard({ application }: StatusHistoryCardProps) {
 						</Button>
 					) : (
 						<Button
-							size="sm"
+							size="icon-sm"
 							variant="ghost"
 							onClick={() => setIsNewStatusOpen(false)}
 							aria-label="Close status form"
@@ -171,7 +171,7 @@ export function StatusHistoryCard({ application }: StatusHistoryCardProps) {
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={onDeleteStatus}
-							className="bg-destructive text-(--destructive-foreground) hover:bg-destructive/90"
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 							disabled={deleteStatusMutation.isPending}
 						>
 							{deleteStatusMutation.isPending ? 'Deleting...' : 'Delete'}
