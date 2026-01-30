@@ -1,6 +1,7 @@
 import { Readability } from '@mozilla/readability'
 import axios from 'axios'
 import * as cheerio from 'cheerio'
+import { lookup } from 'dns/promises'
 import { JSDOM } from 'jsdom'
 import sanitizeHtml from 'sanitize-html'
 import TurndownService from 'turndown'
@@ -74,7 +75,7 @@ class JobParser {
 
 		try {
 			// Validate URL
-			const validation = this.validateUrl(url)
+			const validation = await this.validateUrl(url)
 			if (!validation.valid) {
 				return {
 					success: false,
@@ -165,25 +166,85 @@ class JobParser {
 	}
 
 	/**
-	 * Validate URL safety
+	 * Check if an IP address is in a private range
 	 */
-	private validateUrl(url: string): ValidationResult {
+	private isPrivateIP(ip: string): boolean {
+		// Check for localhost
+		if (ip === '127.0.0.1' || ip === '::1' || ip === '0:0:0:0:0:0:0:1') {
+			return true
+		}
+
+		// IPv4 private ranges
+		const parts = ip.split('.').map(Number)
+		if (parts.length === 4) {
+			// 10.0.0.0/8
+			if (parts[0] === 10) return true
+			// 172.16.0.0/12
+			if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true
+			// 192.168.0.0/16
+			if (parts[0] === 192 && parts[1] === 168) return true
+			// 169.254.0.0/16 (link-local)
+			if (parts[0] === 169 && parts[1] === 254) return true
+			// 127.0.0.0/8 (loopback)
+			if (parts[0] === 127) return true
+		}
+
+		// IPv6 private ranges (simplified check)
+		if (ip.includes(':')) {
+			// fc00::/7 (unique local)
+			if (ip.toLowerCase().startsWith('fc') || ip.toLowerCase().startsWith('fd')) return true
+			// fe80::/10 (link-local)
+			if (ip.toLowerCase().startsWith('fe8')) return true
+		}
+
+		return false
+	}
+
+	/**
+	 * Validate URL safety including DNS resolution check
+	 */
+	private async validateUrl(url: string): Promise<ValidationResult> {
 		try {
 			const parsed = urlParse(url)
+
+			// Validate protocol
 			if (!['http:', 'https:'].includes(parsed.protocol)) {
 				return { valid: false, reason: 'Invalid protocol. Use http or https.' }
 			}
 
-			// Block private IPs (basic check)
-			const hostname = parsed.hostname
+			const hostname = parsed.hostname.toLowerCase()
+
+			// Block localhost variants
 			if (
 				hostname === 'localhost' ||
 				hostname === '127.0.0.1' ||
-				hostname.startsWith('192.168.') ||
-				hostname.startsWith('10.') ||
-				hostname.endsWith('.local')
+				hostname === '[::1]' ||
+				hostname === '[::]' ||
+				hostname.endsWith('.local') ||
+				hostname.endsWith('.localhost')
 			) {
 				return { valid: false, reason: 'Invalid hostname (private network).' }
+			}
+
+			// Check if hostname is an IP address directly
+			if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
+				if (this.isPrivateIP(hostname)) {
+					return { valid: false, reason: 'Invalid hostname (private IP address).' }
+				}
+			}
+
+			// DNS resolution check to prevent DNS rebinding attacks
+			try {
+				const addresses = await lookup(hostname, { all: true })
+				for (const addr of addresses) {
+					if (this.isPrivateIP(addr.address)) {
+						return { valid: false, reason: 'Invalid hostname (resolves to private network).' }
+					}
+				}
+			} catch (dnsError) {
+				// DNS lookup failed - hostname might not exist
+				// We'll allow this to proceed as the HTTP request will fail anyway
+				console.warn(`DNS lookup failed for ${hostname}:`, dnsError)
 			}
 
 			return { valid: true }
@@ -304,8 +365,9 @@ class JobParser {
 	/**
 	 * Check if a URL is supported without parsing
 	 */
-	isSupported(url: string): boolean {
-		return this.validateUrl(url).valid
+	async isSupported(url: string): Promise<boolean> {
+		const validation = await this.validateUrl(url)
+		return validation.valid
 	}
 }
 
