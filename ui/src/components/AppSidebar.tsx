@@ -3,7 +3,6 @@ import { ChevronUp, Home, LogOut, Mail, PlusCircle, Shield, User, Users } from '
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useStopImpersonating } from '@/hooks/useAdmin'
 import { signOut, useSession } from '@/lib/auth-client'
-import { safeLocalStorage } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import {
@@ -70,8 +69,6 @@ export function AppSidebar() {
 	const handleSignOut = async () => {
 		// Clear React Query cache to prevent stale data from previous user
 		queryClient.clear()
-		// Clear persisted localStorage cache
-		safeLocalStorage.removeItem('job-application-tracker-cache')
 
 		await signOut({
 			fetchOptions: {

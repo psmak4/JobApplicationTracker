@@ -1,7 +1,6 @@
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
-import { QueryClient } from '@tanstack/react-query'
+// App.tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from 'sonner'
@@ -31,29 +30,6 @@ const queryClient = new QueryClient({
 			staleTime: 1000 * 60 * 60,
 		},
 	},
-})
-
-// Wrap localStorage access in try-catch for when storage is unavailable (e.g., incognito mode)
-const createSafeStorage = () => {
-	try {
-		// Test if localStorage is accessible
-		const testKey = '__storage_test__'
-		window.localStorage.setItem(testKey, testKey)
-		window.localStorage.removeItem(testKey)
-		return window.localStorage
-	} catch {
-		// Return a no-op storage when localStorage is not available
-		return {
-			getItem: () => null,
-			setItem: () => {},
-			removeItem: () => {},
-		}
-	}
-}
-
-const localStoragePersister = createAsyncStoragePersister({
-	storage: createSafeStorage(),
-	key: 'job-application-tracker-cache',
 })
 
 function NotFound() {
@@ -105,16 +81,7 @@ function AdminProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
 	return (
-		<PersistQueryClientProvider
-			client={queryClient}
-			persistOptions={{
-				persister: localStoragePersister,
-				maxAge: 1000 * 60 * 60 * 24 * 7,
-			}}
-			onSuccess={() => {
-				queryClient.resumePausedMutations()
-			}}
-		>
+		<QueryClientProvider client={queryClient}>
 			<BrowserRouter basename="/app">
 				<ErrorBoundary>
 					<Suspense fallback={<LoadingFallback />}>
@@ -161,7 +128,7 @@ function App() {
 			</BrowserRouter>
 			<Toaster position="bottom-right" richColors />
 			<ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
-		</PersistQueryClientProvider>
+		</QueryClientProvider>
 	)
 }
 
