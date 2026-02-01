@@ -55,7 +55,7 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
 
 		return date.toLocaleDateString(undefined, {
 			weekday: 'long',
-			month: 'short',
+			month: 'long',
 			day: 'numeric',
 		})
 	}
@@ -111,7 +111,7 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
 										</div>
 
 										{/* Actions */}
-										<div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+										<div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
 											{event.eventUrl && (
 												<a
 													href={event.eventUrl}

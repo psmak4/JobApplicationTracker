@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Calendar, Plus } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
@@ -10,11 +10,11 @@ import {
 	DashboardToolbar,
 	UpcomingEvents,
 } from '@/components/dashboard'
-import { Card, CardContent } from '@/components/ui/card'
+import { buttonVariants } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useApplicationPrefetch, useApplications } from '@/hooks/useApplications'
 import { useDashboardFilters } from '@/hooks/useDashboardFilters'
-import { buttonVariants } from '../components/ui/button'
-import { useApplicationPrefetch, useApplications } from '../hooks/useApplications'
-import { cn } from '../lib/utils'
+import { cn } from '@/lib/utils'
 
 export default function Dashboard() {
 	const navigate = useNavigate()
@@ -125,41 +125,29 @@ export default function Dashboard() {
 	return (
 		<div className="space-y-6">
 			{/* Header */}
-			<PageHeader
-				title="Dashboard"
-				subtitle="Overview of your job applications."
-				actions={[
-					<Link
-						key="new-desktop"
-						to="/new"
-						className={cn(
-							buttonVariants({ variant: 'default', size: 'lg' }),
-							'hidden sm:flex items-center gap-2',
-						)}
-					>
-						<Plus className="h-4 w-4" /> New Application
-					</Link>,
-					<Link
-						key="new-mobile"
-						to="/new"
-						className={cn(buttonVariants({ variant: 'default', size: 'icon-lg' }), 'sm:hidden')}
-						aria-label="Create new application"
-					>
-						<Plus className="h-4 w-4" />
-					</Link>,
-				]}
-			/>
+			<PageHeader title="Dashboard" subtitle="Overview of your job applications." />
 
-			<div className={cn('grid gap-6 items-start', upcomingEvents.length > 0 ? 'lg:grid-cols-3' : 'grid-cols-1')}>
+			<div className="flex flex-col-reverse lg:flex-row gap-6 justify-center">
 				{/* Main Content */}
-				<div
-					className={cn(
-						'space-y-6 min-w-0 order-2 lg:order-1',
-						upcomingEvents.length > 0 ? 'lg:col-span-2' : '',
-					)}
-				>
+				<div className="space-y-6 min-w-0">
 					<Card>
-						<CardContent className="p-6 space-y-6">
+						<CardHeader className="pb-3 flex items-center justify-between">
+							<CardTitle className="text-lg font-semibold flex items-center gap-2">
+								<Calendar className="h-5 w-5 text-primary" />
+								Job Applications
+							</CardTitle>
+							<Link
+								to="/new"
+								className={cn(
+									buttonVariants({ variant: 'default', size: 'sm' }),
+									'flex items-center gap-2',
+								)}
+								aria-label="Create new application"
+							>
+								<Plus className="h-4 w-4" /> New Application
+							</Link>
+						</CardHeader>
+						<CardContent className="space-y-6">
 							{/* Desktop Toolbar */}
 							<DashboardToolbar
 								filterConfig={filterConfig}
@@ -190,13 +178,6 @@ export default function Dashboard() {
 								onResetFilters={resetFilters}
 							/>
 
-							{/* Results Count */}
-							<div className="text-sm text-muted-foreground">
-								{filteredAndSortedApplications.length} application
-								{filteredAndSortedApplications.length !== 1 ? 's' : ''}
-								{activeFilterCount > 0 && ` (filtered from ${applications.length})`}
-							</div>
-
 							{/* Table, List, or Card View */}
 							{viewMode === 'table' ? (
 								<ApplicationTable
@@ -223,7 +204,7 @@ export default function Dashboard() {
 
 				{/* Sidebar */}
 				{upcomingEvents.length > 0 && (
-					<div className="lg:col-span-1 order-1 lg:order-2">
+					<div className="">
 						<UpcomingEvents events={upcomingEvents} />
 					</div>
 				)}

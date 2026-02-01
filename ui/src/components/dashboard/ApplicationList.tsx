@@ -1,4 +1,3 @@
-import { ChevronRight, Clock, MapPin } from 'lucide-react'
 import { useDashboardFilters } from '@/hooks/useDashboardFilters'
 import { formatDisplayDate } from '@/lib/utils'
 import type { Application } from '@/types'
@@ -25,8 +24,8 @@ export function ApplicationList({ applications, onNavigate, onPrefetch }: Applic
 		<div className="flex flex-col gap-3">
 			{applications.map((app) => {
 				const currentStatus = getCurrentStatus(app)
-				const lastUpdate = getLastStatusDate(app)
-				const stalenessColor = getStalenessColor(lastUpdate, currentStatus)
+				const lastStatusDate = getLastStatusDate(app)
+				const stalenessColor = getStalenessColor(lastStatusDate, currentStatus)
 
 				// Determine status color strip
 				let statusColorClass = 'bg-slate-400'
@@ -50,38 +49,23 @@ export function ApplicationList({ applications, onNavigate, onPrefetch }: Applic
 							onClick={() => onNavigate(app.id)}
 						>
 							{/* Main Info */}
-							<div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+							<div className="flex-1 min-w-0 flex gap-4 items-start justify-between">
 								{/* Company & Role */}
-								<div className="md:col-span-5 flex flex-col min-w-0">
-									<div className="font-semibold text-lg truncate leading-tight group-hover:text-primary transition-colors">
+								<div className="flex flex-col gap-1 min-w-0">
+									<div className="text-lg leading-tight group-hover:text-primary transition-colors">
 										{app.company}
 									</div>
-									<div className="text-sm text-muted-foreground truncate">{app.jobTitle}</div>
+									<div className="text-sm">{app.jobTitle}</div>
 								</div>
 
 								{/* Status Badge */}
-								<div className="md:col-span-3 flex items-center">
+								<div className="flex flex-col gap-1 items-end">
 									<ApplicationStatusBadge currentStatus={currentStatus} />
-								</div>
-
-								{/* Meta Info (Date/Location) */}
-								<div className="md:col-span-4 flex items-center gap-4 text-sm text-muted-foreground justify-end md:justify-start">
-									<div className={`flex items-center gap-1.5 whitespace-nowrap ${stalenessColor}`}>
-										<Clock className="h-3.5 w-3.5" />
-										<span>{formatDisplayDate(lastUpdate)}</span>
+									<div className="text-sm text-muted-foreground text-nowrap flex items-center gap-1">
+										<span>Most Recent Status:</span>
+										<span className={stalenessColor}>{formatDisplayDate(lastStatusDate)}</span>
 									</div>
-									{app.location && (
-										<div className="hidden md:flex items-center gap-1.5 truncate">
-											<MapPin className="h-3.5 w-3.5" />
-											<span className="truncate">{app.location}</span>
-										</div>
-									)}
 								</div>
-							</div>
-
-							{/* Chevron */}
-							<div className="shrink-0 text-muted-foreground/50 group-hover:text-primary transition-colors">
-								<ChevronRight className="h-5 w-5" />
 							</div>
 						</div>
 					</div>

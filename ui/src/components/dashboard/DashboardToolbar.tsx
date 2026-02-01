@@ -188,7 +188,7 @@ export function DashboardToolbar({
 			</div>
 
 			{/* View Toggle */}
-			<div className="flex items-center border rounded-2xl overflow-hidden divide-x">
+			{/* <div className="flex items-center border rounded-2xl overflow-hidden divide-x">
 				<Button
 					variant={viewMode === 'table' ? 'secondary' : 'ghost'}
 					size="sm"
@@ -219,7 +219,7 @@ export function DashboardToolbar({
 					<LayoutGrid className="h-4 w-4 mr-1.5" />
 					Cards
 				</Button>
-			</div>
+			</div> */}
 		</div>
 	)
 }

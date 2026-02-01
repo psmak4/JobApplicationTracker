@@ -183,7 +183,7 @@ export function DashboardMobileFilters({
 			</Sheet>
 
 			{/* View Toggle (Mobile) */}
-			<div className="flex items-center border rounded-md">
+			{/* <div className="flex items-center border rounded-md">
 				<Button
 					variant={viewMode === 'table' ? 'secondary' : 'ghost'}
 					size="icon"
@@ -204,7 +204,7 @@ export function DashboardMobileFilters({
 				>
 					<LayoutGrid className="h-4 w-4" />
 				</Button>
-			</div>
+			</div> */}
 		</div>
 	)
 }
