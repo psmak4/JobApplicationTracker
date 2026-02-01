@@ -1,9 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, Loader2, User } from 'lucide-react'
+import { Calendar, Check, Loader2, User } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useUpdateProfile } from '@/hooks/useProfile'
+import { authClient } from '@/lib/auth-client'
 import { type ProfileFormValues, profileSchema } from '@/lib/schemas'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
@@ -56,7 +57,7 @@ export function ProfileFormCard({ user }: ProfileFormCardProps) {
 		<Card>
 			<CardHeader>
 				<div className="flex items-center gap-4">
-					<div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
+					<div className="h-16 w-16 rounded-full bg-linear-to-br from-primary/30 to-primary/10 flex items-center justify-center">
 						{user.image ? (
 							<img src={user.image} alt={user.name} className="h-16 w-16 rounded-full object-cover" />
 						) : (
@@ -88,6 +89,28 @@ export function ProfileFormCard({ user }: ProfileFormCardProps) {
 							</Field>
 						</FieldGroup>
 					</FieldSet>
+
+					{/* Connected Accounts */}
+					<div className="pt-4 border-t border-border space-y-3">
+						<h4 className="text-sm font-medium">Connected Integrated Services</h4>
+						<p className="text-sm text-muted-foreground">
+							Link your Google account to enable calendar integration for interview tracking.
+						</p>
+						<Button
+							type="button"
+							variant="outline"
+							className="w-full sm:w-auto"
+							onClick={async () => {
+								await authClient.signIn.social({
+									provider: 'google',
+									callbackURL: `${window.location.origin}/app/profile`,
+								})
+							}}
+						>
+							<Calendar className="mr-2 h-4 w-4" />
+							Link Google Calendar
+						</Button>
+					</div>
 
 					{/* Member Since */}
 					<div className="pt-4 border-t border-border">

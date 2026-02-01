@@ -4,6 +4,7 @@ import {
 	ArrowUpDown,
 	Filter as FilterIcon,
 	LayoutGrid,
+	List as ListIcon,
 	RotateCcw,
 	Table as TableIcon,
 } from 'lucide-react'
@@ -20,12 +21,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 interface DashboardToolbarProps {
 	filterConfig: FilterConfig
 	sortConfig: SortConfig
-	viewMode: 'table' | 'card'
+	viewMode: 'table' | 'card' | 'list'
 	activeFilterCount: number
 	uniqueCompanies: string[]
 	onFilterChange: React.Dispatch<React.SetStateAction<FilterConfig>>
 	onSortChange: React.Dispatch<React.SetStateAction<SortConfig>>
-	onViewModeChange: React.Dispatch<React.SetStateAction<'table' | 'card'>>
+	onViewModeChange: React.Dispatch<React.SetStateAction<'table' | 'card' | 'list'>>
 	onToggleStatus: (status: string) => void
 	onResetFilters: () => void
 	onToggleSortDirection: () => void
@@ -155,7 +156,7 @@ export function DashboardToolbar({
 					value={sortConfig.key}
 					onValueChange={(val) => onSortChange((prev) => ({ ...prev, key: val as SortKey }))}
 				>
-					<SelectTrigger className="w-[160px] h-9 bg-background">
+					<SelectTrigger className="w-[160px] bg-background">
 						<div className="flex items-center gap-2">
 							<ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
 							<SelectValue>
@@ -187,22 +188,32 @@ export function DashboardToolbar({
 			</div>
 
 			{/* View Toggle */}
-			<div className="flex items-center border rounded-2xl">
+			<div className="flex items-center border rounded-2xl overflow-hidden divide-x">
 				<Button
 					variant={viewMode === 'table' ? 'secondary' : 'ghost'}
 					size="sm"
 					onClick={() => onViewModeChange('table')}
-					className="rounded-r-none h-9"
+					className="rounded-none h-9 px-3"
 					aria-pressed={viewMode === 'table'}
 				>
 					<TableIcon className="h-4 w-4 mr-1.5" />
 					Table
 				</Button>
 				<Button
+					variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+					size="sm"
+					onClick={() => onViewModeChange('list')}
+					className="rounded-none h-9 px-3"
+					aria-pressed={viewMode === 'list'}
+				>
+					<ListIcon className="h-4 w-4 mr-1.5" />
+					List
+				</Button>
+				<Button
 					variant={viewMode === 'card' ? 'secondary' : 'ghost'}
 					size="sm"
 					onClick={() => onViewModeChange('card')}
-					className="rounded-l-none h-9"
+					className="rounded-none h-9 px-3"
 					aria-pressed={viewMode === 'card'}
 				>
 					<LayoutGrid className="h-4 w-4 mr-1.5" />

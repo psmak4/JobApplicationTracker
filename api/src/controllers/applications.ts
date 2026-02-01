@@ -10,19 +10,42 @@ const getRequestId = (req: Request): string => req.requestId || 'unknown'
 
 // Zod schemas for validation with input sanitization (trim whitespace)
 const createApplicationSchema = z.object({
-	company: z.string().min(1, 'Company name is required').transform((v) => v.trim()),
-	jobTitle: z.string().min(1, 'Job title is required').transform((v) => v.trim()),
+	company: z
+		.string()
+		.min(1, 'Company name is required')
+		.transform((v) => v.trim()),
+	jobTitle: z
+		.string()
+		.min(1, 'Job title is required')
+		.transform((v) => v.trim()),
 	jobDescriptionUrl: z.string().url().optional().or(z.literal('')),
-	salary: z.string().optional().transform((v) => (v ? v.trim() : v)),
-	location: z.string().optional().transform((v) => (v ? v.trim() : v)),
+	salary: z
+		.string()
+		.optional()
+		.transform((v) => (v ? v.trim() : v)),
+	location: z
+		.string()
+		.optional()
+		.transform((v) => (v ? v.trim() : v)),
 	workType: z.enum(['Remote', 'Hybrid', 'On-site']).optional(),
-	contactInfo: z.string().optional().transform((v) => (v ? v.trim() : v)),
-	notes: z.string().optional().transform((v) => (v ? v.trim() : v)),
+	contactInfo: z
+		.string()
+		.optional()
+		.transform((v) => (v ? v.trim() : v)),
+	notes: z
+		.string()
+		.optional()
+		.transform((v) => (v ? v.trim() : v)),
 	status: z.enum(applicationStatusEnum.enumValues).default('Applied'), // Initial status
 	date: z.string().optional(),
 })
 
-const updateApplicationSchema = createApplicationSchema.partial()
+const updateApplicationSchema = createApplicationSchema
+	.omit({ status: true })
+	.partial()
+	.extend({
+		status: z.enum(applicationStatusEnum.enumValues).optional(),
+	})
 
 export const applicationController = {
 	// Get all applications for the logged-in user
@@ -36,7 +59,7 @@ export const applicationController = {
 				where: eq(applications.userId, userId),
 				with: {
 					statusHistory: {
-						orderBy: [desc(statusHistory.date)],
+						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
 					},
 				},
 				orderBy: [desc(applications.updatedAt)],
@@ -45,9 +68,7 @@ export const applicationController = {
 			res.json(successResponse(userApplications, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching applications:', error)
-			res.status(500).json(
-				errorResponse('INTERNAL_ERROR', 'Failed to fetch applications', getRequestId(req)),
-			)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch applications', getRequestId(req)))
 		}
 	},
 
@@ -62,24 +83,20 @@ export const applicationController = {
 				where: and(eq(applications.id, applicationId), eq(applications.userId, userId)),
 				with: {
 					statusHistory: {
-						orderBy: [desc(statusHistory.date)],
+						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
 					},
 				},
 			})
 
 			if (!application) {
-				res.status(404).json(
-					errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)),
-				)
+				res.status(404).json(errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)))
 				return
 			}
 
 			res.json(successResponse(application, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching application:', error)
-			res.status(500).json(
-				errorResponse('INTERNAL_ERROR', 'Failed to fetch application', getRequestId(req)),
-			)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch application', getRequestId(req)))
 		}
 	},
 
@@ -124,9 +141,7 @@ export const applicationController = {
 			res.status(201).json(successResponse(result, getRequestId(req)))
 		} catch (error) {
 			console.error('Error creating application:', error)
-			res.status(500).json(
-				errorResponse('INTERNAL_ERROR', 'Failed to create application', getRequestId(req)),
-			)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create application', getRequestId(req)))
 		}
 	},
 
@@ -148,9 +163,7 @@ export const applicationController = {
 			})
 
 			if (!existingApp) {
-				res.status(404).json(
-					errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)),
-				)
+				res.status(404).json(errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)))
 				return
 			}
 
@@ -172,7 +185,7 @@ export const applicationController = {
 					.select()
 					.from(statusHistory)
 					.where(eq(statusHistory.applicationId, applicationId))
-					.orderBy(desc(statusHistory.date))
+					.orderBy(desc(statusHistory.date), desc(statusHistory.createdAt))
 					.limit(1)
 
 				if (!latestStatus || latestStatus.status !== status) {
@@ -191,9 +204,7 @@ export const applicationController = {
 			res.json(successResponse(updatedApp, getRequestId(req)))
 		} catch (error) {
 			console.error('Error updating application:', error)
-			res.status(500).json(
-				errorResponse('INTERNAL_ERROR', 'Failed to update application', getRequestId(req)),
-			)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to update application', getRequestId(req)))
 		}
 	},
 
@@ -209,23 +220,14 @@ export const applicationController = {
 				.returning()
 
 			if (!deleted) {
-				res.status(404).json(
-					errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)),
-				)
+				res.status(404).json(errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)))
 				return
 			}
 
-			res.json(
-				successResponse(
-					{ message: 'Application deleted successfully' },
-					getRequestId(req),
-				),
-			)
+			res.json(successResponse({ message: 'Application deleted successfully' }, getRequestId(req)))
 		} catch (error) {
 			console.error('Error deleting application:', error)
-			res.status(500).json(
-				errorResponse('INTERNAL_ERROR', 'Failed to delete application', getRequestId(req)),
-			)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete application', getRequestId(req)))
 		}
 	},
 }

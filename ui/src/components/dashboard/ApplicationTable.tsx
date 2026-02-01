@@ -1,5 +1,6 @@
 import React from 'react'
 import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
+import { useDashboardFilters } from '@/hooks/useDashboardFilters'
 import { formatDisplayDate } from '@/lib/utils'
 import type { Application, ApplicationStatus } from '@/types'
 
@@ -35,9 +36,6 @@ ApplicationRow.displayName = 'ApplicationRow'
 
 interface ApplicationTableProps {
 	applications: Application[]
-	getCurrentStatus: (app: Application) => ApplicationStatus | 'Unknown'
-	getLastStatusDate: (app: Application) => string
-	getStalenessColor: (statusDate: string, status: string) => string
 	onNavigate: (id: string) => void
 	onPrefetch: (id: string) => void
 }
@@ -45,14 +43,9 @@ interface ApplicationTableProps {
 /**
  * Table view for applications list in the Dashboard
  */
-export function ApplicationTable({
-	applications,
-	getCurrentStatus,
-	getLastStatusDate,
-	getStalenessColor,
-	onNavigate,
-	onPrefetch,
-}: ApplicationTableProps) {
+export function ApplicationTable({ applications, onNavigate, onPrefetch }: ApplicationTableProps) {
+	const { getCurrentStatus, getLastStatusDate, getStalenessColor } = useDashboardFilters()
+
 	return (
 		<div className="rounded-md border">
 			<div className="relative w-full overflow-auto">

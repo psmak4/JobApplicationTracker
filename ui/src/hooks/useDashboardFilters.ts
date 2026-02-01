@@ -26,13 +26,13 @@ interface UseDashboardFiltersReturn {
 	// State
 	sortConfig: SortConfig
 	filterConfig: FilterConfig
-	viewMode: 'table' | 'card'
+	viewMode: 'table' | 'card' | 'list'
 	activeFilterCount: number
 
 	// Setters
 	setSortConfig: React.Dispatch<React.SetStateAction<SortConfig>>
 	setFilterConfig: React.Dispatch<React.SetStateAction<FilterConfig>>
-	setViewMode: React.Dispatch<React.SetStateAction<'table' | 'card'>>
+	setViewMode: React.Dispatch<React.SetStateAction<'table' | 'card' | 'list'>>
 
 	// Actions
 	toggleStatus: (status: string) => void
@@ -53,9 +53,12 @@ export function useDashboardFilters(): UseDashboardFiltersReturn {
 	const [searchParams, setSearchParams] = useSearchParams()
 
 	// Initialize view mode from localStorage
-	const [viewMode, setViewMode] = useState<'table' | 'card'>(() => {
+	// Initialize view mode from localStorage
+	const [viewMode, setViewMode] = useState<'table' | 'card' | 'list'>(() => {
 		const saved = safeLocalStorage.getItem('dashboard_view_mode')
-		return saved === 'card' ? 'card' : 'table'
+		if (saved === 'card') return 'card'
+		if (saved === 'list') return 'list'
+		return 'table'
 	})
 
 	// Initialize sort config from localStorage

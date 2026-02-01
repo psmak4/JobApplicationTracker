@@ -25,6 +25,11 @@ const createStatusSchema = z.object({
 			},
 		)
 		.default(() => new Date().toISOString().split('T')[0]),
+	eventId: z.string().optional(),
+	eventTitle: z.string().optional(),
+	eventUrl: z.string().optional(),
+	eventStartTime: z.string().optional().or(z.null()),
+	eventEndTime: z.string().optional().or(z.null()),
 })
 
 export const statusController = {
@@ -40,9 +45,7 @@ export const statusController = {
 			})
 
 			if (!app) {
-				res.status(404).json(
-					errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)),
-				)
+				res.status(404).json(errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)))
 				return
 			}
 
@@ -55,9 +58,7 @@ export const statusController = {
 			res.json(successResponse(history, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching status history:', error)
-			res.status(500).json(
-				errorResponse('INTERNAL_ERROR', 'Failed to fetch status history', getRequestId(req)),
-			)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch status history', getRequestId(req)))
 		}
 	},
 
@@ -79,9 +80,7 @@ export const statusController = {
 			})
 
 			if (!app) {
-				res.status(404).json(
-					errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)),
-				)
+				res.status(404).json(errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)))
 				return
 			}
 
@@ -94,6 +93,11 @@ export const statusController = {
 					applicationId,
 					status: validation.data.status,
 					date: statusDate,
+					eventId: validation.data.eventId,
+					eventTitle: validation.data.eventTitle,
+					eventUrl: validation.data.eventUrl,
+					eventStartTime: validation.data.eventStartTime ? new Date(validation.data.eventStartTime) : null,
+					eventEndTime: validation.data.eventEndTime ? new Date(validation.data.eventEndTime) : null,
 				})
 				.returning()
 
@@ -103,9 +107,7 @@ export const statusController = {
 			res.status(201).json(successResponse(newStatus, getRequestId(req)))
 		} catch (error) {
 			console.error('Error creating status entry:', error)
-			res.status(500).json(
-				errorResponse('INTERNAL_ERROR', 'Failed to create status entry', getRequestId(req)),
-			)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create status entry', getRequestId(req)))
 		}
 	},
 
@@ -130,9 +132,7 @@ export const statusController = {
 
 			// Type-safe check: statusEntry.application is properly typed via Drizzle relations
 			if (!statusEntry || !statusEntry.application || statusEntry.application.userId !== userId) {
-				res.status(404).json(
-					errorResponse('NOT_FOUND', 'Status entry not found', getRequestId(req)),
-				)
+				res.status(404).json(errorResponse('NOT_FOUND', 'Status entry not found', getRequestId(req)))
 				return
 			}
 
@@ -144,25 +144,17 @@ export const statusController = {
 
 			if (count.length <= 1) {
 				res.status(400).json(
-					errorResponse(
-						'VALIDATION_ERROR',
-						'Cannot delete the only status entry',
-						getRequestId(req),
-					),
+					errorResponse('VALIDATION_ERROR', 'Cannot delete the only status entry', getRequestId(req)),
 				)
 				return
 			}
 
 			await db.delete(statusHistory).where(eq(statusHistory.id, id))
 
-			res.json(
-				successResponse({ message: 'Status entry deleted' }, getRequestId(req)),
-			)
+			res.json(successResponse({ message: 'Status entry deleted' }, getRequestId(req)))
 		} catch (error) {
 			console.error('Error deleting status entry:', error)
-			res.status(500).json(
-				errorResponse('INTERNAL_ERROR', 'Failed to delete status entry', getRequestId(req)),
-			)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete status entry', getRequestId(req)))
 		}
 	},
 }

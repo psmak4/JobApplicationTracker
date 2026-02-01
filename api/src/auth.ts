@@ -31,6 +31,14 @@ export const auth = betterAuth({
 		},
 		sendOnSignUp: true,
 	},
+	socialProviders: {
+		google: {
+			clientId: process.env.GOOGLE_CLIENT_ID || '',
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+			scope: ['https://www.googleapis.com/auth/calendar.events.readonly'],
+			accessType: 'offline', // Request refresh token
+		},
+	},
 	trustedOrigins,
 	plugins: [
 		admin({

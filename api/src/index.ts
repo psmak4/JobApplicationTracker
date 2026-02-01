@@ -9,6 +9,7 @@ import { errorHandler, notFoundHandler, requestIdMiddleware } from './middleware
 import { authProtection } from './middleware/rateLimiter'
 import adminRoutes from './routes/admin'
 import applicationRoutes from './routes/applications'
+import calendarRoutes from './routes/calendar'
 import parserRoutes from './routes/parser'
 import statusRoutes from './routes/statuses'
 
@@ -51,6 +52,7 @@ app.all('/api/auth/*path', ...authProtection, toNodeHandler(auth))
 app.use('/api/admin', adminRoutes)
 app.use('/api/applications', applicationRoutes)
 app.use('/api/statuses', statusRoutes)
+app.use('/api/calendar', calendarRoutes)
 app.use('/api/parser', parserRoutes)
 app.get('/', (_, res) => {
 	res.send('Job Tracker API is running')

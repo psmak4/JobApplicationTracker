@@ -66,7 +66,15 @@ export const useUpdateApplication = (id: string) => {
 export const useAddStatus = (applicationId: string) => {
 	const queryClient = useQueryClient()
 	return useMutation({
-		mutationFn: async (data: { status: ApplicationStatus; date: string }) => {
+		mutationFn: async (data: {
+			status: ApplicationStatus
+			date: string
+			eventId?: string
+			eventTitle?: string
+			eventUrl?: string
+			eventStartTime?: string
+			eventEndTime?: string
+		}) => {
 			const response = await apiClient.post(`/statuses/application/${applicationId}`, data)
 			return extractData(response.data)
 		},
@@ -77,9 +85,7 @@ export const useAddStatus = (applicationId: string) => {
 		},
 		onError: (error: MutationError) => {
 			const message =
-				('response' in error && error.response?.data?.error?.message) ||
-				error.message ||
-				'Failed to add status'
+				('response' in error && error.response?.data?.error?.message) || error.message || 'Failed to add status'
 			toast.error('Error', { description: message })
 		},
 	})

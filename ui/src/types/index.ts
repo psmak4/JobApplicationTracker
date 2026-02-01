@@ -17,6 +17,12 @@ export interface StatusHistoryEntry {
 	status: ApplicationStatus
 	date: string // ISO timestamp
 	createdAt: string // ISO timestamp
+	// Calendar Event
+	eventId?: string
+	eventTitle?: string
+	eventUrl?: string
+	eventStartTime?: string // ISO timestamp
+	eventEndTime?: string // ISO timestamp
 }
 
 export interface Application {

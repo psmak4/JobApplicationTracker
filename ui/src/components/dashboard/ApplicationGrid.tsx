@@ -1,5 +1,6 @@
 import React from 'react'
 import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
+import { useDashboardFilters } from '@/hooks/useDashboardFilters'
 import { formatDisplayDate } from '@/lib/utils'
 import type { Application, ApplicationStatus } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
@@ -43,9 +44,6 @@ ApplicationCard.displayName = 'ApplicationCard'
 
 interface ApplicationGridProps {
 	applications: Application[]
-	getCurrentStatus: (app: Application) => ApplicationStatus | 'Unknown'
-	getLastStatusDate: (app: Application) => string
-	getStalenessColor: (statusDate: string, status: string) => string
 	onNavigate: (id: string) => void
 	onPrefetch: (id: string) => void
 }
@@ -53,14 +51,9 @@ interface ApplicationGridProps {
 /**
  * Card grid view for applications list in the Dashboard
  */
-export function ApplicationGrid({
-	applications,
-	getCurrentStatus,
-	getLastStatusDate,
-	getStalenessColor,
-	onNavigate,
-	onPrefetch,
-}: ApplicationGridProps) {
+export function ApplicationGrid({ applications, onNavigate, onPrefetch }: ApplicationGridProps) {
+	const { getCurrentStatus, getLastStatusDate, getStalenessColor } = useDashboardFilters()
+
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 			{applications.length === 0 ? (

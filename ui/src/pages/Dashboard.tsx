@@ -2,7 +2,14 @@ import { Plus } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
-import { ApplicationGrid, ApplicationTable, DashboardMobileFilters, DashboardToolbar } from '@/components/dashboard'
+import {
+	ApplicationGrid,
+	ApplicationList,
+	ApplicationTable,
+	DashboardMobileFilters,
+	DashboardToolbar,
+	UpcomingEvents,
+} from '@/components/dashboard'
 import { Card, CardContent } from '@/components/ui/card'
 import { useDashboardFilters } from '@/hooks/useDashboardFilters'
 import { buttonVariants } from '../components/ui/button'
@@ -28,10 +35,28 @@ export default function Dashboard() {
 		toggleSortDirection,
 		getCurrentStatus,
 		getLastStatusDate,
-		getStalenessColor,
 	} = useDashboardFilters()
 
 	// Derived data
+	const upcomingEvents = useMemo(() => {
+		const now = new Date()
+		const events = applications.flatMap((app) =>
+			app.statusHistory
+				.filter((entry) => entry.eventStartTime && entry.eventId && new Date(entry.eventStartTime) > now)
+				.map((entry) => ({
+					id: entry.id,
+					applicationId: app.id,
+					company: app.company,
+					jobTitle: app.jobTitle,
+					eventTitle: entry.eventTitle || 'Scheduled Event',
+					eventDate: entry.eventStartTime!,
+					eventUrl: entry.eventUrl,
+					status: entry.status,
+				})),
+		)
+		return events.sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
+	}, [applications])
+
 	const uniqueCompanies = useMemo(() => {
 		const companies = new Set(applications.map((app) => app.company))
 		return Array.from(companies).sort()
@@ -105,6 +130,7 @@ export default function Dashboard() {
 				subtitle="Overview of your job applications."
 				actions={[
 					<Link
+						key="new-desktop"
 						to="/new"
 						className={cn(
 							buttonVariants({ variant: 'default', size: 'lg' }),
@@ -114,6 +140,7 @@ export default function Dashboard() {
 						<Plus className="h-4 w-4" /> New Application
 					</Link>,
 					<Link
+						key="new-mobile"
 						to="/new"
 						className={cn(buttonVariants({ variant: 'default', size: 'icon-lg' }), 'sm:hidden')}
 						aria-label="Create new application"
@@ -123,67 +150,84 @@ export default function Dashboard() {
 				]}
 			/>
 
-			<Card>
-				<CardContent className="p-6 space-y-6">
-					{/* Desktop Toolbar */}
-					<DashboardToolbar
-						filterConfig={filterConfig}
-						sortConfig={sortConfig}
-						viewMode={viewMode}
-						activeFilterCount={activeFilterCount}
-						uniqueCompanies={uniqueCompanies}
-						onFilterChange={setFilterConfig}
-						onSortChange={setSortConfig}
-						onViewModeChange={setViewMode}
-						onToggleStatus={toggleStatus}
-						onResetFilters={resetFilters}
-						onToggleSortDirection={toggleSortDirection}
-					/>
-
-					{/* Mobile Toolbar */}
-					<DashboardMobileFilters
-						filterConfig={filterConfig}
-						sortConfig={sortConfig}
-						viewMode={viewMode}
-						activeFilterCount={activeFilterCount}
-						uniqueCompanies={uniqueCompanies}
-						filteredCount={filteredAndSortedApplications.length}
-						onFilterChange={setFilterConfig}
-						onSortChange={setSortConfig}
-						onViewModeChange={setViewMode}
-						onToggleStatus={toggleStatus}
-						onResetFilters={resetFilters}
-					/>
-
-					{/* Results Count */}
-					<div className="text-sm text-muted-foreground">
-						{filteredAndSortedApplications.length} application
-						{filteredAndSortedApplications.length !== 1 ? 's' : ''}
-						{activeFilterCount > 0 && ` (filtered from ${applications.length})`}
-					</div>
-
-					{/* Table or Card View */}
-					{viewMode === 'table' ? (
-						<ApplicationTable
-							applications={filteredAndSortedApplications}
-							getCurrentStatus={getCurrentStatus}
-							getLastStatusDate={getLastStatusDate}
-							getStalenessColor={getStalenessColor}
-							onNavigate={handleNavigate}
-							onPrefetch={handlePrefetch}
-						/>
-					) : (
-						<ApplicationGrid
-							applications={filteredAndSortedApplications}
-							getCurrentStatus={getCurrentStatus}
-							getLastStatusDate={getLastStatusDate}
-							getStalenessColor={getStalenessColor}
-							onNavigate={handleNavigate}
-							onPrefetch={handlePrefetch}
-						/>
+			<div className={cn('grid gap-6 items-start', upcomingEvents.length > 0 ? 'lg:grid-cols-3' : 'grid-cols-1')}>
+				{/* Main Content */}
+				<div
+					className={cn(
+						'space-y-6 min-w-0 order-2 lg:order-1',
+						upcomingEvents.length > 0 ? 'lg:col-span-2' : '',
 					)}
-				</CardContent>
-			</Card>
+				>
+					<Card>
+						<CardContent className="p-6 space-y-6">
+							{/* Desktop Toolbar */}
+							<DashboardToolbar
+								filterConfig={filterConfig}
+								sortConfig={sortConfig}
+								viewMode={viewMode}
+								activeFilterCount={activeFilterCount}
+								uniqueCompanies={uniqueCompanies}
+								onFilterChange={setFilterConfig}
+								onSortChange={setSortConfig}
+								onViewModeChange={setViewMode}
+								onToggleStatus={toggleStatus}
+								onResetFilters={resetFilters}
+								onToggleSortDirection={toggleSortDirection}
+							/>
+
+							{/* Mobile Toolbar */}
+							<DashboardMobileFilters
+								filterConfig={filterConfig}
+								sortConfig={sortConfig}
+								viewMode={viewMode}
+								activeFilterCount={activeFilterCount}
+								uniqueCompanies={uniqueCompanies}
+								filteredCount={filteredAndSortedApplications.length}
+								onFilterChange={setFilterConfig}
+								onSortChange={setSortConfig}
+								onViewModeChange={setViewMode}
+								onToggleStatus={toggleStatus}
+								onResetFilters={resetFilters}
+							/>
+
+							{/* Results Count */}
+							<div className="text-sm text-muted-foreground">
+								{filteredAndSortedApplications.length} application
+								{filteredAndSortedApplications.length !== 1 ? 's' : ''}
+								{activeFilterCount > 0 && ` (filtered from ${applications.length})`}
+							</div>
+
+							{/* Table, List, or Card View */}
+							{viewMode === 'table' ? (
+								<ApplicationTable
+									applications={filteredAndSortedApplications}
+									onNavigate={handleNavigate}
+									onPrefetch={handlePrefetch}
+								/>
+							) : viewMode === 'list' ? (
+								<ApplicationList
+									applications={filteredAndSortedApplications}
+									onNavigate={handleNavigate}
+									onPrefetch={handlePrefetch}
+								/>
+							) : (
+								<ApplicationGrid
+									applications={filteredAndSortedApplications}
+									onNavigate={handleNavigate}
+									onPrefetch={handlePrefetch}
+								/>
+							)}
+						</CardContent>
+					</Card>
+				</div>
+
+				{/* Sidebar */}
+				{upcomingEvents.length > 0 && (
+					<div className="lg:col-span-1 order-1 lg:order-2">
+						<UpcomingEvents events={upcomingEvents} />
+					</div>
+				)}
+			</div>
 		</div>
 	)
 }

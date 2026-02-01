@@ -13,13 +13,13 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 interface DashboardMobileFiltersProps {
 	filterConfig: FilterConfig
 	sortConfig: SortConfig
-	viewMode: 'table' | 'card'
+	viewMode: 'table' | 'card' | 'list'
 	activeFilterCount: number
 	uniqueCompanies: string[]
 	filteredCount: number
 	onFilterChange: React.Dispatch<React.SetStateAction<FilterConfig>>
 	onSortChange: React.Dispatch<React.SetStateAction<SortConfig>>
-	onViewModeChange: React.Dispatch<React.SetStateAction<'table' | 'card'>>
+	onViewModeChange: React.Dispatch<React.SetStateAction<'table' | 'card' | 'list'>>
 	onToggleStatus: (status: string) => void
 	onResetFilters: () => void
 }

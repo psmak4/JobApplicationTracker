@@ -114,6 +114,12 @@ export const statusHistory = pgTable(
 			.references(() => applications.id, { onDelete: 'cascade' }),
 		status: applicationStatusEnum('status').notNull(),
 		date: date('date').notNull(),
+		// Calendar Event Integration
+		eventId: text('event_id'),
+		eventTitle: text('event_title'),
+		eventUrl: text('event_url'),
+		eventStartTime: timestamp('event_start_time'),
+		eventEndTime: timestamp('event_end_time'),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 	},
 	(table) => [
