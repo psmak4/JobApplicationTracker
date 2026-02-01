@@ -103,11 +103,7 @@ export function ApplicationFormFields({
 							<FieldLabel htmlFor="company">
 								Company <span className="text-red-500">*</span>
 							</FieldLabel>
-							<Input
-								id="company"
-								placeholder={companyPlaceholder}
-								{...register('company')}
-							/>
+							<Input id="company" placeholder={companyPlaceholder} {...register('company')} />
 							<FieldErrorComponent errors={[getFieldError(errors.company)]} />
 						</Field>
 
@@ -115,11 +111,7 @@ export function ApplicationFormFields({
 							<FieldLabel htmlFor="jobTitle">
 								Job Title <span className="text-red-500">*</span>
 							</FieldLabel>
-							<Input
-								id="jobTitle"
-								placeholder={jobTitlePlaceholder}
-								{...register('jobTitle')}
-							/>
+							<Input id="jobTitle" placeholder={jobTitlePlaceholder} {...register('jobTitle')} />
 							<FieldErrorComponent errors={[getFieldError(errors.jobTitle)]} />
 						</Field>
 					</div>
@@ -127,59 +119,50 @@ export function ApplicationFormFields({
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<Field>
 							<FieldLabel htmlFor="location">Location</FieldLabel>
-							<Input
-								id="location"
-								placeholder="City, State or Remote"
-								{...register('location')}
-							/>
+							<Input id="location" placeholder="City, State or Remote" {...register('location')} />
 							<FieldErrorComponent errors={[getFieldError(errors.location)]} />
 						</Field>
 
 						<Field>
 							<FieldLabel htmlFor="salary">Salary Range</FieldLabel>
-							<Input
-								id="salary"
-								placeholder="e.g., $100k - $150k"
-								{...register('salary')}
-							/>
+							<Input id="salary" placeholder="e.g., $100k - $150k" {...register('salary')} />
 							<FieldErrorComponent errors={[getFieldError(errors.salary)]} />
 						</Field>
 					</div>
 
-					<Field>
-						<FieldLabel htmlFor="workType">Work Type</FieldLabel>
-						<Select
-							value={currentWorkType || ''}
-							onValueChange={(value) => setValue('workType', value as WorkType, { shouldValidate: true })}
-						>
-							<SelectTrigger id="workType">
-								<SelectValue placeholder="Select work type" />
-							</SelectTrigger>
-							<SelectContent>
-								{WORK_TYPE_OPTIONS.map((option) => (
-									<SelectItem key={option.value} value={option.value}>
-										{option.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-						<FieldErrorComponent errors={[getFieldError(errors.workType)]} />
-					</Field>
-				</FieldGroup>
-			</FieldSet>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<Field>
+							<FieldLabel htmlFor="workType">Work Type</FieldLabel>
+							<Select
+								value={currentWorkType || ''}
+								onValueChange={(value) =>
+									setValue('workType', value as WorkType, { shouldValidate: true })
+								}
+							>
+								<SelectTrigger id="workType">
+									<SelectValue placeholder="Select work type" />
+								</SelectTrigger>
+								<SelectContent>
+									{WORK_TYPE_OPTIONS.map((option) => (
+										<SelectItem key={option.value} value={option.value}>
+											{option.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<FieldErrorComponent errors={[getFieldError(errors.workType)]} />
+						</Field>
 
-			<FieldSet>
-				<FieldLegend>Additional Information</FieldLegend>
-				<FieldGroup>
-					<Field>
-						<FieldLabel htmlFor="contactInfo">Contact Information</FieldLabel>
-						<Input
-							id="contactInfo"
-							placeholder="Recruiter email, phone, or LinkedIn"
-							{...register('contactInfo')}
-						/>
-						<FieldErrorComponent errors={[getFieldError(errors.contactInfo)]} />
-					</Field>
+						<Field>
+							<FieldLabel htmlFor="contactInfo">Contact Information</FieldLabel>
+							<Input
+								id="contactInfo"
+								placeholder="Recruiter email, phone, or LinkedIn"
+								{...register('contactInfo')}
+							/>
+							<FieldErrorComponent errors={[getFieldError(errors.contactInfo)]} />
+						</Field>
+					</div>
 
 					<Field>
 						<FieldLabel htmlFor="notes">Notes</FieldLabel>

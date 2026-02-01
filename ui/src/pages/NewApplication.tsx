@@ -251,7 +251,7 @@ export default function NewApplication() {
 		<div className="space-y-6">
 			<PageHeader title="New Application" subtitle="Track a new job application." backUrl="/" />
 
-			<div className="max-w-2xl mx-auto">
+			<div className="max-w-3xl mx-auto">
 				<Card>
 					<CardContent className="p-6">
 						<form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
