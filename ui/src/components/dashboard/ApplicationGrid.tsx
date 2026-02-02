@@ -4,6 +4,7 @@ import { useDashboardFilters } from '@/hooks/useDashboardFilters'
 import { formatDisplayDate } from '@/lib/utils'
 import type { Application, ApplicationStatus } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { EmptyState } from './EmptyState'
 
 interface ApplicationCardProps {
 	app: Application
@@ -52,31 +53,31 @@ interface ApplicationGridProps {
  * Card grid view for applications list in the Dashboard
  */
 export function ApplicationGrid({ applications, onNavigate, onPrefetch }: ApplicationGridProps) {
-	const { getCurrentStatus, getLastStatusDate, getStalenessColor } = useDashboardFilters()
+	const { getCurrentStatus, getLastStatusDate, getStalenessColor, resetFilters } = useDashboardFilters()
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+		<>
 			{applications.length === 0 ? (
-				<p className="col-span-full text-center py-12 text-muted-foreground border rounded-lg bg-muted/10">
-					No applications found matching your criteria.
-				</p>
+				<EmptyState isFiltered onResetFilters={resetFilters} />
 			) : (
-				applications.map((app) => {
-					const currentStatus = getCurrentStatus(app)
-					const lastStatusDate = getLastStatusDate(app)
-					return (
-						<ApplicationCard
-							key={app.id}
-							app={app}
-							currentStatus={currentStatus}
-							lastStatusDate={lastStatusDate}
-							stalenessColor={getStalenessColor(lastStatusDate, currentStatus)}
-							onClick={() => onNavigate(app.id)}
-							onMouseEnter={() => onPrefetch(app.id)}
-						/>
-					)
-				})
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+					{applications.map((app) => {
+						const currentStatus = getCurrentStatus(app)
+						const lastStatusDate = getLastStatusDate(app)
+						return (
+							<ApplicationCard
+								key={app.id}
+								app={app}
+								currentStatus={currentStatus}
+								lastStatusDate={lastStatusDate}
+								stalenessColor={getStalenessColor(lastStatusDate, currentStatus)}
+								onClick={() => onNavigate(app.id)}
+								onMouseEnter={() => onPrefetch(app.id)}
+							/>
+						)
+					})}
+				</div>
 			)}
-		</div>
+		</>
 	)
 }

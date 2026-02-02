@@ -3,6 +3,7 @@ import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
 import { useDashboardFilters } from '@/hooks/useDashboardFilters'
 import { formatDisplayDate } from '@/lib/utils'
 import type { Application, ApplicationStatus } from '@/types'
+import { EmptyState } from './EmptyState'
 
 interface ApplicationRowProps {
 	app: Application
@@ -44,7 +45,11 @@ interface ApplicationTableProps {
  * Table view for applications list in the Dashboard
  */
 export function ApplicationTable({ applications, onNavigate, onPrefetch }: ApplicationTableProps) {
-	const { getCurrentStatus, getLastStatusDate, getStalenessColor } = useDashboardFilters()
+	const { getCurrentStatus, getLastStatusDate, getStalenessColor, resetFilters } = useDashboardFilters()
+
+	if (applications.length === 0) {
+		return <EmptyState isFiltered onResetFilters={resetFilters} />
+	}
 
 	return (
 		<div className="rounded-md border">
@@ -67,29 +72,21 @@ export function ApplicationTable({ applications, onNavigate, onPrefetch }: Appli
 						</tr>
 					</thead>
 					<tbody className="[&_tr:last-child]:border-0">
-						{applications.length === 0 ? (
-							<tr>
-								<td colSpan={4} className="h-24 text-center">
-									No applications found matching your criteria.
-								</td>
-							</tr>
-						) : (
-							applications.map((app) => {
-								const currentStatus = getCurrentStatus(app)
-								const lastStatusDate = getLastStatusDate(app)
-								return (
-									<ApplicationRow
-										key={app.id}
-										app={app}
-										currentStatus={currentStatus}
-										lastStatusDate={lastStatusDate}
-										stalenessColor={getStalenessColor(lastStatusDate, currentStatus)}
-										onClick={() => onNavigate(app.id)}
-										onMouseEnter={() => onPrefetch(app.id)}
-									/>
-								)
-							})
-						)}
+						{applications.map((app) => {
+							const currentStatus = getCurrentStatus(app)
+							const lastStatusDate = getLastStatusDate(app)
+							return (
+								<ApplicationRow
+									key={app.id}
+									app={app}
+									currentStatus={currentStatus}
+									lastStatusDate={lastStatusDate}
+									stalenessColor={getStalenessColor(lastStatusDate, currentStatus)}
+									onClick={() => onNavigate(app.id)}
+									onMouseEnter={() => onPrefetch(app.id)}
+								/>
+							)
+						})}
 					</tbody>
 				</table>
 			</div>

@@ -2,6 +2,7 @@ import { useDashboardFilters } from '@/hooks/useDashboardFilters'
 import { formatDisplayDate } from '@/lib/utils'
 import type { Application } from '@/types'
 import ApplicationStatusBadge from '../ApplicationStatusBadge'
+import { EmptyState } from './EmptyState'
 
 interface ApplicationListProps {
 	applications: Application[]
@@ -10,14 +11,10 @@ interface ApplicationListProps {
 }
 
 export function ApplicationList({ applications, onNavigate, onPrefetch }: ApplicationListProps) {
-	const { getCurrentStatus, getLastStatusDate, getStalenessColor } = useDashboardFilters()
+	const { getCurrentStatus, getLastStatusDate, getStalenessColor, resetFilters } = useDashboardFilters()
 
 	if (applications.length === 0) {
-		return (
-			<div className="text-center py-12 text-muted-foreground border rounded-lg bg-card border-dashed">
-				No applications found matching your criteria.
-			</div>
-		)
+		return <EmptyState isFiltered onResetFilters={resetFilters} />
 	}
 
 	return (
@@ -26,16 +23,6 @@ export function ApplicationList({ applications, onNavigate, onPrefetch }: Applic
 				const currentStatus = getCurrentStatus(app)
 				const lastStatusDate = getLastStatusDate(app)
 				const stalenessColor = getStalenessColor(lastStatusDate, currentStatus)
-
-				// Determine status color strip
-				let statusColorClass = 'bg-slate-400'
-				if (currentStatus === 'Applied') statusColorClass = 'bg-blue-500'
-				else if (currentStatus === 'Phone Screen') statusColorClass = 'bg-purple-500'
-				else if (currentStatus === 'Technical Interview') statusColorClass = 'bg-orange-500'
-				else if (currentStatus === 'On-site Interview') statusColorClass = 'bg-yellow-500'
-				else if (currentStatus === 'Offer') statusColorClass = 'bg-green-500'
-				else if (currentStatus === 'Rejected') statusColorClass = 'bg-red-500'
-				else if (currentStatus === 'Withdrawn') statusColorClass = 'bg-gray-500'
 
 				return (
 					<div

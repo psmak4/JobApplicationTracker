@@ -8,6 +8,7 @@ import {
 	ApplicationTable,
 	DashboardMobileFilters,
 	DashboardToolbar,
+	EmptyState,
 	UpcomingEvents,
 } from '@/components/dashboard'
 import { buttonVariants } from '@/components/ui/button'
@@ -127,88 +128,92 @@ export default function Dashboard() {
 			{/* Header */}
 			<PageHeader title="Dashboard" subtitle="Overview of your job applications." />
 
-			<div className="flex flex-col-reverse lg:flex-row gap-6 justify-center">
-				{/* Main Content */}
-				<div className="space-y-6 min-w-0">
-					<Card>
-						<CardHeader className="pb-3 flex items-center justify-between">
-							<CardTitle className="text-lg font-semibold flex items-center gap-2">
-								<Calendar className="h-5 w-5 text-primary" />
-								Job Applications
-							</CardTitle>
-							<Link
-								to="/new"
-								className={cn(
-									buttonVariants({ variant: 'default', size: 'sm' }),
-									'flex items-center gap-2',
+			{applications.length === 0 ? (
+				<EmptyState />
+			) : (
+				<div className="flex flex-col-reverse lg:flex-row gap-6 justify-center">
+					{/* Main Content */}
+					<div className="space-y-6 min-w-0 flex-1">
+						<Card>
+							<CardHeader className="pb-3 flex items-center justify-between">
+								<CardTitle className="text-lg font-semibold flex items-center gap-2">
+									<Calendar className="h-5 w-5 text-primary" />
+									Job Applications
+								</CardTitle>
+								<Link
+									to="/new"
+									className={cn(
+										buttonVariants({ variant: 'default', size: 'sm' }),
+										'flex items-center gap-2',
+									)}
+									aria-label="Create new application"
+								>
+									<Plus className="h-4 w-4" /> New Application
+								</Link>
+							</CardHeader>
+							<CardContent className="space-y-6">
+								{/* Desktop Toolbar */}
+								<DashboardToolbar
+									filterConfig={filterConfig}
+									sortConfig={sortConfig}
+									viewMode={viewMode}
+									activeFilterCount={activeFilterCount}
+									uniqueCompanies={uniqueCompanies}
+									onFilterChange={setFilterConfig}
+									onSortChange={setSortConfig}
+									onViewModeChange={setViewMode}
+									onToggleStatus={toggleStatus}
+									onResetFilters={resetFilters}
+									onToggleSortDirection={toggleSortDirection}
+								/>
+
+								{/* Mobile Toolbar */}
+								<DashboardMobileFilters
+									filterConfig={filterConfig}
+									sortConfig={sortConfig}
+									viewMode={viewMode}
+									activeFilterCount={activeFilterCount}
+									uniqueCompanies={uniqueCompanies}
+									filteredCount={filteredAndSortedApplications.length}
+									onFilterChange={setFilterConfig}
+									onSortChange={setSortConfig}
+									onViewModeChange={setViewMode}
+									onToggleStatus={toggleStatus}
+									onResetFilters={resetFilters}
+								/>
+
+								{/* Table, List, or Card View */}
+								{viewMode === 'table' ? (
+									<ApplicationTable
+										applications={filteredAndSortedApplications}
+										onNavigate={handleNavigate}
+										onPrefetch={handlePrefetch}
+									/>
+								) : viewMode === 'list' ? (
+									<ApplicationList
+										applications={filteredAndSortedApplications}
+										onNavigate={handleNavigate}
+										onPrefetch={handlePrefetch}
+									/>
+								) : (
+									<ApplicationGrid
+										applications={filteredAndSortedApplications}
+										onNavigate={handleNavigate}
+										onPrefetch={handlePrefetch}
+									/>
 								)}
-								aria-label="Create new application"
-							>
-								<Plus className="h-4 w-4" /> New Application
-							</Link>
-						</CardHeader>
-						<CardContent className="space-y-6">
-							{/* Desktop Toolbar */}
-							<DashboardToolbar
-								filterConfig={filterConfig}
-								sortConfig={sortConfig}
-								viewMode={viewMode}
-								activeFilterCount={activeFilterCount}
-								uniqueCompanies={uniqueCompanies}
-								onFilterChange={setFilterConfig}
-								onSortChange={setSortConfig}
-								onViewModeChange={setViewMode}
-								onToggleStatus={toggleStatus}
-								onResetFilters={resetFilters}
-								onToggleSortDirection={toggleSortDirection}
-							/>
-
-							{/* Mobile Toolbar */}
-							<DashboardMobileFilters
-								filterConfig={filterConfig}
-								sortConfig={sortConfig}
-								viewMode={viewMode}
-								activeFilterCount={activeFilterCount}
-								uniqueCompanies={uniqueCompanies}
-								filteredCount={filteredAndSortedApplications.length}
-								onFilterChange={setFilterConfig}
-								onSortChange={setSortConfig}
-								onViewModeChange={setViewMode}
-								onToggleStatus={toggleStatus}
-								onResetFilters={resetFilters}
-							/>
-
-							{/* Table, List, or Card View */}
-							{viewMode === 'table' ? (
-								<ApplicationTable
-									applications={filteredAndSortedApplications}
-									onNavigate={handleNavigate}
-									onPrefetch={handlePrefetch}
-								/>
-							) : viewMode === 'list' ? (
-								<ApplicationList
-									applications={filteredAndSortedApplications}
-									onNavigate={handleNavigate}
-									onPrefetch={handlePrefetch}
-								/>
-							) : (
-								<ApplicationGrid
-									applications={filteredAndSortedApplications}
-									onNavigate={handleNavigate}
-									onPrefetch={handlePrefetch}
-								/>
-							)}
-						</CardContent>
-					</Card>
-				</div>
-
-				{/* Sidebar */}
-				{upcomingEvents.length > 0 && (
-					<div className="">
-						<UpcomingEvents events={upcomingEvents} />
+							</CardContent>
+						</Card>
 					</div>
-				)}
-			</div>
+
+					{/* Sidebar */}
+					{upcomingEvents.length > 0 && (
+						<div className="">
+							<UpcomingEvents events={upcomingEvents} />
+						</div>
+					)}
+				</div>
+			)}
 		</div>
 	)
 }
