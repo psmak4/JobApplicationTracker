@@ -5,8 +5,8 @@ import { Suspense, lazy } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import ErrorBoundary from './components/ErrorBoundary'
-import Layout from './components/Layout'
 import { LoadingFallback } from './components/LoadingSpinner'
+import Layout from './components/layout/Layout'
 import { useSession } from './lib/auth-client'
 
 // Lazy load pages
