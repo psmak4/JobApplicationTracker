@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ArrowUpDown, Filter as FilterIcon, RotateCcw } from 'lucide-react'
+import { ArrowDown, ArrowUp, Filter as FilterIcon, RotateCcw } from 'lucide-react'
 import { APPLICATION_STATUS_OPTIONS } from '@/constants'
 import type { FilterConfig, SortConfig, SortKey } from '@/hooks/useDashboardFilters'
 import { SORT_OPTIONS } from '@/hooks/useDashboardFilters'
@@ -78,7 +78,7 @@ export function DashboardToolbar({
 					}))
 				}
 			>
-				<SelectTrigger className="w-[180px] h-9 bg-background">
+				<SelectTrigger className="w-[180px]">
 					<SelectValue placeholder="All Companies">{filterConfig.company || 'All Companies'}</SelectValue>
 				</SelectTrigger>
 				<SelectContent>
@@ -97,7 +97,7 @@ export function DashboardToolbar({
 			<Popover>
 				<PopoverTrigger
 					render={
-						<Button variant="outline" className="h-9 gap-2">
+						<Button variant="outline" className="gap-2">
 							<FilterIcon className="h-4 w-4" />
 							Status
 							{filterConfig.status.length > 0 && (
@@ -128,7 +128,7 @@ export function DashboardToolbar({
 
 			{/* Reset Filters */}
 			{activeFilterCount > 0 && (
-				<Button variant="ghost" size="sm" onClick={onResetFilters} className="h-9 gap-1 text-muted-foreground">
+				<Button variant="ghost" size="sm" onClick={onResetFilters} className="gap-1 text-muted-foreground">
 					<RotateCcw className="h-3.5 w-3.5" />
 					Reset
 				</Button>
@@ -143,13 +143,10 @@ export function DashboardToolbar({
 					value={sortConfig.key}
 					onValueChange={(val) => onSortChange((prev) => ({ ...prev, key: val as SortKey }))}
 				>
-					<SelectTrigger className="w-[160px] bg-background">
-						<div className="flex items-center gap-2">
-							<ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-							<SelectValue>
-								{SORT_OPTIONS.find((opt) => opt.value === sortConfig.key)?.shortLabel}
-							</SelectValue>
-						</div>
+					<SelectTrigger className="w-[160px]">
+						<SelectValue>
+							{SORT_OPTIONS.find((opt) => opt.value === sortConfig.key)?.shortLabel}
+						</SelectValue>
 					</SelectTrigger>
 					<SelectContent>
 						{SORT_OPTIONS.map((opt) => (
@@ -163,14 +160,9 @@ export function DashboardToolbar({
 					variant="outline"
 					size="icon"
 					onClick={onToggleSortDirection}
-					className="h-9 w-9"
 					aria-label={sortConfig.direction === 'asc' ? 'Sort ascending' : 'Sort descending'}
 				>
-					{sortConfig.direction === 'asc' ? (
-						<ArrowUp className="h-4 w-4" />
-					) : (
-						<ArrowDown className="h-4 w-4" />
-					)}
+					{sortConfig.direction === 'asc' ? <ArrowUp /> : <ArrowDown />}
 				</Button>
 			</div>
 		</div>

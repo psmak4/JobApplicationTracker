@@ -138,10 +138,7 @@ export default function Dashboard() {
 								</CardTitle>
 								<Link
 									to="/new"
-									className={cn(
-										buttonVariants({ variant: 'default', size: 'sm' }),
-										'flex items-center gap-2',
-									)}
+									className={cn(buttonVariants({ variant: 'default' }), 'flex items-center gap-2')}
 									aria-label="Create new application"
 								>
 									<Plus className="h-4 w-4" /> New Application
