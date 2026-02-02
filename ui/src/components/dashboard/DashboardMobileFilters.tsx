@@ -39,7 +39,7 @@ export function DashboardMobileFilters({
 	const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
 	return (
-		<div className="flex md:hidden items-center gap-2">
+		<div className="flex md:hidden lg:flex xl:hidden items-center gap-2">
 			{/* Filters Sheet Trigger */}
 			<Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
 				<SheetTrigger

@@ -67,7 +67,7 @@ export function DashboardToolbar({
 	onToggleSortDirection,
 }: DashboardToolbarProps) {
 	return (
-		<div className="hidden md:flex items-center gap-3 flex-wrap">
+		<div className="hidden md:flex lg:hidden xl:flex items-center gap-3 flex-wrap">
 			{/* Company Filter */}
 			<Select
 				value={filterConfig.company || 'all'}
