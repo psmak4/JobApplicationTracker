@@ -3,9 +3,7 @@ import { useCallback, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
 import {
-	ApplicationGrid,
 	ApplicationList,
-	ApplicationTable,
 	DashboardMobileFilters,
 	DashboardToolbar,
 	EmptyState,
@@ -26,11 +24,9 @@ export default function Dashboard() {
 	const {
 		sortConfig,
 		filterConfig,
-		viewMode,
 		activeFilterCount,
 		setSortConfig,
 		setFilterConfig,
-		setViewMode,
 		toggleStatus,
 		resetFilters,
 		toggleSortDirection,
@@ -156,12 +152,10 @@ export default function Dashboard() {
 								<DashboardToolbar
 									filterConfig={filterConfig}
 									sortConfig={sortConfig}
-									viewMode={viewMode}
 									activeFilterCount={activeFilterCount}
 									uniqueCompanies={uniqueCompanies}
 									onFilterChange={setFilterConfig}
 									onSortChange={setSortConfig}
-									onViewModeChange={setViewMode}
 									onToggleStatus={toggleStatus}
 									onResetFilters={resetFilters}
 									onToggleSortDirection={toggleSortDirection}
@@ -171,44 +165,27 @@ export default function Dashboard() {
 								<DashboardMobileFilters
 									filterConfig={filterConfig}
 									sortConfig={sortConfig}
-									viewMode={viewMode}
 									activeFilterCount={activeFilterCount}
 									uniqueCompanies={uniqueCompanies}
 									filteredCount={filteredAndSortedApplications.length}
 									onFilterChange={setFilterConfig}
 									onSortChange={setSortConfig}
-									onViewModeChange={setViewMode}
 									onToggleStatus={toggleStatus}
 									onResetFilters={resetFilters}
 								/>
 
-								{/* Table, List, or Card View */}
-								{viewMode === 'table' ? (
-									<ApplicationTable
-										applications={filteredAndSortedApplications}
-										onNavigate={handleNavigate}
-										onPrefetch={handlePrefetch}
-									/>
-								) : viewMode === 'list' ? (
-									<ApplicationList
-										applications={filteredAndSortedApplications}
-										onNavigate={handleNavigate}
-										onPrefetch={handlePrefetch}
-									/>
-								) : (
-									<ApplicationGrid
-										applications={filteredAndSortedApplications}
-										onNavigate={handleNavigate}
-										onPrefetch={handlePrefetch}
-									/>
-								)}
+								<ApplicationList
+									applications={filteredAndSortedApplications}
+									onNavigate={handleNavigate}
+									onPrefetch={handlePrefetch}
+								/>
 							</CardContent>
 						</Card>
 					</div>
 
 					{/* Sidebar */}
 					{upcomingEvents.length > 0 && (
-						<div className="">
+						<div>
 							<UpcomingEvents events={upcomingEvents} />
 						</div>
 					)}

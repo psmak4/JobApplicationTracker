@@ -1,6 +1,4 @@
-export { ApplicationGrid } from './ApplicationGrid'
 export { ApplicationList } from './ApplicationList'
-export { ApplicationTable } from './ApplicationTable'
 export { DashboardMobileFilters } from './DashboardMobileFilters'
 export { DashboardToolbar, StatusFilterContent } from './DashboardToolbar'
 export { EmptyState } from './EmptyState'

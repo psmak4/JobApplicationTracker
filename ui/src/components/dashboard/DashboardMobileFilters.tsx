@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Check, LayoutGrid, RotateCcw, SlidersHorizontal, Table as TableIcon } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, RotateCcw, SlidersHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import { APPLICATION_STATUS_OPTIONS } from '@/constants'
 import type { FilterConfig, SortConfig, SortKey } from '@/hooks/useDashboardFilters'
@@ -13,13 +13,11 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 interface DashboardMobileFiltersProps {
 	filterConfig: FilterConfig
 	sortConfig: SortConfig
-	viewMode: 'table' | 'card' | 'list'
 	activeFilterCount: number
 	uniqueCompanies: string[]
 	filteredCount: number
 	onFilterChange: React.Dispatch<React.SetStateAction<FilterConfig>>
 	onSortChange: React.Dispatch<React.SetStateAction<SortConfig>>
-	onViewModeChange: React.Dispatch<React.SetStateAction<'table' | 'card' | 'list'>>
 	onToggleStatus: (status: string) => void
 	onResetFilters: () => void
 }
@@ -30,13 +28,11 @@ interface DashboardMobileFiltersProps {
 export function DashboardMobileFilters({
 	filterConfig,
 	sortConfig,
-	viewMode,
 	activeFilterCount,
 	uniqueCompanies,
 	filteredCount,
 	onFilterChange,
 	onSortChange,
-	onViewModeChange,
 	onToggleStatus,
 	onResetFilters,
 }: DashboardMobileFiltersProps) {
@@ -181,30 +177,6 @@ export function DashboardMobileFilters({
 					</div>
 				</SheetContent>
 			</Sheet>
-
-			{/* View Toggle (Mobile) */}
-			{/* <div className="flex items-center border rounded-md">
-				<Button
-					variant={viewMode === 'table' ? 'secondary' : 'ghost'}
-					size="icon"
-					onClick={() => onViewModeChange('table')}
-					className="rounded-r-none h-9 w-9"
-					aria-label="Table view"
-					aria-pressed={viewMode === 'table'}
-				>
-					<TableIcon className="h-4 w-4" />
-				</Button>
-				<Button
-					variant={viewMode === 'card' ? 'secondary' : 'ghost'}
-					size="icon"
-					onClick={() => onViewModeChange('card')}
-					className="rounded-l-none h-9 w-9"
-					aria-label="Card view"
-					aria-pressed={viewMode === 'card'}
-				>
-					<LayoutGrid className="h-4 w-4" />
-				</Button>
-			</div> */}
 		</div>
 	)
 }

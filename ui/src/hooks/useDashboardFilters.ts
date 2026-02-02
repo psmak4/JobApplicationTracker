@@ -26,13 +26,11 @@ interface UseDashboardFiltersReturn {
 	// State
 	sortConfig: SortConfig
 	filterConfig: FilterConfig
-	viewMode: 'table' | 'card' | 'list'
 	activeFilterCount: number
 
 	// Setters
 	setSortConfig: React.Dispatch<React.SetStateAction<SortConfig>>
 	setFilterConfig: React.Dispatch<React.SetStateAction<FilterConfig>>
-	setViewMode: React.Dispatch<React.SetStateAction<'table' | 'card' | 'list'>>
 
 	// Actions
 	toggleStatus: (status: string) => void
@@ -51,15 +49,6 @@ interface UseDashboardFiltersReturn {
  */
 export function useDashboardFilters(): UseDashboardFiltersReturn {
 	const [searchParams, setSearchParams] = useSearchParams()
-
-	// Initialize view mode from localStorage
-	// Initialize view mode from localStorage
-	const [viewMode, setViewMode] = useState<'table' | 'card' | 'list'>(() => {
-		const saved = safeLocalStorage.getItem('dashboard_view_mode')
-		if (saved === 'card') return 'card'
-		if (saved === 'list') return 'list'
-		return 'table'
-	})
 
 	// Initialize sort config from localStorage
 	const [sortConfig, setSortConfig] = useState<SortConfig>(() => {
@@ -108,11 +97,6 @@ export function useDashboardFilters(): UseDashboardFiltersReturn {
 			setSearchParams(params, { replace: true })
 		}
 	}, [filterConfig, setSearchParams, searchParams])
-
-	// Persist view mode to localStorage
-	useEffect(() => {
-		safeLocalStorage.setItem('dashboard_view_mode', viewMode)
-	}, [viewMode])
 
 	// Persist filter config to localStorage
 	useEffect(() => {
@@ -178,13 +162,11 @@ export function useDashboardFilters(): UseDashboardFiltersReturn {
 		// State
 		sortConfig,
 		filterConfig,
-		viewMode,
 		activeFilterCount,
 
 		// Setters
 		setSortConfig,
 		setFilterConfig,
-		setViewMode,
 
 		// Actions
 		toggleStatus,
