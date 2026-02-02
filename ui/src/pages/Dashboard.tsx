@@ -130,7 +130,7 @@ export default function Dashboard() {
 				<div className="flex flex-col-reverse lg:flex-row gap-6 justify-center">
 					{/* Main Content */}
 					<div className="space-y-6 min-w-0 flex-1">
-						<Card>
+						<Card className="bg-card/50 backdrop-blur-sm">
 							<CardHeader className="pb-3 flex items-center justify-between">
 								<CardTitle className="text-lg font-semibold flex items-center gap-2">
 									<Calendar className="h-5 w-5 text-primary" />

@@ -61,7 +61,7 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
 	}
 
 	return (
-		<Card className="shadow-sm bg-card/50 backdrop-blur-sm">
+		<Card className="bg-card/50 backdrop-blur-sm">
 			<CardHeader className="pb-3 flex flex-row items-center justify-between">
 				<CardTitle className="text-lg font-semibold flex items-center gap-2">
 					<Calendar className="h-5 w-5 text-primary" />

@@ -18,7 +18,7 @@ export function ApplicationList({ applications, onNavigate, onPrefetch }: Applic
 	}
 
 	return (
-		<div className="flex flex-col gap-3">
+		<div className="rounded-lg border bg-card divide-y">
 			{applications.map((app) => {
 				const currentStatus = getCurrentStatus(app)
 				const lastStatusDate = getLastStatusDate(app)
@@ -27,7 +27,7 @@ export function ApplicationList({ applications, onNavigate, onPrefetch }: Applic
 				return (
 					<div
 						key={app.id}
-						className="group relative flex items-center overflow-hidden rounded-lg border bg-card transition-all hover:bg-accent/50 hover:shadow-sm"
+						className="group flex items-center overflow-hidden transition-all hover:bg-muted/50"
 						onMouseEnter={() => onPrefetch(app.id)}
 					>
 						{/* Clickable Area Wrapper */}
