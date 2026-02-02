@@ -98,10 +98,10 @@ export function DashboardToolbar({
 				<PopoverTrigger
 					render={
 						<Button variant="outline" className="gap-2">
-							<FilterIcon className="h-4 w-4" />
+							<FilterIcon />
 							Status
 							{filterConfig.status.length > 0 && (
-								<Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+								<Badge variant="secondary" className="ml-1 px-1.5 text-xs">
 									{filterConfig.status.length}
 								</Badge>
 							)}

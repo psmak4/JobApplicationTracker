@@ -37,9 +37,13 @@ export default function Dashboard() {
 	// Derived data
 	const upcomingEvents = useMemo(() => {
 		const now = new Date()
+		const startOfToday = new Date(now)
+		startOfToday.setHours(0, 0, 0, 0)
 		const events = applications.flatMap((app) =>
 			app.statusHistory
-				.filter((entry) => entry.eventStartTime && entry.eventId && new Date(entry.eventStartTime) > now)
+				.filter(
+					(entry) => entry.eventStartTime && entry.eventId && new Date(entry.eventStartTime) >= startOfToday,
+				)
 				.map((entry) => ({
 					id: entry.id,
 					applicationId: app.id,
