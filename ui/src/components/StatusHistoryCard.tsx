@@ -244,11 +244,11 @@ export function StatusHistoryCard({ application }: StatusHistoryCardProps) {
 													href={entry.eventUrl}
 													target="_blank"
 													rel="noopener noreferrer"
-													className="flex items-center gap-3 p-2.5 max-w-sm rounded-md border border-border/50 bg-secondary/30 hover:bg-secondary/60 hover:border-primary/30 transition-all group/event"
+													className="flex items-start gap-3 p-2.5 max-w-sm rounded-md border border-border/50 bg-secondary/30 hover:bg-secondary/60 hover:border-primary/30 transition-all group/event"
 												>
 													{/* Time Box */}
 													{entry.eventStartTime && (
-														<div className="flex flex-col items-center justify-center min-w-14 px-1 py-1 bg-background rounded border text-xs font-medium text-muted-foreground">
+														<div className="flex flex-col items-center justify-center min-w-14 px-1 py-1 bg-background rounded border text-xs font-medium text-muted-foreground whitespace-nowrap">
 															<span>
 																{new Date(entry.eventStartTime).toLocaleTimeString([], {
 																	hour: 'numeric',

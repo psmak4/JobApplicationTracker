@@ -1,4 +1,4 @@
-import { Calendar, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
@@ -136,10 +136,7 @@ export default function Dashboard() {
 					<div className="space-y-6 min-w-0 flex-1">
 						<Card className="bg-card/50 backdrop-blur-sm">
 							<CardHeader className="pb-3 flex items-center justify-between">
-								<CardTitle className="text-lg font-semibold flex items-center gap-2">
-									<Calendar className="h-5 w-5 text-primary" />
-									Job Applications
-								</CardTitle>
+								<CardTitle className="text-lg font-semibold">Job Applications</CardTitle>
 								<Link
 									to="/new"
 									className={cn(buttonVariants({ variant: 'default' }), 'flex items-center gap-2')}

@@ -1,4 +1,4 @@
-import { Calendar, Clock, ExternalLink } from 'lucide-react'
+import { Clock, ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
@@ -63,10 +63,7 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
 	return (
 		<Card className="bg-card/50 backdrop-blur-sm">
 			<CardHeader className="pb-3 flex flex-row items-center justify-between">
-				<CardTitle className="text-lg font-semibold flex items-center gap-2">
-					<Calendar className="h-5 w-5 text-primary" />
-					Upcoming Events
-				</CardTitle>
+				<CardTitle className="text-lg font-semibold">Upcoming Events</CardTitle>
 				<Badge variant="secondary" className="font-normal text-xs">
 					{events.length} Scheduled
 				</Badge>
