@@ -1,5 +1,5 @@
 import { fromZonedTime } from 'date-fns-tz'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { Router } from 'express'
 import { google } from 'googleapis'
 import { auth } from '../auth'
@@ -130,6 +130,52 @@ router.get('/events', async (req, res) => {
 	} catch (error) {
 		console.error('Error fetching calendar events:', error)
 		res.status(500).json({ error: 'Failed to fetch calendar events' })
+	}
+})
+
+/**
+ * GET /api/calendar/status
+ * Check if the user has a linked Google Calendar (Google account)
+ */
+router.get('/status', async (req, res) => {
+	try {
+		const session = await auth.api.getSession({ headers: req.headers as any })
+		if (!session) {
+			return res.status(401).json({ error: 'Unauthorized' })
+		}
+
+		const accounts = await db.select().from(account).where(eq(account.userId, session.user.id))
+		const googleAccount = accounts.find((acc) => acc.providerId === 'google')
+
+		res.json({
+			success: true,
+			data: {
+				connected: !!googleAccount,
+			},
+		})
+	} catch (error) {
+		console.error('Error checking calendar status:', error)
+		res.status(500).json({ error: 'Failed to check calendar status' })
+	}
+})
+
+/**
+ * DELETE /api/calendar
+ * Unlink Google Calendar (remove Google account)
+ */
+router.delete('/', async (req, res) => {
+	try {
+		const session = await auth.api.getSession({ headers: req.headers as any })
+		if (!session) {
+			return res.status(401).json({ error: 'Unauthorized' })
+		}
+
+		await db.delete(account).where(and(eq(account.userId, session.user.id), eq(account.providerId, 'google')))
+
+		res.json({ success: true, disconnected: true })
+	} catch (error) {
+		console.error('Error disconnecting calendar:', error)
+		res.status(500).json({ error: 'Failed to disconnect calendar' })
 	}
 })
 

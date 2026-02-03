@@ -24,3 +24,12 @@ export const emailQueryKeys = {
 	/** Email templates list */
 	templates: ['admin', 'email', 'templates'] as const,
 }
+
+export const calendarQueryKeys = {
+	/** Calendar connection status */
+	status: ['calendar', 'status'] as const,
+	/** Base key for calendar events */
+	eventsBase: ['calendar', 'events'] as const,
+	/** Calendar events for a specific date */
+	events: (date: string) => ['calendar', 'events', date] as const,
+}

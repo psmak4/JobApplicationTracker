@@ -3,6 +3,7 @@ import { Calendar, Check, Loader2, User } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { useCalendarStatus, useDisconnectCalendar } from '@/hooks/useCalendar'
 import { useUpdateProfile } from '@/hooks/useProfile'
 import { authClient } from '@/lib/auth-client'
 import { type ProfileFormValues, profileSchema } from '@/lib/schemas'
@@ -38,6 +39,9 @@ export function ProfileFormCard({ user }: ProfileFormCardProps) {
 			name: '',
 		},
 	})
+
+	const { data: calendarStatus, isLoading: isCalendarStatusLoading } = useCalendarStatus()
+	const disconnectCalendar = useDisconnectCalendar()
 
 	// Reset form when user data loads
 	useEffect(() => {
@@ -96,20 +100,42 @@ export function ProfileFormCard({ user }: ProfileFormCardProps) {
 						<p className="text-sm text-muted-foreground">
 							Link your Google account to enable calendar integration for interview tracking.
 						</p>
-						<Button
-							type="button"
-							variant="outline"
-							className="w-full sm:w-auto"
-							onClick={async () => {
-								await authClient.signIn.social({
-									provider: 'google',
-									callbackURL: `${window.location.origin}/app/profile`,
-								})
-							}}
-						>
-							<Calendar className="mr-2 h-4 w-4" />
-							Link Google Calendar
-						</Button>
+						{calendarStatus?.connected ? (
+							<Button
+								type="button"
+								variant="outline"
+								className="w-full sm:w-auto text-destructive hover:text-destructive hover:bg-destructive/10"
+								disabled={disconnectCalendar.isPending}
+								onClick={() => disconnectCalendar.mutate()}
+							>
+								{disconnectCalendar.isPending ? (
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								) : (
+									<Calendar className="mr-2 h-4 w-4" />
+								)}
+								{disconnectCalendar.isPending ? 'Disconnecting...' : 'Disconnect Google Calendar'}
+							</Button>
+						) : (
+							<Button
+								type="button"
+								variant="outline"
+								className="w-full sm:w-auto"
+								disabled={isCalendarStatusLoading}
+								onClick={async () => {
+									await authClient.signIn.social({
+										provider: 'google',
+										callbackURL: `${window.location.origin}/app/profile`,
+									})
+								}}
+							>
+								{isCalendarStatusLoading ? (
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								) : (
+									<Calendar className="mr-2 h-4 w-4" />
+								)}
+								Link Google Calendar
+							</Button>
+						)}
 					</div>
 
 					{/* Member Since */}
