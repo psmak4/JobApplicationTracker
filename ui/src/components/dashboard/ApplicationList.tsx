@@ -1,5 +1,6 @@
 import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
 import { useDashboardFilters } from '@/hooks/useDashboardFilters'
+import { cn } from '@/lib/utils'
 import { formatDisplayDate } from '@/lib/utils'
 import type { Application } from '@/types'
 import { EmptyState } from './EmptyState'
@@ -8,9 +9,10 @@ interface ApplicationListProps {
 	applications: Application[]
 	onNavigate: (id: string) => void
 	onPrefetch: (id: string) => void
+	highlightedApplicationId?: string | null
 }
 
-export function ApplicationList({ applications, onNavigate, onPrefetch }: ApplicationListProps) {
+export function ApplicationList({ applications, onNavigate, onPrefetch, highlightedApplicationId }: ApplicationListProps) {
 	const { getCurrentStatus, getLastStatusDate, getStalenessColor, resetFilters } = useDashboardFilters()
 
 	if (applications.length === 0) {
@@ -23,11 +25,15 @@ export function ApplicationList({ applications, onNavigate, onPrefetch }: Applic
 				const currentStatus = getCurrentStatus(app)
 				const lastStatusDate = getLastStatusDate(app)
 				const stalenessColor = getStalenessColor(lastStatusDate, currentStatus)
+				const isHighlighted = highlightedApplicationId === app.id
 
 				return (
 					<div
 						key={app.id}
-						className="group flex items-center overflow-hidden transition-all hover:bg-muted/50"
+						className={cn(
+							"group flex items-center overflow-hidden transition-all",
+							isHighlighted ? 'bg-muted/80 ring-2 ring-primary ring-offset-2 ring-offset-background' : 'hover:bg-muted/50'
+						)}
 						onMouseEnter={() => onPrefetch(app.id)}
 					>
 						{/* Clickable Area Wrapper */}

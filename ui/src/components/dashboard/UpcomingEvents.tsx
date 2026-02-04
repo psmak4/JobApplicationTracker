@@ -18,9 +18,10 @@ export interface UpcomingEvent {
 
 interface UpcomingEventsProps {
 	events: UpcomingEvent[]
+	onHoverApplication?: (applicationId: string | null) => void
 }
 
-export function UpcomingEvents({ events }: UpcomingEventsProps) {
+export function UpcomingEvents({ events, onHoverApplication }: UpcomingEventsProps) {
 	if (events.length === 0) return null
 
 	// Group events by date
@@ -84,6 +85,8 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
 									<div
 										key={event.id}
 										className="group flex items-start gap-4 p-3 transition-colors hover:bg-muted/50"
+										onMouseEnter={() => onHoverApplication?.(event.applicationId)}
+										onMouseLeave={() => onHoverApplication?.(null)}
 									>
 										{/* Time */}
 										<div className="w-16 shrink-0 text-xs font-medium text-muted-foreground text-right tabular-nums">

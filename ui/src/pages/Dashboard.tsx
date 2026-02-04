@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
 import {
@@ -19,6 +19,7 @@ export default function Dashboard() {
 	const navigate = useNavigate()
 	const { data: applications = [], isLoading, error } = useApplications()
 	const prefetchApplication = useApplicationPrefetch()
+	const [highlightedApplicationId, setHighlightedApplicationId] = useState<string | null>(null)
 
 	// Use custom hook for filter/sort state management
 	const {
@@ -176,6 +177,7 @@ export default function Dashboard() {
 									applications={filteredAndSortedApplications}
 									onNavigate={handleNavigate}
 									onPrefetch={handlePrefetch}
+									highlightedApplicationId={highlightedApplicationId}
 								/>
 							</CardContent>
 						</Card>
@@ -184,7 +186,10 @@ export default function Dashboard() {
 					{/* Sidebar */}
 					{upcomingEvents.length > 0 && (
 						<div>
-							<UpcomingEvents events={upcomingEvents} />
+							<UpcomingEvents
+								events={upcomingEvents}
+								onHoverApplication={setHighlightedApplicationId}
+							/>
 						</div>
 					)}
 				</div>
