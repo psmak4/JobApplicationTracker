@@ -13,6 +13,9 @@ const trustedOrigins = process.env.CORS_ORIGINS
 // Parse admin user IDs from environment variable
 const adminUserIds = process.env.ADMIN_USER_IDS ? process.env.ADMIN_USER_IDS.split(',').map((id) => id.trim()) : []
 
+// Skip email verification in test mode (for E2E tests)
+const skipEmailVerification = process.env.SKIP_EMAIL_VERIFICATION === 'true'
+
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: 'pg',
@@ -20,16 +23,18 @@ export const auth = betterAuth({
 	}),
 	emailAndPassword: {
 		enabled: true,
-		requireEmailVerification: true, // Enable email verification
+		requireEmailVerification: !skipEmailVerification, // Disable for tests
 		sendResetPassword: async ({ user, url }) => {
 			await notificationService.sendPasswordReset(user.email, user.name, url)
 		},
 	},
 	emailVerification: {
 		sendVerificationEmail: async ({ user, url }) => {
-			await notificationService.sendVerificationEmail(user.email, user.name, url)
+			if (!skipEmailVerification) {
+				await notificationService.sendVerificationEmail(user.email, user.name, url)
+			}
 		},
-		sendOnSignUp: true,
+		sendOnSignUp: !skipEmailVerification,
 	},
 	socialProviders: {
 		google: {

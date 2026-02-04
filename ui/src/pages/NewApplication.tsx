@@ -68,7 +68,7 @@ export default function NewApplication() {
 			contactInfo: '',
 			notes: '',
 			initialStatus: 'Applied',
-			initialStatusDate: new Date().toLocaleDateString('en-US'),
+			initialStatusDate: new Date().toISOString().split('T')[0],
 		},
 	})
 

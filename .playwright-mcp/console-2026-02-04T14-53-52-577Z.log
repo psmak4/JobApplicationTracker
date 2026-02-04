@@ -1,0 +1,3 @@
+[   41043ms] [ERROR] Failed to load resource: the server responded with a status of 429 (Too Many Requests) @ http://localhost:4000/api/auth/sign-up/email:0
+[   62444ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=GZxDvrO7-l-_' failed:  @ http://localhost:5173/@vite/client:744
+[   62580ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:4000/api/auth/get-session:0
