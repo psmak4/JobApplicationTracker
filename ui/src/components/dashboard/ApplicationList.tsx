@@ -1,7 +1,7 @@
+import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
 import { useDashboardFilters } from '@/hooks/useDashboardFilters'
 import { formatDisplayDate } from '@/lib/utils'
 import type { Application } from '@/types'
-import ApplicationStatusBadge from '../ApplicationStatusBadge'
 import { EmptyState } from './EmptyState'
 
 interface ApplicationListProps {

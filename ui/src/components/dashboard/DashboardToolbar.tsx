@@ -1,13 +1,13 @@
 import { ArrowDown, ArrowUp, Filter as FilterIcon, RotateCcw } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { APPLICATION_STATUS_OPTIONS } from '@/constants'
 import type { FilterConfig, SortConfig, SortKey } from '@/hooks/useDashboardFilters'
 import { SORT_OPTIONS } from '@/hooks/useDashboardFilters'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Checkbox } from '../ui/checkbox'
-import { Label } from '../ui/label'
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 
 interface DashboardToolbarProps {
 	filterConfig: FilterConfig

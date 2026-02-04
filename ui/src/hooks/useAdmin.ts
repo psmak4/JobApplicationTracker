@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { authClient } from '@/lib/auth-client'
 import { getErrorMessage } from '@/lib/error-utils'
 import { adminQueryKeys } from '@/lib/queryKeys'
@@ -107,6 +108,10 @@ export function useBanUser() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: adminQueryKeys.users })
+			toast.success('User banned successfully')
+		},
+		onError: (error) => {
+			toast.error('Error', { description: getErrorMessage(error) })
 		},
 	})
 }
@@ -127,6 +132,10 @@ export function useUnbanUser() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: adminQueryKeys.users })
+			toast.success('User unbanned successfully')
+		},
+		onError: (error) => {
+			toast.error('Error', { description: getErrorMessage(error) })
 		},
 	})
 }
@@ -148,6 +157,10 @@ export function useSetUserRole() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: adminQueryKeys.users })
+			toast.success('User role updated successfully')
+		},
+		onError: (error) => {
+			toast.error('Error', { description: getErrorMessage(error) })
 		},
 	})
 }
@@ -168,6 +181,10 @@ export function useRemoveUser() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: adminQueryKeys.users })
+			toast.success('User removed successfully')
+		},
+		onError: (error) => {
+			toast.error('Error', { description: getErrorMessage(error) })
 		},
 	})
 }
@@ -221,6 +238,7 @@ export function useRevokeUserSession() {
 			}
 		},
 		onSuccess: () => {
+			// Invalidate all session queries since we don't have the userId here
 			queryClient.invalidateQueries({ queryKey: ['admin', 'sessions'] })
 		},
 	})
@@ -241,6 +259,7 @@ export function useRevokeAllUserSessions() {
 			}
 		},
 		onSuccess: () => {
+			// Invalidate all session queries since we don't have the userId here
 			queryClient.invalidateQueries({ queryKey: ['admin', 'sessions'] })
 		},
 	})

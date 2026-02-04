@@ -1,14 +1,14 @@
 import { ArrowDown, ArrowUp, Check, RotateCcw, SlidersHorizontal } from 'lucide-react'
 import { useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { APPLICATION_STATUS_OPTIONS } from '@/constants'
 import type { FilterConfig, SortConfig, SortKey } from '@/hooks/useDashboardFilters'
 import { SORT_OPTIONS } from '@/hooks/useDashboardFilters'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Checkbox } from '../ui/checkbox'
-import { Label } from '../ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet'
 
 interface DashboardMobileFiltersProps {
 	filterConfig: FilterConfig

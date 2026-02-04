@@ -1,18 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import apiClient from '../lib/api-client'
-import { applicationQueryKeys } from '../lib/queryKeys'
-import type {
-	ApiSuccessResponse,
-	Application,
-	ApplicationStatus,
-	MutationError,
-	StatusHistoryEntry,
-	WorkType,
-} from '../types'
-
-// Helper to extract data from API response
-const extractData = <T>(response: ApiSuccessResponse<T>): T => response.data
+import apiClient, { extractData } from '@/lib/api-client'
+import { applicationQueryKeys } from '@/lib/queryKeys'
+import type { Application, ApplicationStatus, MutationError, StatusHistoryEntry, WorkType } from '@/types'
 
 export interface CreateApplicationData {
 	company: string

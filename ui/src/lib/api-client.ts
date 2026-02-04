@@ -1,5 +1,7 @@
 import axios from 'axios'
 import { toast } from 'sonner'
+// Helper to extract data from standardized API response
+import type { ApiSuccessResponse } from '@/types'
 
 const apiClient = axios.create({
 	baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api',
@@ -99,5 +101,7 @@ declare module 'axios' {
 		}
 	}
 }
+
+export const extractData = <T>(response: ApiSuccessResponse<T>): T => response.data
 
 export default apiClient

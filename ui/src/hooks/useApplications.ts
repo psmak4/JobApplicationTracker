@@ -1,11 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import apiClient from '../lib/api-client'
-import { applicationQueryKeys } from '../lib/queryKeys'
-import type { ApiSuccessResponse, Application, MutationError } from '../types'
-
-// Helper to extract data from API response
-const extractData = <T>(response: ApiSuccessResponse<T>): T => response.data
+import apiClient, { extractData } from '@/lib/api-client'
+import { applicationQueryKeys } from '@/lib/queryKeys'
+import type { Application, MutationError } from '@/types'
 
 export const useApplications = () => {
 	return useQuery<Application[]>({

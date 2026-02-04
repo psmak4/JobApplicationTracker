@@ -33,3 +33,8 @@ export const calendarQueryKeys = {
 	/** Calendar events for a specific date */
 	events: (date: string) => ['calendar', 'events', date] as const,
 }
+
+export const sessionQueryKeys = {
+	/** Current user session */
+	current: ['session'] as const,
+}

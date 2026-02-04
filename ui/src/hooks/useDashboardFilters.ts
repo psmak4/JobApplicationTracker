@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { safeLocalStorage } from '../lib/utils'
-import type { Application, ApplicationStatus } from '../types'
+import { safeLocalStorage } from '@/lib/utils'
+import type { Application, ApplicationStatus } from '@/types'
 
 export type SortKey = 'company' | 'status' | 'lastStatusUpdate'
 export type SortDirection = 'asc' | 'desc'

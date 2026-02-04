@@ -82,3 +82,22 @@ export const signupSchema = z.object({
 })
 
 export type SignupFormValues = z.infer<typeof signupSchema>
+
+/**
+ * Login form validation schema.
+ */
+export const loginSchema = z.object({
+	email: z.string().email('Invalid email address'),
+	password: z.string().min(1, 'Password is required'),
+})
+
+export type LoginFormValues = z.infer<typeof loginSchema>
+
+/**
+ * Forgot password form validation schema.
+ */
+export const forgotPasswordSchema = z.object({
+	email: z.string().email('Invalid email address'),
+})
+
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>

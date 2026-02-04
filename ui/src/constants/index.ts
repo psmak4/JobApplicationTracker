@@ -1,4 +1,4 @@
-import type { ApplicationStatus, WorkType } from '../types'
+import type { ApplicationStatus, WorkType } from '@/types'
 
 /**
  * Application status options for dropdowns and filters.

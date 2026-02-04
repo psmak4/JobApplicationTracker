@@ -1,7 +1,6 @@
 import { Edit, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
-import { toast } from 'sonner'
 import { ApplicationDetailsCard } from '@/components/ApplicationDetailsCard'
 import PageHeader from '@/components/PageHeader'
 import { StatusHistoryCard } from '@/components/StatusHistoryCard'
@@ -15,10 +14,9 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from '../components/ui/alert-dialog'
-import { Button } from '../components/ui/button'
-import { useApplication, useDeleteApplication } from '../hooks/useApplications'
-import { getErrorMessage } from '../lib/error-utils'
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { useApplication, useDeleteApplication } from '@/hooks/useApplications'
 
 export default function ApplicationView() {
 	const { id } = useParams<{ id: string }>()
@@ -41,10 +39,9 @@ export default function ApplicationView() {
 	const onDeleteApplication = async () => {
 		try {
 			await deleteApplicationMutation.mutateAsync(id)
-			toast.success('Application deleted successfully')
 			navigate('/')
-		} catch (err) {
-			toast.error(getErrorMessage(err, 'Failed to delete application'))
+		} catch {
+			// Error handled by mutation hook
 		} finally {
 			setIsDeleteDialogOpen(false)
 		}

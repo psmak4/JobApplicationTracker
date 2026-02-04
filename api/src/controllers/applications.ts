@@ -3,10 +3,8 @@ import { Request, Response } from 'express'
 import { z } from 'zod'
 import { db } from '../db/index'
 import { applicationStatusEnum, applications, statusHistory } from '../db/schema'
+import { getRequestId } from '../utils/request'
 import { errorResponse, successResponse } from '../utils/responses'
-
-// Helper to get request ID from request object
-const getRequestId = (req: Request): string => req.requestId || 'unknown'
 
 // Zod schemas for validation with input sanitization (trim whitespace)
 const createApplicationSchema = z.object({

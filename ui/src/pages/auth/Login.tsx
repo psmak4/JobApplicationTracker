@@ -1,32 +1,44 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { AuthPageLayout } from '@/components/AuthPageLayout'
 import { LoadingFallback } from '@/components/LoadingSpinner'
 import { Button } from '@/components/ui/button'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { signIn, useSession } from '@/lib/auth-client'
+import { type LoginFormValues, loginSchema } from '@/lib/schemas'
 
 export default function Login() {
-	const [email, setEmail] = useState('')
-	const [password, setPassword] = useState('')
 	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
 	const { data: session, isPending } = useSession()
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<LoginFormValues>({
+		resolver: zodResolver(loginSchema),
+		defaultValues: {
+			email: '',
+			password: '',
+		},
+	})
 
 	// Redirect to dashboard if already logged in
 	if (isPending) return <LoadingFallback />
 	if (session) return <Navigate to="/" replace />
 
-	const handleLogin = async (e: React.FormEvent) => {
-		e.preventDefault()
+	const handleLogin = async (data: LoginFormValues) => {
 		setLoading(true)
 
 		await signIn.email(
 			{
-				email,
-				password,
+				email: data.email,
+				password: data.password,
 				callbackURL: '/app',
 			},
 			{
@@ -46,7 +58,7 @@ export default function Login() {
 		<AuthPageLayout
 			title="Login"
 			description="Enter your credentials to access your job tracker."
-			onSubmit={handleLogin}
+			onSubmit={handleSubmit(handleLogin)}
 			footer={
 				<>
 					<Button type="submit" className="w-full" disabled={loading}>
@@ -61,32 +73,23 @@ export default function Login() {
 				</>
 			}
 		>
-			<div className="space-y-2">
-				<Label htmlFor="email">Email</Label>
-				<Input
-					id="email"
-					type="email"
-					placeholder="name@example.com"
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-					required
-				/>
-			</div>
-			<div className="space-y-2">
-				<div className="flex items-center justify-between">
-					<Label htmlFor="password">Password</Label>
-					<Link to="/forgot-password" className="text-sm text-primary hover:underline">
-						Forgot password?
-					</Link>
-				</div>
-				<Input
-					id="password"
-					type="password"
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-					required
-				/>
-			</div>
+			<FieldGroup>
+				<Field>
+					<FieldLabel htmlFor="email">Email</FieldLabel>
+					<Input id="email" type="email" placeholder="name@example.com" {...register('email')} />
+					<FieldError errors={[errors.email]} />
+				</Field>
+				<Field>
+					<div className="flex items-center justify-between">
+						<FieldLabel htmlFor="password">Password</FieldLabel>
+						<Link to="/forgot-password" className="text-sm text-primary hover:underline">
+							Forgot password?
+						</Link>
+					</div>
+					<Input id="password" type="password" {...register('password')} />
+					<FieldError errors={[errors.password]} />
+				</Field>
+			</FieldGroup>
 		</AuthPageLayout>
 	)
 }

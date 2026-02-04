@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { authClient } from '@/lib/auth-client'
 import { getErrorMessage } from '@/lib/error-utils'
+import { sessionQueryKeys } from '@/lib/queryKeys'
 
 export interface UpdateUserData {
 	name?: string
@@ -21,7 +22,7 @@ export function useUpdateProfile() {
 		},
 		onSuccess: () => {
 			// Invalidate session to refresh user data
-			queryClient.invalidateQueries({ queryKey: ['session'] })
+			queryClient.invalidateQueries({ queryKey: sessionQueryKeys.current })
 		},
 	})
 }

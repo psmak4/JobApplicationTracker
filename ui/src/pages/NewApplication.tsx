@@ -1,15 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Sparkles, X } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ApplicationFormFields } from '@/components/ApplicationFormFields'
 import PageHeader from '@/components/PageHeader'
-import { APPLICATION_STATUS_OPTIONS } from '@/constants'
-import apiClient from '@/lib/api-client'
-import { Button } from '../components/ui/button'
-import { Card, CardContent } from '../components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
 	Field,
 	FieldDescription,
@@ -18,13 +16,15 @@ import {
 	FieldLabel,
 	FieldLegend,
 	FieldSet,
-} from '../components/ui/field'
-import { Input } from '../components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
-import { useCreateApplication } from '../hooks/useMutations'
-import { getErrorMessage, isAxiosError, isRateLimitError } from '../lib/error-utils'
-import { type NewApplicationFormValues, newApplicationSchema } from '../lib/schemas'
-import type { ApplicationStatus, WorkType } from '../types'
+} from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { APPLICATION_STATUS_OPTIONS } from '@/constants'
+import { useCreateApplication } from '@/hooks/useMutations'
+import apiClient from '@/lib/api-client'
+import { getErrorMessage, isAxiosError, isRateLimitError } from '@/lib/error-utils'
+import { type NewApplicationFormValues, newApplicationSchema } from '@/lib/schemas'
+import type { ApplicationStatus, WorkType } from '@/types'
 
 interface ParsedJobData {
 	company?: string
@@ -41,6 +41,13 @@ export default function NewApplication() {
 	const [isParsing, setIsParsing] = useState(false)
 	const [parsedData, setParsedData] = useState<ParsedJobData | null>(null)
 	const abortControllerRef = useRef<AbortController | null>(null)
+
+	// Cleanup AbortController on unmount
+	useEffect(() => {
+		return () => {
+			abortControllerRef.current?.abort()
+		}
+	}, [])
 
 	const {
 		register,

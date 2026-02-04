@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import apiClient from '../lib/api-client'
-import { calendarQueryKeys } from '../lib/queryKeys'
-import type { ApiSuccessResponse } from '../types'
+import apiClient from '@/lib/api-client'
+import { calendarQueryKeys } from '@/lib/queryKeys'
+import type { ApiSuccessResponse } from '@/types'
 
 export interface CalendarEvent {
 	id: string
