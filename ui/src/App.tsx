@@ -1,6 +1,7 @@
 // App.tsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { isAxiosError } from 'axios'
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from 'sonner'
@@ -28,6 +29,26 @@ const queryClient = new QueryClient({
 		queries: {
 			gcTime: 1000 * 60 * 60 * 24 * 7,
 			staleTime: 1000 * 60 * 60,
+			retry: (failureCount, error) => {
+				// Stop after 3 retries
+				if (failureCount >= 3) return false
+
+				if (isAxiosError(error)) {
+					// Always retry on network errors (no response)
+					if (!error.response) return true
+
+					const status = error.response.status
+					// Retry on Rate Limit (429) or Server Errors (5xx)
+					if (status === 429 || status >= 500) return true
+
+					// Don't retry other Client Errors (4xx)
+					return false
+				}
+
+				// Retry other types of errors (e.g. network timeout not caught by axios)
+				return true
+			},
+			retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
 		},
 	},
 })

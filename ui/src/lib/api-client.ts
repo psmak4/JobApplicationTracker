@@ -87,13 +87,6 @@ apiClient.interceptors.response.use(
 			})
 		}
 
-		// Handle server errors
-		if (error.response?.status >= 500) {
-			toast.error('Server error', {
-				description: 'Something went wrong on our end. Please try again later.',
-			})
-		}
-
 		return Promise.reject(error)
 	},
 )
