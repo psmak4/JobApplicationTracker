@@ -2,7 +2,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import apiClient from '../lib/api-client'
 import { applicationQueryKeys } from '../lib/queryKeys'
-import type { ApiSuccessResponse, ApplicationStatus, MutationError } from '../types'
+import type {
+	ApiSuccessResponse,
+	Application,
+	ApplicationStatus,
+	MutationError,
+	StatusHistoryEntry,
+	WorkType,
+} from '../types'
 
 // Helper to extract data from API response
 const extractData = <T>(response: ApiSuccessResponse<T>): T => response.data
@@ -13,7 +20,7 @@ export interface CreateApplicationData {
 	jobDescriptionUrl?: string
 	salary?: string
 	location?: string
-	workType?: string
+	workType?: WorkType
 	contactInfo?: string
 	notes?: string
 	status: ApplicationStatus
@@ -48,17 +55,34 @@ export const useUpdateApplication = (id: string) => {
 			const response = await apiClient.put(`/applications/${id}`, data)
 			return extractData(response.data)
 		},
+		onMutate: async (newData) => {
+			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.detail(id) })
+			const previousApplication = queryClient.getQueryData<Application>(applicationQueryKeys.detail(id))
+			queryClient.setQueryData<Application>(applicationQueryKeys.detail(id), (old) => {
+				if (!old) return undefined
+				// Filter out fields that don't exist on Application type
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				const { status, date, ...validUpdates } = newData
+				return { ...old, ...validUpdates }
+			})
+			return { previousApplication }
+		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
-			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(id) })
 			toast.success('Application updated successfully')
 		},
-		onError: (error: MutationError) => {
+		onError: (error: MutationError, _newData, context) => {
+			if (context?.previousApplication) {
+				queryClient.setQueryData(applicationQueryKeys.detail(id), context.previousApplication)
+			}
 			const message =
 				('response' in error && error.response?.data?.error?.message) ||
 				error.message ||
 				'Failed to update application'
 			toast.error('Error', { description: message })
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(id) })
 		},
 	})
 }
@@ -78,15 +102,43 @@ export const useAddStatus = (applicationId: string) => {
 			const response = await apiClient.post(`/statuses/application/${applicationId}`, data)
 			return extractData(response.data)
 		},
+		onMutate: async (newData) => {
+			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
+			const previousApplication = queryClient.getQueryData<Application>(
+				applicationQueryKeys.detail(applicationId),
+			)
+			queryClient.setQueryData<Application>(applicationQueryKeys.detail(applicationId), (old) => {
+				if (!old) return undefined
+				const newStatusEntry: StatusHistoryEntry = {
+					id: `temp-${Date.now()}`,
+					status: newData.status,
+					date: newData.date,
+					createdAt: new Date().toISOString(),
+					eventId: newData.eventId,
+					eventTitle: newData.eventTitle,
+					eventUrl: newData.eventUrl,
+					eventStartTime: newData.eventStartTime,
+					eventEndTime: newData.eventEndTime,
+				}
+				// Prepend new status
+				return { ...old, statusHistory: [newStatusEntry, ...old.statusHistory] }
+			})
+			return { previousApplication }
+		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
-			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
 			toast.success('Status added successfully')
 		},
-		onError: (error: MutationError) => {
+		onError: (error: MutationError, _newData, context) => {
+			if (context?.previousApplication) {
+				queryClient.setQueryData(applicationQueryKeys.detail(applicationId), context.previousApplication)
+			}
 			const message =
 				('response' in error && error.response?.data?.error?.message) || error.message || 'Failed to add status'
 			toast.error('Error', { description: message })
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
 		},
 	})
 }
@@ -97,16 +149,35 @@ export const useDeleteStatus = (applicationId: string) => {
 		mutationFn: async (statusId: string) => {
 			await apiClient.delete(`/statuses/${statusId}`)
 		},
+		onMutate: async (statusId) => {
+			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
+			const previousApplication = queryClient.getQueryData<Application>(
+				applicationQueryKeys.detail(applicationId),
+			)
+			queryClient.setQueryData<Application>(applicationQueryKeys.detail(applicationId), (old) => {
+				if (!old) return undefined
+				return {
+					...old,
+					statusHistory: old.statusHistory.filter((status) => status.id !== statusId),
+				}
+			})
+			return { previousApplication }
+		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
 			toast.success('Status deleted successfully')
 		},
-		onError: (error: MutationError) => {
+		onError: (error: MutationError, _statusId, context) => {
+			if (context?.previousApplication) {
+				queryClient.setQueryData(applicationQueryKeys.detail(applicationId), context.previousApplication)
+			}
 			const message =
 				('response' in error && error.response?.data?.error?.message) ||
 				error.message ||
 				'Failed to delete status'
 			toast.error('Error', { description: message })
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
 		},
 	})
 }
