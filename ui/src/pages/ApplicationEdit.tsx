@@ -2,14 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { toast } from 'sonner'
 import { ApplicationFormFields } from '@/components/ApplicationFormFields'
 import PageHeader from '@/components/PageHeader'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { useApplication } from '../hooks/useApplications'
 import { useUpdateApplication } from '../hooks/useMutations'
-import { getErrorMessage } from '../lib/error-utils'
 import { type ApplicationFormValues, applicationSchema } from '../lib/schemas'
 
 export default function ApplicationEdit() {
@@ -67,10 +65,9 @@ export default function ApplicationEdit() {
 	const onUpdateDetails = async (data: ApplicationFormValues) => {
 		try {
 			await updateMutation.mutateAsync(data)
-			toast.success('Details updated successfully!')
 			navigate(`/applications/${id}`)
-		} catch (err) {
-			toast.error(getErrorMessage(err, 'Failed to update application'))
+		} catch {
+			// Error handled by mutation hook
 		}
 	}
 

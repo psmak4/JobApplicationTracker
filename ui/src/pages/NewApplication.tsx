@@ -177,10 +177,9 @@ export default function NewApplication() {
 				status: data.initialStatus as ApplicationStatus,
 				date: data.initialStatusDate,
 			})
-			toast.success('Application created successfully!')
 			navigate('/')
-		} catch (err) {
-			toast.error(getErrorMessage(err, 'Failed to create application'))
+		} catch {
+			// Error handled by mutation hook
 		}
 	}
 

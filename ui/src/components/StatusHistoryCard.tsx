@@ -1,11 +1,9 @@
 import { Calendar, Check, ExternalLink, Loader2, Plus, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { toast } from 'sonner'
 import { APPLICATION_STATUS_OPTIONS } from '@/constants'
 import { type CalendarEvent, useCalendarEvents } from '@/hooks/useCalendar'
 import { useAddStatus, useDeleteStatus } from '@/hooks/useMutations'
-import { getErrorMessage } from '@/lib/error-utils'
 import { formatDisplayDate } from '@/lib/utils'
 import type { Application, ApplicationStatus } from '@/types'
 import {
@@ -66,9 +64,8 @@ export function StatusHistoryCard({ application }: StatusHistoryCardProps) {
 			})
 			setIsNewStatusOpen(false)
 			setSelectedEvent(null) // Reset selection
-			toast.success('Status history updated!')
-		} catch (err) {
-			toast.error(getErrorMessage(err, 'Failed to update status'))
+		} catch {
+			// Error handled by mutation hook
 		}
 	}
 
@@ -76,9 +73,8 @@ export function StatusHistoryCard({ application }: StatusHistoryCardProps) {
 		if (!statusToDelete) return
 		try {
 			await deleteStatusMutation.mutateAsync(statusToDelete)
-			toast.success('Status entry deleted.')
-		} catch (err) {
-			toast.error(getErrorMessage(err, 'Failed to delete status entry'))
+		} catch {
+			// Error handled by mutation hook
 		} finally {
 			setStatusToDelete(null)
 		}
