@@ -52,6 +52,11 @@ const USER_AGENTS = [
 	'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
 ]
 
+const FETCH_TIMEOUT_MS = 10000
+const FETCH_MAX_REDIRECTS = 5
+const FETCH_MAX_ATTEMPTS = 3
+const FETCH_RETRY_BASE_DELAY_MS = 300
+
 class JobParser {
 	private strategies: JobParserStrategy[]
 	private genericParser: GenericParser
@@ -295,20 +300,37 @@ class JobParser {
 	private async fetchContent(url: string): Promise<string> {
 		const userAgent = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)]
 
-		const response = await axios.get(url, {
-			headers: {
-				'User-Agent': userAgent,
-				Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-				'Accept-Language': 'en-US,en;q=0.5',
-				'Cache-Control': 'no-cache',
-				Pragma: 'no-cache',
-			},
-			timeout: 10000,
-			maxRedirects: 5,
-			validateStatus: (status) => status < 400,
-		})
+		for (let attempt = 1; attempt <= FETCH_MAX_ATTEMPTS; attempt++) {
+			try {
+				const response = await axios.get(url, {
+					headers: {
+						'User-Agent': userAgent,
+						Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+						'Accept-Language': 'en-US,en;q=0.5',
+						'Cache-Control': 'no-cache',
+						Pragma: 'no-cache',
+					},
+					timeout: FETCH_TIMEOUT_MS,
+					maxRedirects: FETCH_MAX_REDIRECTS,
+					validateStatus: (status) => status < 400,
+				})
 
-		return response.data
+				if (response.status >= 400) {
+					throw new Error(this.formatHttpError(response.status))
+				}
+
+				return response.data
+			} catch (error) {
+				if (attempt >= FETCH_MAX_ATTEMPTS || !this.shouldRetryRequest(error)) {
+					throw this.normalizeFetchError(error)
+				}
+
+				const delay = this.getRetryDelay(attempt)
+				await new Promise((resolve) => setTimeout(resolve, delay))
+			}
+		}
+
+		throw new Error('Failed to fetch job posting')
 	}
 
 	/**
@@ -360,6 +382,51 @@ class JobParser {
 			text: (article.textContent || '').replace(/\s+/g, ' ').trim(),
 			markdown,
 		}
+	}
+
+	private shouldRetryRequest(error: unknown): boolean {
+		if (!axios.isAxiosError(error)) {
+			return false
+		}
+
+		const status = error.response?.status
+
+		if (!status) {
+			return true
+		}
+
+		return status === 429 || status === 500 || status === 502 || status === 503 || status === 504
+	}
+
+	private normalizeFetchError(error: unknown): Error {
+		if (axios.isAxiosError(error)) {
+			const status = error.response?.status
+			if (status) {
+				return new Error(this.formatHttpError(status))
+			}
+
+			if (error.code === 'ECONNABORTED' || error.message.toLowerCase().includes('timeout')) {
+				return new Error('Request timed out while fetching the job posting')
+			}
+
+			if (error.message) {
+				return new Error(error.message)
+			}
+		}
+
+		return error instanceof Error ? error : new Error('Failed to fetch job posting')
+	}
+
+	private formatHttpError(status: number): string {
+		if (status === 403) return 'Access denied by the target site'
+		if (status === 404) return 'Job posting not found'
+		if (status === 429) return 'Rate limited by the target site'
+		if (status >= 500) return 'Target site error while fetching the job posting'
+		return `Request failed with status ${status}`
+	}
+
+	private getRetryDelay(attempt: number): number {
+		return FETCH_RETRY_BASE_DELAY_MS * Math.pow(2, attempt - 1)
 	}
 
 	/**
