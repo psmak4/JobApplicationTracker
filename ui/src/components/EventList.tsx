@@ -1,5 +1,4 @@
 import { ExternalLink, Trash2 } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -20,7 +19,6 @@ interface EventListProps {
 	title: string
 	events: EventItem[]
 	emptyMessage?: string
-	showApplicationLink?: boolean
 	onDelete?: (eventId: string) => void
 	onHoverApplication?: (applicationId: string | null) => void
 	headerAction?: React.ReactNode
@@ -35,7 +33,6 @@ export function EventList({
 	title,
 	events,
 	emptyMessage = 'No events scheduled.',
-	showApplicationLink = false,
 	onDelete,
 	onHoverApplication,
 	headerAction,
@@ -138,7 +135,7 @@ export function EventList({
 														{event.title || 'Scheduled Event'}
 													</span>
 												</div>
-												{showApplicationLink && event.company && (
+												{event.company && (
 													<div className="text-xs text-muted-foreground truncate mt-1">
 														<span className="font-medium text-foreground/80">
 															{event.company}
@@ -163,18 +160,6 @@ export function EventList({
 													>
 														<ExternalLink className="h-3.5 w-3.5" />
 													</a>
-												)}
-												{showApplicationLink && event.applicationId && (
-													<Link
-														to={`/applications/${event.applicationId}`}
-														className={cn(
-															buttonVariants({ variant: 'ghost', size: 'icon' }),
-															'h-7 w-7 text-muted-foreground hover:text-primary',
-														)}
-														title="View Application"
-													>
-														<ExternalLink className="h-3.5 w-3.5" />
-													</Link>
 												)}
 												{onDelete && (
 													<Button

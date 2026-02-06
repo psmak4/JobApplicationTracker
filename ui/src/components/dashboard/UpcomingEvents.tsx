@@ -33,12 +33,5 @@ export function UpcomingEvents({ events, onHoverApplication }: UpcomingEventsPro
 		jobTitle: event.jobTitle,
 	}))
 
-	return (
-		<EventList
-			title="Upcoming Events"
-			events={eventItems}
-			showApplicationLink
-			onHoverApplication={onHoverApplication}
-		/>
-	)
+	return <EventList title="Upcoming Events" events={eventItems} onHoverApplication={onHoverApplication} />
 }
