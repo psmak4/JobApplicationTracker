@@ -1,7 +1,7 @@
 import { CheckCircle, Loader2, Mail, Send } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { LoadingSpinner } from '@/components/LoadingSpinner'
+import { QueryError, QueryLoading } from '@/components/QueryState'
 import PageHeader from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,7 +11,7 @@ type TemplateType = 'verification' | 'passwordReset'
 
 export default function EmailTesting() {
 	const [sendingTemplate, setSendingTemplate] = useState<TemplateType | null>(null)
-	const { data: templatesData, isLoading: templatesLoading } = useEmailTemplates()
+	const { data: templatesData, isLoading: templatesLoading, error } = useEmailTemplates()
 	const sendTestEmail = useSendTestEmail()
 
 	const handleSendTest = async (templateType: TemplateType) => {
@@ -27,11 +27,11 @@ export default function EmailTesting() {
 	}
 
 	if (templatesLoading) {
-		return (
-			<div className="flex justify-center py-12">
-				<LoadingSpinner />
-			</div>
-		)
+		return <QueryLoading text="Loading email templates..." />
+	}
+
+	if (error) {
+		return <QueryError error={error} title="Unable to load templates" />
 	}
 
 	return (

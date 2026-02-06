@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
+import { QueryError, QueryLoading } from '@/components/QueryState'
 import {
 	ApplicationList,
 	DashboardMobileFilters,
@@ -116,8 +117,8 @@ export default function Dashboard() {
 	)
 
 	// Loading and error states
-	if (isLoading) return <div className="p-8 text-center">Loading applications...</div>
-	if (error) return <div className="p-8 text-center text-destructive">Error loading applications</div>
+	if (isLoading) return <QueryLoading text="Loading applications..." />
+	if (error) return <QueryError error={error} title="Unable to load applications" />
 
 	return (
 		<div className="space-y-6">

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ApplicationFormFields } from '@/components/ApplicationFormFields'
 import PageHeader from '@/components/PageHeader'
+import { QueryError, QueryLoading } from '@/components/QueryState'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useApplication } from '@/hooks/useApplications'
@@ -59,8 +60,8 @@ export default function ApplicationEdit() {
 		return <Navigate to="/" replace />
 	}
 
-	if (isLoading) return <div className="p-8 text-center">Loading...</div>
-	if (!application) return <div className="p-8 text-center text-destructive">Application not found</div>
+	if (isLoading) return <QueryLoading />
+	if (!application) return <QueryError title="Application not found" message="This application no longer exists." />
 
 	const onUpdateDetails = async (data: ApplicationFormValues) => {
 		try {

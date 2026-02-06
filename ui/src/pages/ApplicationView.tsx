@@ -4,6 +4,7 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ApplicationDetailsCard } from '@/components/ApplicationDetailsCard'
 import PageHeader from '@/components/PageHeader'
 import { StatusHistoryCard } from '@/components/StatusHistoryCard'
+import { QueryError, QueryLoading } from '@/components/QueryState'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -33,8 +34,9 @@ export default function ApplicationView() {
 		return <Navigate to="/" replace />
 	}
 
-	if (isLoading) return <div className="p-8 text-center">Loading...</div>
-	if (error || !application) return <div className="p-8 text-center text-destructive">Application not found</div>
+	if (isLoading) return <QueryLoading />
+	if (error) return <QueryError error={error} title="Unable to load application" />
+	if (!application) return <QueryError title="Application not found" message="This application no longer exists." />
 
 	const onDeleteApplication = async () => {
 		try {

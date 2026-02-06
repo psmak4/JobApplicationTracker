@@ -15,6 +15,7 @@ import React, { useState } from 'react'
 import { toast } from 'sonner'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import PageHeader from '@/components/PageHeader'
+import { QueryError } from '@/components/QueryState'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -69,7 +70,7 @@ const UserRow = React.memo(function UserRow({
 		<tr className="border-b border-border hover:bg-muted/50 transition-colors">
 			<td className="py-4 px-4">
 				<div className="flex items-center gap-3">
-					<div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
+					<div className="h-10 w-10 rounded-full bg-linear-to-br from-primary/30 to-primary/10 flex items-center justify-center">
 						{user.image ? (
 							<img src={user.image} alt={user.name} className="h-10 w-10 rounded-full object-cover" />
 						) : (
@@ -253,13 +254,12 @@ export default function AdminDashboard() {
 
 	if (error) {
 		return (
-			<div className="flex flex-col items-center justify-center h-96 text-center">
-				<p className="text-destructive mb-4">Failed to load users. You may not have admin access.</p>
-				<Button onClick={() => refetch()} variant="outline">
-					<RefreshCcw className="h-4 w-4 mr-2" />
-					Retry
-				</Button>
-			</div>
+			<QueryError
+				error={error}
+				title="Failed to load users"
+				message="You may not have admin access."
+				onRetry={() => refetch()}
+			/>
 		)
 	}
 
@@ -270,13 +270,13 @@ export default function AdminDashboard() {
 
 			{/* Stats Cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-				<Card className="bg-gradient-to-br from-primary/5 to-background border-primary/20">
+				<Card className="bg-linear-to-br from-primary/5 to-background border-primary/20">
 					<CardHeader className="pb-2">
 						<CardDescription>Total Users</CardDescription>
 						<CardTitle className="text-3xl">{data?.total ?? '-'}</CardTitle>
 					</CardHeader>
 				</Card>
-				<Card className="bg-gradient-to-br from-amber-500/5 to-background border-amber-500/20">
+				<Card className="bg-linear-to-br from-amber-500/5 to-background border-amber-500/20">
 					<CardHeader className="pb-2">
 						<CardDescription>Admins</CardDescription>
 						<CardTitle className="text-3xl">
@@ -284,7 +284,7 @@ export default function AdminDashboard() {
 						</CardTitle>
 					</CardHeader>
 				</Card>
-				<Card className="bg-gradient-to-br from-destructive/5 to-background border-destructive/20">
+				<Card className="bg-linear-to-br from-destructive/5 to-background border-destructive/20">
 					<CardHeader className="pb-2">
 						<CardDescription>Banned</CardDescription>
 						<CardTitle className="text-3xl">{data?.users.filter((u) => u.banned).length ?? '-'}</CardTitle>
