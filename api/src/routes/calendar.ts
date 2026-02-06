@@ -2,9 +2,9 @@ import { fromZonedTime } from 'date-fns-tz'
 import { and, eq } from 'drizzle-orm'
 import { Router } from 'express'
 import { google } from 'googleapis'
-import { auth } from '../auth'
 import { db } from '../db'
 import { account } from '../db/schema'
+import { requireAuth } from '../middleware/auth'
 import { ErrorCodes, errorResponse, successResponse } from '../utils/responses'
 import { getRequestId } from '../utils/request'
 
@@ -17,18 +17,16 @@ const oauth2Client = new google.auth.OAuth2(
 	`${process.env.BETTER_AUTH_URL}/api/auth/callback/google`,
 )
 
+// Apply auth middleware to all calendar routes
+router.use(requireAuth)
+
 /**
  * GET /api/calendar/events
  * Fetch calendar events for a specific date
  */
 router.get('/events', async (req, res) => {
 	try {
-		const session = await auth.api.getSession({ headers: req.headers as any })
-		if (!session) {
-			return res
-				.status(401)
-				.json(errorResponse(ErrorCodes.UNAUTHORIZED, 'Unauthorized', getRequestId(req)))
-		}
+		const userId = req.user!.id
 
 		// Validate date query param
 		const dateParam = req.query.date as string
@@ -52,7 +50,7 @@ router.get('/events', async (req, res) => {
 
 		// 1. Get user's Google account token from database
 		// We need to find the account record linked to this user for the 'google' provider
-		const accounts = await db.select().from(account).where(eq(account.userId, session.user.id))
+		const accounts = await db.select().from(account).where(eq(account.userId, userId))
 
 		const googleAccount = accounts.find((acc) => acc.providerId === 'google')
 
@@ -143,7 +141,7 @@ router.get('/events', async (req, res) => {
 			description: event.description,
 			start: event.start?.dateTime || event.start?.date, // dateTime for timed, date for all-day
 			end: event.end?.dateTime || event.end?.date,
-			url: event.htmlLink ? `${event.htmlLink}&authuser=${session.user.email}` : undefined,
+			url: event.htmlLink ? `${event.htmlLink}&authuser=${req.user?.email}` : undefined,
 			location: event.location,
 			isAllDay: !event.start?.dateTime, // If no dateTime, it's an all-day event
 		}))
@@ -163,14 +161,7 @@ router.get('/events', async (req, res) => {
  */
 router.get('/status', async (req, res) => {
 	try {
-		const session = await auth.api.getSession({ headers: req.headers as any })
-		if (!session) {
-			return res
-				.status(401)
-				.json(errorResponse(ErrorCodes.UNAUTHORIZED, 'Unauthorized', getRequestId(req)))
-		}
-
-		const accounts = await db.select().from(account).where(eq(account.userId, session.user.id))
+		const accounts = await db.select().from(account).where(eq(account.userId, req.user!.id))
 		const googleAccount = accounts.find((acc) => acc.providerId === 'google')
 
 		res.json(successResponse({ connected: !!googleAccount }, getRequestId(req)))
@@ -188,14 +179,9 @@ router.get('/status', async (req, res) => {
  */
 router.delete('/', async (req, res) => {
 	try {
-		const session = await auth.api.getSession({ headers: req.headers as any })
-		if (!session) {
-			return res
-				.status(401)
-				.json(errorResponse(ErrorCodes.UNAUTHORIZED, 'Unauthorized', getRequestId(req)))
-		}
-
-		await db.delete(account).where(and(eq(account.userId, session.user.id), eq(account.providerId, 'google')))
+		await db
+			.delete(account)
+			.where(and(eq(account.userId, req.user!.id), eq(account.providerId, 'google')))
 
 		res.json(successResponse({ disconnected: true }, getRequestId(req)))
 	} catch (error) {
