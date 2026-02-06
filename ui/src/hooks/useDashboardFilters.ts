@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { safeLocalStorage } from '@/lib/utils'
-import type { Application, ApplicationStatus } from '@/types'
+import type { ApplicationStatus, ApplicationSummary } from '@/types'
 
 export type SortKey = 'company' | 'status' | 'lastStatusUpdate'
 export type SortDirection = 'asc' | 'desc'
@@ -38,8 +38,8 @@ interface UseDashboardFiltersReturn {
 	toggleSortDirection: () => void
 
 	// Helpers
-	getCurrentStatus: (app: Application) => ApplicationStatus | 'Unknown'
-	getLastStatusDate: (app: Application) => string
+	getCurrentStatus: (app: ApplicationSummary) => ApplicationStatus | 'Unknown'
+	getLastStatusDate: (app: ApplicationSummary) => string
 	getStalenessColor: (statusDate: string, status: string) => string
 }
 
@@ -132,14 +132,12 @@ export function useDashboardFilters(): UseDashboardFiltersReturn {
 	}, [])
 
 	// Helpers
-	const getCurrentStatus = useCallback((app: Application): ApplicationStatus | 'Unknown' => {
-		if (!app.statusHistory || app.statusHistory.length === 0) return 'Unknown'
-		return app.statusHistory[0].status // Backend sorts history by date desc
+	const getCurrentStatus = useCallback((app: ApplicationSummary): ApplicationStatus | 'Unknown' => {
+		return app.currentStatus ?? 'Unknown'
 	}, [])
 
-	const getLastStatusDate = useCallback((app: Application) => {
-		if (!app.statusHistory || app.statusHistory.length === 0) return app.updatedAt
-		return app.statusHistory[0].date
+	const getLastStatusDate = useCallback((app: ApplicationSummary) => {
+		return app.lastStatusDate ?? app.updatedAt
 	}, [])
 
 	const getStalenessColor = useCallback((statusDate: string, status: string) => {

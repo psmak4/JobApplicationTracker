@@ -25,6 +25,16 @@ export interface StatusHistoryEntry {
 	eventEndTime?: string // ISO timestamp
 }
 
+export interface StatusEventEntry {
+	id: string // UUID
+	status: ApplicationStatus
+	eventId?: string
+	eventTitle?: string
+	eventUrl?: string
+	eventStartTime?: string // ISO timestamp
+	eventEndTime?: string // ISO timestamp
+}
+
 export interface Application {
 	id: string // UUID
 	company: string
@@ -38,6 +48,23 @@ export interface Application {
 	statusHistory: StatusHistoryEntry[]
 	createdAt: string // ISO timestamp
 	updatedAt: string // ISO timestamp
+}
+
+export interface ApplicationSummary {
+	id: string // UUID
+	company: string
+	jobTitle: string
+	jobDescriptionUrl?: string
+	salary?: string
+	location?: string // City, State
+	workType?: WorkType
+	contactInfo?: string
+	notes?: string
+	createdAt: string // ISO timestamp
+	updatedAt: string // ISO timestamp
+	currentStatus?: ApplicationStatus | null
+	lastStatusDate?: string | null
+	upcomingEvents: StatusEventEntry[]
 }
 
 // API Response types for standardized backend responses

@@ -2,13 +2,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import apiClient, { extractData } from '@/lib/api-client'
 import { applicationQueryKeys } from '@/lib/queryKeys'
-import type { Application, MutationError } from '@/types'
+import type { Application, ApplicationSummary, MutationError } from '@/types'
 
 export const useApplications = () => {
-	return useQuery<Application[]>({
+	return useQuery<ApplicationSummary[]>({
 		queryKey: applicationQueryKeys.all,
 		queryFn: async () => {
-			const response = await apiClient.get('/applications')
+			const response = await apiClient.get('/applications/list')
 			return extractData(response.data)
 		},
 	})

@@ -2,11 +2,11 @@ import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
 import { useDashboardFilters } from '@/hooks/useDashboardFilters'
 import { cn } from '@/lib/utils'
 import { formatDisplayDate } from '@/lib/utils'
-import type { Application } from '@/types'
+import type { ApplicationSummary } from '@/types'
 import { EmptyState } from './EmptyState'
 
 interface ApplicationListProps {
-	applications: Application[]
+	applications: ApplicationSummary[]
 	onNavigate: (id: string) => void
 	onPrefetch: (id: string) => void
 	highlightedApplicationId?: string | null
