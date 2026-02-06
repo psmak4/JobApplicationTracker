@@ -1,8 +1,8 @@
 import { CheckCircle, Loader2, Mail, Send } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { QueryError, QueryLoading } from '@/components/QueryState'
 import PageHeader from '@/components/PageHeader'
+import { QueryError, QueryLoading } from '@/components/QueryState'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { type EmailTemplate, useEmailTemplates, useSendTestEmail } from '@/hooks/useAdminEmail'
@@ -43,7 +43,7 @@ export default function EmailTesting() {
 			/>
 
 			{/* Info Card */}
-			<Card className="bg-gradient-to-br from-primary/5 to-background border-primary/20">
+			<Card className="bg-linear-to-br from-primary/5 to-background border-primary/20">
 				<CardHeader className="pb-3">
 					<div className="flex items-center gap-3">
 						<div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
