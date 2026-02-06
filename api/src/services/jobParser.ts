@@ -255,6 +255,10 @@ class JobParser {
 
 			const hostname = parsed.hostname.toLowerCase()
 
+			if (!this.isAllowedDomain(hostname)) {
+				return { valid: false, reason: 'Domain is not in the allowed list.' }
+			}
+
 			// Block localhost variants
 			if (
 				hostname === 'localhost' ||
@@ -298,9 +302,8 @@ class JobParser {
 	 * Fetch content with rotation and anti-bot measures
 	 */
 	private async fetchContent(url: string): Promise<string> {
-		const userAgent = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)]
-
 		for (let attempt = 1; attempt <= FETCH_MAX_ATTEMPTS; attempt++) {
+			const userAgent = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)]
 			try {
 				const response = await axios.get(url, {
 					headers: {
@@ -314,6 +317,14 @@ class JobParser {
 					maxRedirects: FETCH_MAX_REDIRECTS,
 					validateStatus: (status) => status < 400,
 				})
+
+				const responseUrl = response.request?.res?.responseUrl as string | undefined
+				if (responseUrl) {
+					const redirectedHost = urlParse(responseUrl).hostname.toLowerCase()
+					if (!this.isAllowedDomain(redirectedHost)) {
+						throw new Error('Redirect to non-allowed domain detected')
+					}
+				}
 
 				if (response.status >= 400) {
 					throw new Error(this.formatHttpError(response.status))
@@ -427,6 +438,10 @@ class JobParser {
 
 	private getRetryDelay(attempt: number): number {
 		return FETCH_RETRY_BASE_DELAY_MS * Math.pow(2, attempt - 1)
+	}
+
+	private isAllowedDomain(hostname: string): boolean {
+		return ALLOWED_DOMAINS.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
 	}
 
 	/**

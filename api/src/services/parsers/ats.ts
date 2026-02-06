@@ -69,7 +69,10 @@ export class WorkdayParser implements JobParserStrategy {
 			$('dd[class*="location"]').first().text().trim()
 
 		// Workday doesn't always show company in the posting (it's in the URL/header)
-		const companyMatch = $('.css-12hm4pa').first().text().trim()
+		const companyMatch =
+			$('[data-automation-id="company"]').first().text().trim() ||
+			$('[data-automation-id="companyName"]').first().text().trim() ||
+			$('.css-12hm4pa').first().text().trim()
 		if (companyMatch) data.company = companyMatch
 
 		return data

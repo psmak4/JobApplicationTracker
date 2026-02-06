@@ -25,19 +25,13 @@ export class GenericParser implements JobParserStrategy {
 	 */
 	private parseCompany($: cheerio.CheerioAPI, text: string, url: string): string | undefined {
 		// Try structured data (Schema.org)
-		const structuredData = $('script[type="application/ld+json"]')
-		let companyFromSchema: string | undefined
-		structuredData.each((_, elem) => {
-			try {
-				const html = $(elem).html()
-				if (!html) return
-				const data = JSON.parse(html)
-				if (data['@type'] === 'JobPosting' && data.hiringOrganization?.name) {
-					companyFromSchema = data.hiringOrganization.name
-					return false // break
-				}
-			} catch {}
-		})
+		const companyFromSchema = this.extractFromSchema(($) => {
+			const jobPosting = this.findJobPostingFromSchema($)
+			if (jobPosting?.hiringOrganization?.name) {
+				return jobPosting.hiringOrganization.name
+			}
+			return undefined
+		}, $)
 
 		if (companyFromSchema) return companyFromSchema
 
@@ -125,20 +119,13 @@ export class GenericParser implements JobParserStrategy {
 	 */
 	private parseJobTitle($: cheerio.CheerioAPI): string | undefined {
 		// Try structured data
-		const structuredData = $('script[type="application/ld+json"]')
-		let titleFromSchema: string | undefined
-
-		structuredData.each((_, elem) => {
-			try {
-				const html = $(elem).html()
-				if (!html) return
-				const data = JSON.parse(html)
-				if (data['@type'] === 'JobPosting' && data.title) {
-					titleFromSchema = data.title
-					return false // break
-				}
-			} catch {}
-		})
+		const titleFromSchema = this.extractFromSchema(($) => {
+			const jobPosting = this.findJobPostingFromSchema($)
+			if (jobPosting?.title) {
+				return jobPosting.title
+			}
+			return undefined
+		}, $)
 
 		if (titleFromSchema) return he.decode(titleFromSchema).trim()
 
@@ -197,23 +184,29 @@ export class GenericParser implements JobParserStrategy {
 	 */
 	private parseLocation($: cheerio.CheerioAPI, text: string): string | undefined {
 		// Try structured data
-		const structuredData = $('script[type="application/ld+json"]')
-		let locationFromSchema: string | undefined
-		structuredData.each((_, elem) => {
-			try {
-				const html = $(elem).html()
-				if (!html) return
-				const data = JSON.parse(html)
-				if (data['@type'] === 'JobPosting' && data.jobLocation) {
-					const location = data.jobLocation
-					if (location.address) {
-						const addr = location.address
-						locationFromSchema = [addr.addressLocality, addr.addressRegion].filter(Boolean).join(', ')
-						return false // break
-					}
+		const locationFromSchema = this.extractFromSchema(($) => {
+			const jobPosting = this.findJobPostingFromSchema($)
+			if (!jobPosting?.jobLocation) return undefined
+
+			const locations = Array.isArray(jobPosting.jobLocation)
+				? jobPosting.jobLocation
+				: [jobPosting.jobLocation]
+
+			for (const location of locations) {
+				const address = location?.address
+				if (!address) continue
+
+				if (typeof address === 'string') {
+					return address
 				}
-			} catch {}
-		})
+
+				const addr = address
+				const formatted = [addr.addressLocality, addr.addressRegion].filter(Boolean).join(', ')
+				if (formatted) return formatted
+			}
+
+			return undefined
+		}, $)
 
 		if (locationFromSchema) return locationFromSchema
 
@@ -271,26 +264,27 @@ export class GenericParser implements JobParserStrategy {
 	 */
 	private parseSalary($: cheerio.CheerioAPI, text: string): string | undefined {
 		// Try structured data
-		const structuredData = $('script[type="application/ld+json"]')
-		let salaryFromSchema: string | undefined
-		structuredData.each((_, elem) => {
-			try {
-				const html = $(elem).html()
-				if (!html) return
-				const data = JSON.parse(html)
-				if (data['@type'] === 'JobPosting' && data.baseSalary) {
-					const salary = data.baseSalary
-					// Handle both direct value and nested value object
-					if (salary.value != null && salary.value.value != null) {
-						salaryFromSchema = `$${salary.value.value} ${salary.value.unitText || 'per year'}`
-						return false // break
-					} else if (typeof salary.value === 'number' || typeof salary.value === 'string') {
-						salaryFromSchema = `$${salary.value} ${salary.unitText || 'per year'}`
-						return false // break
-					}
-				}
-			} catch {}
-		})
+		const salaryFromSchema = this.extractFromSchema(($) => {
+			const jobPosting = this.findJobPostingFromSchema($)
+			if (!jobPosting?.baseSalary) return undefined
+
+			const salary = jobPosting.baseSalary
+			const unitText = salary.unitText || salary.value?.unitText || 'per year'
+
+			if (salary.value?.minValue != null && salary.value?.maxValue != null) {
+				return `$${salary.value.minValue} - $${salary.value.maxValue} ${unitText}`
+			}
+
+			if (salary.value != null && salary.value.value != null) {
+				return `$${salary.value.value} ${unitText}`
+			}
+
+			if (typeof salary.value === 'number' || typeof salary.value === 'string') {
+				return `$${salary.value} ${unitText}`
+			}
+
+			return undefined
+		}, $)
 
 		if (salaryFromSchema) return salaryFromSchema
 
@@ -397,5 +391,57 @@ export class GenericParser implements JobParserStrategy {
 		}
 
 		return undefined
+	}
+
+	private extractFromSchema<T>(resolver: ($: cheerio.CheerioAPI) => T | undefined, $: cheerio.CheerioAPI) {
+		try {
+			return resolver($)
+		} catch {
+			return undefined
+		}
+	}
+
+	private findJobPostingFromSchema($: cheerio.CheerioAPI): Record<string, any> | undefined {
+		const structuredData = $('script[type="application/ld+json"]')
+		let jobPosting: Record<string, any> | undefined
+
+		const extractJobPosting = (data: any): Record<string, any> | undefined => {
+			if (!data) return undefined
+
+			if (Array.isArray(data)) {
+				for (const entry of data) {
+					const found = extractJobPosting(entry)
+					if (found) return found
+				}
+			}
+
+			if (data['@graph'] && Array.isArray(data['@graph'])) {
+				for (const entry of data['@graph']) {
+					const found = extractJobPosting(entry)
+					if (found) return found
+				}
+			}
+
+			if (data['@type'] === 'JobPosting') {
+				return data
+			}
+
+			return undefined
+		}
+
+		structuredData.each((_, elem) => {
+			try {
+				const html = $(elem).html()
+				if (!html) return
+				const data = JSON.parse(html)
+				const found = extractJobPosting(data)
+				if (found) {
+					jobPosting = found
+					return false
+				}
+			} catch {}
+		})
+
+		return jobPosting
 	}
 }
