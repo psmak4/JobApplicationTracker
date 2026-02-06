@@ -1,6 +1,6 @@
 import { and, desc, eq } from 'drizzle-orm'
-import { Request, Response } from 'express'
-import { z } from 'zod'
+import { NextFunction, Request, Response } from 'express'
+import { z, ZodError } from 'zod'
 import { db } from '../db/index'
 import { applicationStatusEnum, applications, statusHistory } from '../db/schema'
 import { getRequestId } from '../utils/request'
@@ -99,14 +99,15 @@ export const applicationController = {
 	},
 
 	// Create a new application
-	create: async (req: Request, res: Response) => {
+	create: async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const userId = req.user!.id
 			const validation = createApplicationSchema.safeParse(req.body)
 
 			if (!validation.success) {
 				// Let the error handler middleware handle Zod errors for consistent formatting
-				throw validation.error
+				next(validation.error)
+				return
 			}
 
 			const { status, date, ...appData } = validation.data
@@ -138,13 +139,17 @@ export const applicationController = {
 
 			res.status(201).json(successResponse(result, getRequestId(req)))
 		} catch (error) {
+			if (error instanceof ZodError) {
+				next(error)
+				return
+			}
 			console.error('Error creating application:', error)
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create application', getRequestId(req)))
 		}
 	},
 
 	// Update an application
-	update: async (req: Request, res: Response) => {
+	update: async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const userId = req.user!.id
 			const applicationId = req.params.id as string
@@ -152,7 +157,8 @@ export const applicationController = {
 
 			if (!validation.success) {
 				// Let the error handler middleware handle Zod errors for consistent formatting
-				throw validation.error
+				next(validation.error)
+				return
 			}
 
 			// Ensure user owns the application
@@ -201,6 +207,10 @@ export const applicationController = {
 
 			res.json(successResponse(updatedApp, getRequestId(req)))
 		} catch (error) {
+			if (error instanceof ZodError) {
+				next(error)
+				return
+			}
 			console.error('Error updating application:', error)
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to update application', getRequestId(req)))
 		}
