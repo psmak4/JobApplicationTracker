@@ -40,19 +40,18 @@ export default function Dashboard() {
 	const upcomingEvents = useMemo(() => {
 		const events = applications.flatMap((app) =>
 			(app.upcomingEvents || [])
-				.filter((entry) => entry.eventStartTime)
+				.filter((entry) => entry.startTime)
 				.map((entry) => ({
 					id: entry.id,
 					applicationId: app.id,
 					company: app.company,
 					jobTitle: app.jobTitle,
-					eventTitle: entry.eventTitle || 'Scheduled Event',
-					eventDate: entry.eventStartTime!,
-					eventUrl: entry.eventUrl,
-					status: entry.status,
+					title: entry.title || 'Scheduled Event',
+					startTime: entry.startTime,
+					url: entry.url,
 				})),
 		)
-		return events.sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime())
+		return events.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
 	}, [applications])
 
 	const uniqueCompanies = useMemo(() => {

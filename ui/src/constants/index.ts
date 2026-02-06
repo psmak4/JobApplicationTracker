@@ -6,13 +6,10 @@ import type { ApplicationStatus, WorkType } from '@/types'
  */
 export const APPLICATION_STATUS_OPTIONS: ApplicationStatus[] = [
 	'Applied',
-	'Phone Screen',
-	'Technical Interview',
-	'On-site Interview',
-	'Offer',
+	'Interviewing',
+	'Offer Received',
 	'Rejected',
 	'Withdrawn',
-	'Other',
 ]
 
 /**

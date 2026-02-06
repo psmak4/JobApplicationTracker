@@ -1,14 +1,6 @@
 import type { AxiosError } from 'axios'
 
-export type ApplicationStatus =
-	| 'Applied'
-	| 'Phone Screen'
-	| 'Technical Interview'
-	| 'On-site Interview'
-	| 'Offer'
-	| 'Rejected'
-	| 'Withdrawn'
-	| 'Other'
+export type ApplicationStatus = 'Applied' | 'Interviewing' | 'Offer Received' | 'Rejected' | 'Withdrawn'
 
 export type WorkType = 'Remote' | 'Hybrid' | 'On-site'
 
@@ -17,22 +9,29 @@ export interface StatusHistoryEntry {
 	status: ApplicationStatus
 	date: string // ISO timestamp
 	createdAt: string // ISO timestamp
-	// Calendar Event
-	eventId?: string
-	eventTitle?: string
-	eventUrl?: string
-	eventStartTime?: string // ISO timestamp
-	eventEndTime?: string // ISO timestamp
 }
 
-export interface StatusEventEntry {
+// Calendar event linked to an application
+export interface CalendarEventEntry {
 	id: string // UUID
-	status: ApplicationStatus
-	eventId?: string
-	eventTitle?: string
-	eventUrl?: string
-	eventStartTime?: string // ISO timestamp
-	eventEndTime?: string // ISO timestamp
+	applicationId: string
+	googleEventId?: string
+	title: string
+	url?: string
+	startTime: string // ISO timestamp
+	endTime?: string // ISO timestamp
+	createdAt: string // ISO timestamp
+}
+
+// Upcoming event for dashboard display (includes application context)
+export interface UpcomingEventEntry {
+	id: string
+	applicationId: string
+	googleEventId?: string
+	title: string
+	url?: string
+	startTime: string
+	endTime?: string
 }
 
 export interface Application {
@@ -46,6 +45,7 @@ export interface Application {
 	contactInfo?: string
 	notes?: string
 	statusHistory: StatusHistoryEntry[]
+	calendarEvents: CalendarEventEntry[]
 	createdAt: string // ISO timestamp
 	updatedAt: string // ISO timestamp
 }
@@ -64,7 +64,7 @@ export interface ApplicationSummary {
 	updatedAt: string // ISO timestamp
 	currentStatus?: ApplicationStatus | null
 	lastStatusDate?: string | null
-	upcomingEvents: StatusEventEntry[]
+	upcomingEvents: UpcomingEventEntry[]
 }
 
 // API Response types for standardized backend responses

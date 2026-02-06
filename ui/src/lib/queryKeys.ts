@@ -38,3 +38,8 @@ export const sessionQueryKeys = {
 	/** Current user session */
 	current: ['session'] as const,
 }
+
+export const eventQueryKeys = {
+	/** Events for a specific application */
+	byApplication: (applicationId: string) => ['events', applicationId] as const,
+}

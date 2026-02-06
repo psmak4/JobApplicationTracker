@@ -4,13 +4,10 @@ import { boolean, date, index, pgEnum, pgTable, text, timestamp, varchar } from 
 // Enums
 export const applicationStatusEnum = pgEnum('application_status', [
 	'Applied',
-	'Phone Screen',
-	'Technical Interview',
-	'On-site Interview',
-	'Offer',
+	'Interviewing',
+	'Offer Received',
 	'Rejected',
 	'Withdrawn',
-	'Other',
 ])
 
 export const workTypeEnum = pgEnum('work_type', ['Remote', 'Hybrid', 'On-site'])
@@ -114,12 +111,6 @@ export const statusHistory = pgTable(
 			.references(() => applications.id, { onDelete: 'cascade' }),
 		status: applicationStatusEnum('status').notNull(),
 		date: date('date').notNull(),
-		// Calendar Event Integration
-		eventId: text('event_id'),
-		eventTitle: text('event_title'),
-		eventUrl: text('event_url'),
-		eventStartTime: timestamp('event_start_time'),
-		eventEndTime: timestamp('event_end_time'),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 	},
 	(table) => [
@@ -130,13 +121,44 @@ export const statusHistory = pgTable(
 	],
 )
 
+// Calendar Events table - linked directly to applications
+export const calendarEvents = pgTable(
+	'calendar_events',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		applicationId: text('application_id')
+			.notNull()
+			.references(() => applications.id, { onDelete: 'cascade' }),
+		googleEventId: text('google_event_id'),
+		title: text('title').notNull(),
+		url: text('url'),
+		startTime: timestamp('start_time').notNull(),
+		endTime: timestamp('end_time'),
+		createdAt: timestamp('created_at').notNull().defaultNow(),
+	},
+	(table) => [
+		index('calendar_events_application_id_idx').on(table.applicationId),
+		index('calendar_events_start_time_idx').on(table.startTime),
+	],
+)
+
 export const applicationsRelations = relations(applications, ({ many }) => ({
 	statusHistory: many(statusHistory),
+	calendarEvents: many(calendarEvents),
 }))
 
 export const statusHistoryRelations = relations(statusHistory, ({ one }) => ({
 	application: one(applications, {
 		fields: [statusHistory.applicationId],
+		references: [applications.id],
+	}),
+}))
+
+export const calendarEventsRelations = relations(calendarEvents, ({ one }) => ({
+	application: one(applications, {
+		fields: [calendarEvents.applicationId],
 		references: [applications.id],
 	}),
 }))
@@ -148,3 +170,5 @@ export type Application = typeof applications.$inferSelect
 export type NewApplication = typeof applications.$inferInsert
 export type StatusHistory = typeof statusHistory.$inferSelect
 export type NewStatusHistory = typeof statusHistory.$inferInsert
+export type CalendarEvent = typeof calendarEvents.$inferSelect
+export type NewCalendarEvent = typeof calendarEvents.$inferInsert

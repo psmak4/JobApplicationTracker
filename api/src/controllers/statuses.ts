@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
-import { z, ZodError } from 'zod'
+import { ZodError, z } from 'zod'
 import { db } from '../db/index'
 import { applicationStatusEnum, applications, statusHistory } from '../db/schema'
 import { getRequestId } from '../utils/request'
@@ -23,11 +23,6 @@ const createStatusSchema = z.object({
 			},
 		)
 		.default(() => new Date().toISOString().split('T')[0]),
-	eventId: z.string().optional(),
-	eventTitle: z.string().optional(),
-	eventUrl: z.string().optional(),
-	eventStartTime: z.string().optional().or(z.null()),
-	eventEndTime: z.string().optional().or(z.null()),
 })
 
 export const statusController = {
@@ -92,11 +87,6 @@ export const statusController = {
 					applicationId,
 					status: validation.data.status,
 					date: statusDate,
-					eventId: validation.data.eventId,
-					eventTitle: validation.data.eventTitle,
-					eventUrl: validation.data.eventUrl,
-					eventStartTime: validation.data.eventStartTime ? new Date(validation.data.eventStartTime) : null,
-					eventEndTime: validation.data.eventEndTime ? new Date(validation.data.eventEndTime) : null,
 				})
 				.returning()
 

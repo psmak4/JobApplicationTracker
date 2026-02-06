@@ -9,7 +9,6 @@ import type {
 	ApplicationSummary,
 	MutationError,
 	StatusHistoryEntry,
-	StatusEventEntry,
 	WorkType,
 } from '@/types'
 
@@ -81,15 +80,7 @@ export const useUpdateApplication = (id: string) => {
 export const useAddStatus = (applicationId: string) => {
 	const queryClient = useQueryClient()
 	return useMutation({
-		mutationFn: async (data: {
-			status: ApplicationStatus
-			date: string
-			eventId?: string
-			eventTitle?: string
-			eventUrl?: string
-			eventStartTime?: string
-			eventEndTime?: string
-		}) => {
+		mutationFn: async (data: { status: ApplicationStatus; date: string }) => {
 			const response = await apiClient.post(`/statuses/application/${applicationId}`, data)
 			return extractData(response.data)
 		},
@@ -106,28 +97,10 @@ export const useAddStatus = (applicationId: string) => {
 				status: newData.status,
 				date: newData.date,
 				createdAt: new Date().toISOString(),
-				eventId: newData.eventId,
-				eventTitle: newData.eventTitle,
-				eventUrl: newData.eventUrl,
-				eventStartTime: newData.eventStartTime,
-				eventEndTime: newData.eventEndTime,
 			}
-
-			const newEventEntry: StatusEventEntry | null = newData.eventStartTime
-				? {
-						id: newStatusEntry.id,
-						status: newData.status,
-						eventId: newData.eventId,
-						eventTitle: newData.eventTitle,
-						eventUrl: newData.eventUrl,
-						eventStartTime: newData.eventStartTime,
-						eventEndTime: newData.eventEndTime,
-					}
-				: null
 
 			queryClient.setQueryData<Application>(applicationQueryKeys.detail(applicationId), (old) => {
 				if (!old) return undefined
-				// Prepend new status
 				return { ...old, statusHistory: [newStatusEntry, ...old.statusHistory] }
 			})
 
@@ -136,15 +109,10 @@ export const useAddStatus = (applicationId: string) => {
 					if (!old) return old
 					return old.map((app) => {
 						if (app.id !== applicationId) return app
-						const upcomingEvents = newEventEntry
-							? [newEventEntry, ...(app.upcomingEvents ?? [])]
-							: app.upcomingEvents ?? []
-
 						return {
 							...app,
 							currentStatus: newData.status,
 							lastStatusDate: newData.date,
-							upcomingEvents,
 						}
 					})
 				})
@@ -179,11 +147,9 @@ export const useDeleteStatus = (applicationId: string) => {
 		},
 		onMutate: async (statusId) => {
 			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
-			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.all })
 			const previousApplication = queryClient.getQueryData<Application>(
 				applicationQueryKeys.detail(applicationId),
 			)
-			const previousApplications = queryClient.getQueryData<ApplicationSummary[]>(applicationQueryKeys.all)
 			queryClient.setQueryData<Application>(applicationQueryKeys.detail(applicationId), (old) => {
 				if (!old) return undefined
 				return {
@@ -191,19 +157,7 @@ export const useDeleteStatus = (applicationId: string) => {
 					statusHistory: old.statusHistory.filter((status) => status.id !== statusId),
 				}
 			})
-			if (previousApplications) {
-				queryClient.setQueryData<ApplicationSummary[]>(applicationQueryKeys.all, (old) => {
-					if (!old) return old
-					return old.map((app) => {
-						if (app.id !== applicationId) return app
-						return {
-							...app,
-							upcomingEvents: (app.upcomingEvents ?? []).filter((event) => event.id !== statusId),
-						}
-					})
-				})
-			}
-			return { previousApplication, previousApplications }
+			return { previousApplication }
 		},
 		onSuccess: () => {
 			toast.success('Status deleted successfully')
@@ -211,9 +165,6 @@ export const useDeleteStatus = (applicationId: string) => {
 		onError: (error: MutationError, _statusId, context) => {
 			if (context?.previousApplication) {
 				queryClient.setQueryData(applicationQueryKeys.detail(applicationId), context.previousApplication)
-			}
-			if (context?.previousApplications) {
-				queryClient.setQueryData(applicationQueryKeys.all, context.previousApplications)
 			}
 			toast.error('Error', { description: getErrorMessage(error, 'Failed to delete status') })
 		},

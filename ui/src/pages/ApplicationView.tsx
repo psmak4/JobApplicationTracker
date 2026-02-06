@@ -2,9 +2,10 @@ import { Edit, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ApplicationDetailsCard } from '@/components/ApplicationDetailsCard'
+import { EventsCard } from '@/components/EventsCard'
 import PageHeader from '@/components/PageHeader'
-import { StatusHistoryCard } from '@/components/StatusHistoryCard'
 import { QueryError, QueryLoading } from '@/components/QueryState'
+import { StatusHistoryCard } from '@/components/StatusHistoryCard'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -113,9 +114,10 @@ export default function ApplicationView() {
 					<ApplicationDetailsCard application={application} />
 				</div>
 
-				{/* Right Column: Status History */}
+				{/* Right Column: Status History & Events */}
 				<div className="space-y-6">
 					<StatusHistoryCard application={application} />
+					<EventsCard application={application} />
 				</div>
 			</div>
 		</div>

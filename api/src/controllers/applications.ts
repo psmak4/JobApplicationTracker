@@ -1,8 +1,8 @@
-import { and, desc, eq, gte, inArray, isNotNull } from 'drizzle-orm'
+import { and, desc, eq, gte, inArray } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
-import { z, ZodError } from 'zod'
+import { ZodError, z } from 'zod'
 import { db } from '../db/index'
-import { applicationStatusEnum, applications, statusHistory } from '../db/schema'
+import { applicationStatusEnum, applications, calendarEvents, statusHistory } from '../db/schema'
 import { getRequestId } from '../utils/request'
 import { errorResponse, successResponse } from '../utils/responses'
 
@@ -113,26 +113,25 @@ export const applicationController = {
 			const startOfToday = new Date()
 			startOfToday.setHours(0, 0, 0, 0)
 
+			// Query upcoming events from calendarEvents table
 			const upcomingEvents = await db
 				.select({
-					applicationId: statusHistory.applicationId,
-					id: statusHistory.id,
-					status: statusHistory.status,
-					eventId: statusHistory.eventId,
-					eventTitle: statusHistory.eventTitle,
-					eventUrl: statusHistory.eventUrl,
-					eventStartTime: statusHistory.eventStartTime,
-					eventEndTime: statusHistory.eventEndTime,
+					id: calendarEvents.id,
+					applicationId: calendarEvents.applicationId,
+					googleEventId: calendarEvents.googleEventId,
+					title: calendarEvents.title,
+					url: calendarEvents.url,
+					startTime: calendarEvents.startTime,
+					endTime: calendarEvents.endTime,
 				})
-				.from(statusHistory)
+				.from(calendarEvents)
 				.where(
 					and(
-						inArray(statusHistory.applicationId, applicationIds),
-						isNotNull(statusHistory.eventStartTime),
-						gte(statusHistory.eventStartTime, startOfToday),
+						inArray(calendarEvents.applicationId, applicationIds),
+						gte(calendarEvents.startTime, startOfToday),
 					),
 				)
-				.orderBy(desc(statusHistory.eventStartTime))
+				.orderBy(desc(calendarEvents.startTime))
 
 			const eventsByApplication = new Map<string, typeof upcomingEvents>()
 
@@ -164,8 +163,8 @@ export const applicationController = {
 		}
 	},
 
-	// Get a single application details (including history)
-	// Uses Drizzle relational queries to fetch application and status history in one query
+	// Get a single application details (including history and calendar events)
+	// Uses Drizzle relational queries to fetch application, status history, and events in one query
 	getOne: async (req: Request, res: Response) => {
 		try {
 			const userId = req.user!.id
@@ -176,6 +175,9 @@ export const applicationController = {
 				with: {
 					statusHistory: {
 						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
+					},
+					calendarEvents: {
+						orderBy: [desc(calendarEvents.startTime)],
 					},
 				},
 			})
