@@ -5,6 +5,8 @@ import { google } from 'googleapis'
 import { auth } from '../auth'
 import { db } from '../db'
 import { account } from '../db/schema'
+import { ErrorCodes, errorResponse, successResponse } from '../utils/responses'
+import { getRequestId } from '../utils/request'
 
 const router = Router()
 
@@ -23,13 +25,23 @@ router.get('/events', async (req, res) => {
 	try {
 		const session = await auth.api.getSession({ headers: req.headers as any })
 		if (!session) {
-			return res.status(401).json({ error: 'Unauthorized' })
+			return res
+				.status(401)
+				.json(errorResponse(ErrorCodes.UNAUTHORIZED, 'Unauthorized', getRequestId(req)))
 		}
 
 		// Validate date query param
 		const dateParam = req.query.date as string
 		if (!dateParam) {
-			return res.status(400).json({ error: 'Date parameter is required (YYYY-MM-DD)' })
+			return res
+				.status(400)
+				.json(
+					errorResponse(
+						ErrorCodes.BAD_REQUEST,
+						'Date parameter is required (YYYY-MM-DD)',
+						getRequestId(req),
+					),
+				)
 		}
 
 		// Parse start and end of day in the user's specific timezone
@@ -46,10 +58,15 @@ router.get('/events', async (req, res) => {
 
 		if (!googleAccount || !googleAccount.accessToken || !googleAccount.refreshToken) {
 			// User hasn't linked Google or we don't have tokens
-			return res.status(400).json({
-				error: 'Google Calendar not connected',
-				code: 'GOOGLE_NOT_CONNECTED',
-			})
+			return res
+				.status(400)
+				.json(
+					errorResponse(
+						ErrorCodes.BAD_REQUEST,
+						'Google Calendar not connected',
+						getRequestId(req),
+					),
+				)
 		}
 
 		// 2. Set credentials
@@ -93,10 +110,15 @@ router.get('/events', async (req, res) => {
 				}
 			} catch (refreshError) {
 				console.error('Failed to refresh Google token:', refreshError)
-				return res.status(401).json({
-					error: 'Failed to refresh Google authentication. Please reconnect your account.',
-					code: 'GOOGLE_AUTH_EXPIRED',
-				})
+				return res
+					.status(401)
+					.json(
+						errorResponse(
+							ErrorCodes.UNAUTHORIZED,
+							'Failed to refresh Google authentication. Please reconnect your account.',
+							getRequestId(req),
+						),
+					)
 			}
 		}
 
@@ -126,10 +148,12 @@ router.get('/events', async (req, res) => {
 			isAllDay: !event.start?.dateTime, // If no dateTime, it's an all-day event
 		}))
 
-		res.json({ success: true, data: mappedEvents })
+		res.json(successResponse(mappedEvents, getRequestId(req)))
 	} catch (error) {
 		console.error('Error fetching calendar events:', error)
-		res.status(500).json({ error: 'Failed to fetch calendar events' })
+		res.status(500).json(
+			errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to fetch calendar events', getRequestId(req)),
+		)
 	}
 })
 
@@ -141,21 +165,20 @@ router.get('/status', async (req, res) => {
 	try {
 		const session = await auth.api.getSession({ headers: req.headers as any })
 		if (!session) {
-			return res.status(401).json({ error: 'Unauthorized' })
+			return res
+				.status(401)
+				.json(errorResponse(ErrorCodes.UNAUTHORIZED, 'Unauthorized', getRequestId(req)))
 		}
 
 		const accounts = await db.select().from(account).where(eq(account.userId, session.user.id))
 		const googleAccount = accounts.find((acc) => acc.providerId === 'google')
 
-		res.json({
-			success: true,
-			data: {
-				connected: !!googleAccount,
-			},
-		})
+		res.json(successResponse({ connected: !!googleAccount }, getRequestId(req)))
 	} catch (error) {
 		console.error('Error checking calendar status:', error)
-		res.status(500).json({ error: 'Failed to check calendar status' })
+		res.status(500).json(
+			errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to check calendar status', getRequestId(req)),
+		)
 	}
 })
 
@@ -167,15 +190,19 @@ router.delete('/', async (req, res) => {
 	try {
 		const session = await auth.api.getSession({ headers: req.headers as any })
 		if (!session) {
-			return res.status(401).json({ error: 'Unauthorized' })
+			return res
+				.status(401)
+				.json(errorResponse(ErrorCodes.UNAUTHORIZED, 'Unauthorized', getRequestId(req)))
 		}
 
 		await db.delete(account).where(and(eq(account.userId, session.user.id), eq(account.providerId, 'google')))
 
-		res.json({ success: true, disconnected: true })
+		res.json(successResponse({ disconnected: true }, getRequestId(req)))
 	} catch (error) {
 		console.error('Error disconnecting calendar:', error)
-		res.status(500).json({ error: 'Failed to disconnect calendar' })
+		res.status(500).json(
+			errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to disconnect calendar', getRequestId(req)),
+		)
 	}
 })
 
