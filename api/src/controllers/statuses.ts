@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
 import { z, ZodError } from 'zod'
 import { db } from '../db/index'
@@ -140,12 +140,14 @@ export const statusController = {
 			}
 
 			// Ensure we don't delete the last status entry
-			const count = await db
-				.select()
+			const [countResult] = await db
+				.select({ count: sql<number>`count(*)` })
 				.from(statusHistory)
 				.where(eq(statusHistory.applicationId, statusEntry.applicationId))
 
-			if (count.length <= 1) {
+			const statusCount = Number(countResult?.count ?? 0)
+
+			if (statusCount <= 1) {
 				res.status(400).json(
 					errorResponse('VALIDATION_ERROR', 'Cannot delete the only status entry', getRequestId(req)),
 				)
