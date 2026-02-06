@@ -88,7 +88,7 @@ export function EventsCard({ application }: EventsCardProps) {
 	// If adding event, show the add form card instead of EventList
 	if (isAddingEvent) {
 		return (
-			<Card className="bg-card/50 backdrop-blur-sm rounded-md">
+			<Card>
 				<CardHeader className="pb-3 flex flex-row items-center justify-between">
 					<CardTitle className="text-lg font-semibold">Calendar Events</CardTitle>
 					<Button

@@ -43,7 +43,7 @@ export default function EmailTesting() {
 			/>
 
 			{/* Info Card */}
-			<Card className="bg-linear-to-br from-primary/5 to-background border-primary/20">
+			<Card>
 				<CardHeader className="pb-3">
 					<div className="flex items-center gap-3">
 						<div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">

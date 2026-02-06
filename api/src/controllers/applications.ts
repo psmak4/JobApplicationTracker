@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, inArray } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, inArray } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError, z } from 'zod'
 import { db } from '../db/index'
@@ -131,7 +131,7 @@ export const applicationController = {
 						gte(calendarEvents.startTime, startOfToday),
 					),
 				)
-				.orderBy(desc(calendarEvents.startTime))
+				.orderBy(asc(calendarEvents.startTime))
 
 			const eventsByApplication = new Map<string, typeof upcomingEvents>()
 

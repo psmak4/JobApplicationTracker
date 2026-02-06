@@ -270,13 +270,13 @@ export default function AdminDashboard() {
 
 			{/* Stats Cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-				<Card className="bg-linear-to-br from-primary/5 to-background border-primary/20">
+				<Card>
 					<CardHeader className="pb-2">
 						<CardDescription>Total Users</CardDescription>
 						<CardTitle className="text-3xl">{data?.total ?? '-'}</CardTitle>
 					</CardHeader>
 				</Card>
-				<Card className="bg-linear-to-br from-amber-500/5 to-background border-amber-500/20">
+				<Card>
 					<CardHeader className="pb-2">
 						<CardDescription>Admins</CardDescription>
 						<CardTitle className="text-3xl">
@@ -284,7 +284,7 @@ export default function AdminDashboard() {
 						</CardTitle>
 					</CardHeader>
 				</Card>
-				<Card className="bg-linear-to-br from-destructive/5 to-background border-destructive/20">
+				<Card>
 					<CardHeader className="pb-2">
 						<CardDescription>Banned</CardDescription>
 						<CardTitle className="text-3xl">{data?.users.filter((u) => u.banned).length ?? '-'}</CardTitle>

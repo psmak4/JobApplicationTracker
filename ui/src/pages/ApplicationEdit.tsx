@@ -6,7 +6,7 @@ import { ApplicationFormFields } from '@/components/ApplicationFormFields'
 import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useApplication } from '@/hooks/useApplications'
 import { useUpdateApplication } from '@/hooks/useMutations'
 import { type ApplicationFormValues, applicationSchema } from '@/lib/schemas'
@@ -81,9 +81,8 @@ export default function ApplicationEdit() {
 
 			<div className="max-w-3xl mx-auto">
 				<Card>
-					<CardHeader>
-						<CardTitle>Application Details</CardTitle>
-						<CardDescription>Update application information.</CardDescription>
+					<CardHeader className="pb-3 flex flex-row items-center justify-between">
+						<CardTitle className="text-lg font-semibold">Application Details</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<form onSubmit={handleSubmit(onUpdateDetails)} className="space-y-6">

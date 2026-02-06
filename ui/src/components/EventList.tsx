@@ -43,7 +43,7 @@ export function EventList({
 }: EventListProps) {
 	if (events.length === 0 && !headerAction) {
 		return (
-			<Card className={cn('bg-card/50 backdrop-blur-sm', className)}>
+			<Card className={className}>
 				<CardHeader className="pb-3">
 					<CardTitle className="text-lg font-semibold">{title}</CardTitle>
 				</CardHeader>
@@ -72,7 +72,7 @@ export function EventList({
 		{} as Record<string, { date: Date; events: EventItem[] }>,
 	)
 
-	const sortedDateKeys = Object.keys(groupedEvents).sort().reverse()
+	const sortedDateKeys = Object.keys(groupedEvents).sort()
 
 	const getDateHeader = (date: Date) => {
 		const today = new Date()
@@ -90,7 +90,7 @@ export function EventList({
 	}
 
 	return (
-		<Card className={cn('bg-card/50 backdrop-blur-sm', className)}>
+		<Card>
 			<CardHeader className="pb-3 flex flex-row items-center justify-between">
 				<CardTitle className="text-lg font-semibold">{title}</CardTitle>
 				{headerAction ? (
@@ -119,7 +119,7 @@ export function EventList({
 									{dayEvents.map((event) => (
 										<div
 											key={event.id}
-											className="group flex items-start gap-4 p-3 transition-colors hover:bg-muted/50"
+											className="group flex items-center gap-4 p-3 transition-colors hover:bg-muted/50"
 											onMouseEnter={() => onHoverApplication?.(event.applicationId ?? null)}
 											onMouseLeave={() => onHoverApplication?.(null)}
 										>
