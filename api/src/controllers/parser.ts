@@ -1,5 +1,5 @@
-import { Request, Response } from 'express'
-import { z } from 'zod'
+import { NextFunction, Request, Response } from 'express'
+import { z, ZodError } from 'zod'
 import { errorResponse, successResponse } from '../utils/responses'
 import { jobParser } from '../services/jobParser'
 
@@ -13,13 +13,14 @@ const parseJobSchema = z.object({
 
 export const parserController = {
 	// Parse job posting from URL
-	parseJob: async (req: Request, res: Response) => {
+	parseJob: async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const validation = parseJobSchema.safeParse(req.body)
 
 			if (!validation.success) {
 				// Let the error handler middleware handle Zod errors for consistent formatting
-				throw validation.error
+				next(validation.error)
+				return
 			}
 
 			const { url, skipCache } = validation.data
@@ -54,6 +55,10 @@ export const parserController = {
 				),
 			)
 		} catch (error) {
+			if (error instanceof ZodError) {
+				next(error)
+				return
+			}
 			console.error('Error parsing job:', error)
 			res.status(500).json(
 				errorResponse('INTERNAL_ERROR', 'Failed to parse job posting', getRequestId(req)),

@@ -1,6 +1,6 @@
 import { and, desc, eq } from 'drizzle-orm'
-import { Request, Response } from 'express'
-import { z } from 'zod'
+import { NextFunction, Request, Response } from 'express'
+import { z, ZodError } from 'zod'
 import { db } from '../db/index'
 import { applicationStatusEnum, applications, statusHistory } from '../db/schema'
 import { getRequestId } from '../utils/request'
@@ -61,7 +61,7 @@ export const statusController = {
 	},
 
 	// Add a new status entry
-	create: async (req: Request, res: Response) => {
+	create: async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const userId = req.user!.id
 			const { applicationId } = req.params as { applicationId: string }
@@ -69,7 +69,8 @@ export const statusController = {
 
 			if (!validation.success) {
 				// Let the error handler middleware handle Zod errors for consistent formatting
-				throw validation.error
+				next(validation.error)
+				return
 			}
 
 			// Verify ownership
@@ -104,6 +105,10 @@ export const statusController = {
 
 			res.status(201).json(successResponse(newStatus, getRequestId(req)))
 		} catch (error) {
+			if (error instanceof ZodError) {
+				next(error)
+				return
+			}
 			console.error('Error creating status entry:', error)
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create status entry', getRequestId(req)))
 		}
