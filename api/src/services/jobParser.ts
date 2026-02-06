@@ -42,6 +42,7 @@ const ALLOWED_DOMAINS = [
 	'ashbyhq.com',
 	'jobs.lever.co',
 	'boards.greenhouse.io',
+	'careers.google.com',
 ]
 
 // User agents to rotate
@@ -259,6 +260,10 @@ class JobParser {
 				return { valid: false, reason: 'Domain is not in the allowed list.' }
 			}
 
+			if (!this.isSupportedJobUrl(hostname, parsed.pathname)) {
+				return { valid: false, reason: 'URL does not look like a job posting.' }
+			}
+
 			// Block localhost variants
 			if (
 				hostname === 'localhost' ||
@@ -442,6 +447,36 @@ class JobParser {
 
 	private isAllowedDomain(hostname: string): boolean {
 		return ALLOWED_DOMAINS.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
+	}
+
+	private isSupportedJobUrl(hostname: string, pathname: string): boolean {
+		const path = pathname.toLowerCase()
+
+		if (hostname.endsWith('linkedin.com')) {
+			return path.includes('/jobs/view/')
+		}
+
+		if (hostname.endsWith('indeed.com')) {
+			return path.includes('/viewjob') || path.startsWith('/jobs/')
+		}
+
+		if (hostname.endsWith('glassdoor.com')) {
+			return path.includes('/job-listing/')
+		}
+
+		if (hostname.endsWith('greenhouse.io')) {
+			return path.includes('/jobs/')
+		}
+
+		if (hostname.endsWith('lever.co')) {
+			return path.split('/').filter(Boolean).length >= 2
+		}
+
+		if (hostname.endsWith('myworkdayjobs.com')) {
+			return path.includes('/job/')
+		}
+
+		return true
 	}
 
 	/**

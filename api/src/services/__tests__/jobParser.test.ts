@@ -34,10 +34,28 @@ function createMockResponse(data: string, url: string, options?: { status?: numb
 
 describe('JobParser', () => {
 	let mockAxiosGet: MockInstance
+	const cacheUrls = [
+		'https://www.linkedin.com/jobs/view/12345',
+		'https://linkedin.com/jobs/view/12345',
+		'https://www.indeed.com/viewjob?jk=abc123',
+		'https://indeed.com/jobs/job-title-company',
+		'https://www.glassdoor.com/job-listing/software-engineer',
+		'https://boards.greenhouse.io/company/jobs/12345',
+		'https://jobs.lever.co/company/position-id',
+		'https://company.myworkdayjobs.com/en-US/careers/job/12345',
+		'https://careers.google.com/jobs/results/12345',
+		'https://careers.google.com/jobs/results/99999',
+		'https://www.linkedin.com/jobs/view/deleted',
+		'https://www.linkedin.com/jobs/view/blocked',
+		'https://www.linkedin.com/jobs/view/12345-redirected',
+	]
 
 	beforeEach(() => {
 		vi.clearAllMocks()
 		mockAxiosGet = vi.mocked(axios.get)
+		for (const url of cacheUrls) {
+			jobParser.clearCache(url)
+		}
 	})
 
 	afterEach(() => {
@@ -45,48 +63,48 @@ describe('JobParser', () => {
 	})
 
 	describe('URL Validation', () => {
-		it('should validate LinkedIn job URLs', () => {
-			expect(jobParser.isSupported('https://www.linkedin.com/jobs/view/12345')).toBe(true)
-			expect(jobParser.isSupported('https://linkedin.com/jobs/view/12345')).toBe(true)
+		it('should validate LinkedIn job URLs', async () => {
+			expect(await jobParser.isSupported('https://www.linkedin.com/jobs/view/12345')).toBe(true)
+			expect(await jobParser.isSupported('https://linkedin.com/jobs/view/12345')).toBe(true)
 		})
 
-		it('should validate Indeed job URLs', () => {
-			expect(jobParser.isSupported('https://www.indeed.com/viewjob?jk=abc123')).toBe(true)
-			expect(jobParser.isSupported('https://indeed.com/jobs/job-title-company')).toBe(true)
+		it('should validate Indeed job URLs', async () => {
+			expect(await jobParser.isSupported('https://www.indeed.com/viewjob?jk=abc123')).toBe(true)
+			expect(await jobParser.isSupported('https://indeed.com/jobs/job-title-company')).toBe(true)
 		})
 
-		it('should validate Glassdoor job URLs', () => {
-			expect(jobParser.isSupported('https://www.glassdoor.com/job-listing/software-engineer')).toBe(true)
+		it('should validate Glassdoor job URLs', async () => {
+			expect(await jobParser.isSupported('https://www.glassdoor.com/job-listing/software-engineer')).toBe(true)
 		})
 
-		it('should validate Greenhouse job URLs', () => {
-			expect(jobParser.isSupported('https://boards.greenhouse.io/company/jobs/12345')).toBe(true)
+		it('should validate Greenhouse job URLs', async () => {
+			expect(await jobParser.isSupported('https://boards.greenhouse.io/company/jobs/12345')).toBe(true)
 		})
 
-		it('should validate Lever job URLs', () => {
-			expect(jobParser.isSupported('https://jobs.lever.co/company/position-id')).toBe(true)
+		it('should validate Lever job URLs', async () => {
+			expect(await jobParser.isSupported('https://jobs.lever.co/company/position-id')).toBe(true)
 		})
 
-		it('should validate Workday job URLs', () => {
-			expect(jobParser.isSupported('https://company.myworkdayjobs.com/en-US/careers/job/12345')).toBe(true)
+		it('should validate Workday job URLs', async () => {
+			expect(await jobParser.isSupported('https://company.myworkdayjobs.com/en-US/careers/job/12345')).toBe(true)
 		})
 
-		it('should reject non-job URLs', () => {
-			expect(jobParser.isSupported('https://google.com')).toBe(false)
-			expect(jobParser.isSupported('https://example.com/not-a-job')).toBe(false)
+		it('should reject non-job URLs', async () => {
+			expect(await jobParser.isSupported('https://google.com')).toBe(false)
+			expect(await jobParser.isSupported('https://example.com/not-a-job')).toBe(false)
 		})
 
-		it('should reject non-allowed domains', () => {
-			expect(jobParser.isSupported('https://randomsite.com/jobs/12345')).toBe(false)
+		it('should reject non-allowed domains', async () => {
+			expect(await jobParser.isSupported('https://randomsite.com/jobs/12345')).toBe(false)
 		})
 
-		it('should reject non-HTTP protocols', () => {
-			expect(jobParser.isSupported('ftp://linkedin.com/jobs/view/12345')).toBe(false)
-			expect(jobParser.isSupported('file:///jobs/local-file')).toBe(false)
+		it('should reject non-HTTP protocols', async () => {
+			expect(await jobParser.isSupported('ftp://linkedin.com/jobs/view/12345')).toBe(false)
+			expect(await jobParser.isSupported('file:///jobs/local-file')).toBe(false)
 		})
 
-		it('should reject URLs that look like job boards but not job postings', () => {
-			expect(jobParser.isSupported('https://linkedin.com/feed')).toBe(false)
+		it('should reject URLs that look like job boards but not job postings', async () => {
+			expect(await jobParser.isSupported('https://linkedin.com/feed')).toBe(false)
 		})
 	})
 
