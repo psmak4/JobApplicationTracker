@@ -173,36 +173,48 @@ export const applicationController = {
 
 			const { status, date, ...updateData } = validation.data
 
-			// Update basic info
-			const [updatedApp] = await db
-				.update(applications)
-				.set({ ...updateData, updatedAt: new Date() })
-				.where(eq(applications.id, applicationId))
-				.returning()
+			const updatedApp = await db.transaction(async (tx) => {
+				const [app] = await tx
+					.update(applications)
+					.set({ ...updateData, updatedAt: new Date() })
+					.where(eq(applications.id, applicationId))
+					.returning()
 
-			// If status is provided and different from current, add to history
-			// Note: This logic assumes the client sends 'status' only when it changes or wants to force an update.
-			// To be robust, we should check the latest status in DB.
-			if (status) {
-				// Check latest status
-				const [latestStatus] = await db
-					.select()
-					.from(statusHistory)
-					.where(eq(statusHistory.applicationId, applicationId))
-					.orderBy(desc(statusHistory.date), desc(statusHistory.createdAt))
-					.limit(1)
-
-				if (!latestStatus || latestStatus.status !== status) {
-					const statusDate = date
-						? new Date(date).toISOString().split('T')[0]
-						: new Date().toISOString().split('T')[0]
-
-					await db.insert(statusHistory).values({
-						applicationId: applicationId,
-						status: status,
-						date: statusDate,
-					})
+				if (!app) {
+					return null
 				}
+
+				// If status is provided and different from current, add to history
+				// Note: This logic assumes the client sends 'status' only when it changes or wants to force an update.
+				// To be robust, we should check the latest status in DB.
+				if (status) {
+					// Check latest status
+					const [latestStatus] = await tx
+						.select()
+						.from(statusHistory)
+						.where(eq(statusHistory.applicationId, applicationId))
+						.orderBy(desc(statusHistory.date), desc(statusHistory.createdAt))
+						.limit(1)
+
+					if (!latestStatus || latestStatus.status !== status) {
+						const statusDate = date
+							? new Date(date).toISOString().split('T')[0]
+							: new Date().toISOString().split('T')[0]
+
+						await tx.insert(statusHistory).values({
+							applicationId: applicationId,
+							status: status,
+							date: statusDate,
+						})
+					}
+				}
+
+				return app
+			})
+
+			if (!updatedApp) {
+				res.status(404).json(errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)))
+				return
 			}
 
 			res.json(successResponse(updatedApp, getRequestId(req)))
