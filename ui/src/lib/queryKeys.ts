@@ -20,11 +20,6 @@ export const adminQueryKeys = {
 	userSessions: (userId: string) => ['admin', 'sessions', userId] as const,
 }
 
-export const emailQueryKeys = {
-	/** Email templates list */
-	templates: ['admin', 'email', 'templates'] as const,
-}
-
 export const calendarQueryKeys = {
 	/** Calendar connection status */
 	status: ['calendar', 'status'] as const,

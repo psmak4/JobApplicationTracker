@@ -1,4 +1,4 @@
-import { Home, Mail, PlusCircle, Users } from 'lucide-react'
+import { Home, PlusCircle, Users } from 'lucide-react'
 
 export const mainNavItems = [
 	{
@@ -18,10 +18,5 @@ export const adminNavItems = [
 		title: 'Users',
 		url: '/admin',
 		icon: Users,
-	},
-	{
-		title: 'Email Testing',
-		url: '/admin/email',
-		icon: Mail,
 	},
 ]

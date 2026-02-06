@@ -21,7 +21,6 @@ const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'))
 const VerifyEmail = lazy(() => import('./pages/auth/VerifyEmail'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
-const EmailTesting = lazy(() => import('./pages/admin/EmailTesting'))
 const Profile = lazy(() => import('./pages/Profile'))
 
 const queryClient = new QueryClient({
@@ -138,7 +137,6 @@ function App() {
 								}
 							>
 								<Route index element={<AdminDashboard />} />
-								<Route path="email" element={<EmailTesting />} />
 							</Route>
 
 							{/* Catch-all route for 404 */}
