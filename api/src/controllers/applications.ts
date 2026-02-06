@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, gte, inArray, isNotNull } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
 import { z, ZodError } from 'zod'
 import { db } from '../db/index'
@@ -66,6 +66,100 @@ export const applicationController = {
 			res.json(successResponse(userApplications, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching applications:', error)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch applications', getRequestId(req)))
+		}
+	},
+	// Lightweight list of applications (no full status history)
+	getList: async (req: Request, res: Response) => {
+		try {
+			const userId = req.user!.id
+
+			const applicationList = await db.query.applications.findMany({
+				where: eq(applications.userId, userId),
+				columns: {
+					id: true,
+					company: true,
+					jobTitle: true,
+					jobDescriptionUrl: true,
+					salary: true,
+					location: true,
+					workType: true,
+					contactInfo: true,
+					notes: true,
+					createdAt: true,
+					updatedAt: true,
+				},
+				with: {
+					statusHistory: {
+						columns: {
+							status: true,
+							date: true,
+							createdAt: true,
+						},
+						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
+						limit: 1,
+					},
+				},
+				orderBy: [desc(applications.updatedAt)],
+			})
+
+			const applicationIds = applicationList.map((app) => app.id)
+
+			if (applicationIds.length === 0) {
+				res.json(successResponse([], getRequestId(req)))
+				return
+			}
+
+			const startOfToday = new Date()
+			startOfToday.setHours(0, 0, 0, 0)
+
+			const upcomingEvents = await db
+				.select({
+					applicationId: statusHistory.applicationId,
+					id: statusHistory.id,
+					status: statusHistory.status,
+					eventId: statusHistory.eventId,
+					eventTitle: statusHistory.eventTitle,
+					eventUrl: statusHistory.eventUrl,
+					eventStartTime: statusHistory.eventStartTime,
+					eventEndTime: statusHistory.eventEndTime,
+				})
+				.from(statusHistory)
+				.where(
+					and(
+						inArray(statusHistory.applicationId, applicationIds),
+						isNotNull(statusHistory.eventStartTime),
+						gte(statusHistory.eventStartTime, startOfToday),
+					),
+				)
+				.orderBy(desc(statusHistory.eventStartTime))
+
+			const eventsByApplication = new Map<string, typeof upcomingEvents>()
+
+			for (const event of upcomingEvents) {
+				const existing = eventsByApplication.get(event.applicationId)
+				if (existing) {
+					existing.push(event)
+				} else {
+					eventsByApplication.set(event.applicationId, [event])
+				}
+			}
+
+			const response = applicationList.map((app) => {
+				const { statusHistory: latestStatusHistory, ...appData } = app
+				const latestStatus = latestStatusHistory[0]
+
+				return {
+					...appData,
+					currentStatus: latestStatus?.status ?? null,
+					lastStatusDate: latestStatus?.date ?? null,
+					upcomingEvents: eventsByApplication.get(app.id) ?? [],
+				}
+			})
+
+			res.json(successResponse(response, getRequestId(req)))
+		} catch (error) {
+			console.error('Error fetching application list:', error)
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch applications', getRequestId(req)))
 		}
 	},
