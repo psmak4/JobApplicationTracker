@@ -60,6 +60,7 @@ export function useAdminUsers(params: ListUsersParams = {}) {
 
 			return data as ListUsersResponse
 		},
+		staleTime: 1000 * 60 * 2,
 	})
 }
 
@@ -79,6 +80,7 @@ export function useAdminUserSessions(userId: string) {
 			return data
 		},
 		enabled: !!userId,
+		staleTime: 1000 * 60,
 	})
 }
 

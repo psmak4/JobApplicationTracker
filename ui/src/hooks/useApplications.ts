@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import apiClient, { extractData } from '@/lib/api-client'
 import { applicationQueryKeys } from '@/lib/queryKeys'
+import { getErrorMessage } from '@/lib/error-utils'
 import type { Application, ApplicationSummary, MutationError } from '@/types'
 
 export const useApplications = () => {
@@ -11,6 +12,7 @@ export const useApplications = () => {
 			const response = await apiClient.get('/applications/list')
 			return extractData(response.data)
 		},
+		staleTime: 1000 * 60 * 2,
 	})
 }
 
@@ -50,11 +52,7 @@ export const useDeleteApplication = () => {
 			toast.success('Application deleted successfully')
 		},
 		onError: (error: MutationError) => {
-			const message =
-				('response' in error && error.response?.data?.error?.message) ||
-				error.message ||
-				'Failed to delete application'
-			toast.error('Error', { description: message })
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to delete application') })
 		},
 	})
 }

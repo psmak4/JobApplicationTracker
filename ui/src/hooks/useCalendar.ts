@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import apiClient from '@/lib/api-client'
+import { getErrorMessage } from '@/lib/error-utils'
 import { calendarQueryKeys } from '@/lib/queryKeys'
 import type { ApiSuccessResponse } from '@/types'
 
@@ -43,6 +44,7 @@ export const useCalendarStatus = () => {
 			const response = await apiClient.get<ApiSuccessResponse<{ connected: boolean }>>('/calendar/status')
 			return response.data.data
 		},
+		staleTime: 1000 * 60 * 2,
 	})
 }
 
@@ -57,8 +59,8 @@ export const useDisconnectCalendar = () => {
 			queryClient.invalidateQueries({ queryKey: calendarQueryKeys.eventsBase })
 			toast.success('Calendar disconnected successfully')
 		},
-		onError: () => {
-			toast.error('Failed to disconnect calendar')
+		onError: (error) => {
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to disconnect calendar') })
 		},
 	})
 }

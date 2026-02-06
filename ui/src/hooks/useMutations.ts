@@ -1,8 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import apiClient, { extractData } from '@/lib/api-client'
+import { getErrorMessage } from '@/lib/error-utils'
 import { applicationQueryKeys } from '@/lib/queryKeys'
-import type { Application, ApplicationStatus, MutationError, StatusHistoryEntry, WorkType } from '@/types'
+import type {
+	Application,
+	ApplicationStatus,
+	ApplicationSummary,
+	MutationError,
+	StatusHistoryEntry,
+	StatusEventEntry,
+	WorkType,
+} from '@/types'
 
 export interface CreateApplicationData {
 	company: string
@@ -29,11 +38,7 @@ export const useCreateApplication = () => {
 			toast.success('Application created successfully')
 		},
 		onError: (error: MutationError) => {
-			const message =
-				('response' in error && error.response?.data?.error?.message) ||
-				error.message ||
-				'Failed to create application'
-			toast.error('Error', { description: message })
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to create application') })
 		},
 	})
 }
@@ -64,11 +69,7 @@ export const useUpdateApplication = (id: string) => {
 			if (context?.previousApplication) {
 				queryClient.setQueryData(applicationQueryKeys.detail(id), context.previousApplication)
 			}
-			const message =
-				('response' in error && error.response?.data?.error?.message) ||
-				error.message ||
-				'Failed to update application'
-			toast.error('Error', { description: message })
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to update application') })
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
@@ -94,26 +95,62 @@ export const useAddStatus = (applicationId: string) => {
 		},
 		onMutate: async (newData) => {
 			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
+			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.all })
 			const previousApplication = queryClient.getQueryData<Application>(
 				applicationQueryKeys.detail(applicationId),
 			)
+			const previousApplications = queryClient.getQueryData<ApplicationSummary[]>(applicationQueryKeys.all)
+
+			const newStatusEntry: StatusHistoryEntry = {
+				id: `temp-${Date.now()}`,
+				status: newData.status,
+				date: newData.date,
+				createdAt: new Date().toISOString(),
+				eventId: newData.eventId,
+				eventTitle: newData.eventTitle,
+				eventUrl: newData.eventUrl,
+				eventStartTime: newData.eventStartTime,
+				eventEndTime: newData.eventEndTime,
+			}
+
+			const newEventEntry: StatusEventEntry | null = newData.eventStartTime
+				? {
+						id: newStatusEntry.id,
+						status: newData.status,
+						eventId: newData.eventId,
+						eventTitle: newData.eventTitle,
+						eventUrl: newData.eventUrl,
+						eventStartTime: newData.eventStartTime,
+						eventEndTime: newData.eventEndTime,
+					}
+				: null
+
 			queryClient.setQueryData<Application>(applicationQueryKeys.detail(applicationId), (old) => {
 				if (!old) return undefined
-				const newStatusEntry: StatusHistoryEntry = {
-					id: `temp-${Date.now()}`,
-					status: newData.status,
-					date: newData.date,
-					createdAt: new Date().toISOString(),
-					eventId: newData.eventId,
-					eventTitle: newData.eventTitle,
-					eventUrl: newData.eventUrl,
-					eventStartTime: newData.eventStartTime,
-					eventEndTime: newData.eventEndTime,
-				}
 				// Prepend new status
 				return { ...old, statusHistory: [newStatusEntry, ...old.statusHistory] }
 			})
-			return { previousApplication }
+
+			if (previousApplications) {
+				queryClient.setQueryData<ApplicationSummary[]>(applicationQueryKeys.all, (old) => {
+					if (!old) return old
+					return old.map((app) => {
+						if (app.id !== applicationId) return app
+						const upcomingEvents = newEventEntry
+							? [newEventEntry, ...(app.upcomingEvents ?? [])]
+							: app.upcomingEvents ?? []
+
+						return {
+							...app,
+							currentStatus: newData.status,
+							lastStatusDate: newData.date,
+							upcomingEvents,
+						}
+					})
+				})
+			}
+
+			return { previousApplication, previousApplications }
 		},
 		onSuccess: () => {
 			toast.success('Status added successfully')
@@ -122,9 +159,10 @@ export const useAddStatus = (applicationId: string) => {
 			if (context?.previousApplication) {
 				queryClient.setQueryData(applicationQueryKeys.detail(applicationId), context.previousApplication)
 			}
-			const message =
-				('response' in error && error.response?.data?.error?.message) || error.message || 'Failed to add status'
-			toast.error('Error', { description: message })
+			if (context?.previousApplications) {
+				queryClient.setQueryData(applicationQueryKeys.all, context.previousApplications)
+			}
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to add status') })
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
@@ -141,9 +179,11 @@ export const useDeleteStatus = (applicationId: string) => {
 		},
 		onMutate: async (statusId) => {
 			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
+			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.all })
 			const previousApplication = queryClient.getQueryData<Application>(
 				applicationQueryKeys.detail(applicationId),
 			)
+			const previousApplications = queryClient.getQueryData<ApplicationSummary[]>(applicationQueryKeys.all)
 			queryClient.setQueryData<Application>(applicationQueryKeys.detail(applicationId), (old) => {
 				if (!old) return undefined
 				return {
@@ -151,7 +191,19 @@ export const useDeleteStatus = (applicationId: string) => {
 					statusHistory: old.statusHistory.filter((status) => status.id !== statusId),
 				}
 			})
-			return { previousApplication }
+			if (previousApplications) {
+				queryClient.setQueryData<ApplicationSummary[]>(applicationQueryKeys.all, (old) => {
+					if (!old) return old
+					return old.map((app) => {
+						if (app.id !== applicationId) return app
+						return {
+							...app,
+							upcomingEvents: (app.upcomingEvents ?? []).filter((event) => event.id !== statusId),
+						}
+					})
+				})
+			}
+			return { previousApplication, previousApplications }
 		},
 		onSuccess: () => {
 			toast.success('Status deleted successfully')
@@ -160,11 +212,10 @@ export const useDeleteStatus = (applicationId: string) => {
 			if (context?.previousApplication) {
 				queryClient.setQueryData(applicationQueryKeys.detail(applicationId), context.previousApplication)
 			}
-			const message =
-				('response' in error && error.response?.data?.error?.message) ||
-				error.message ||
-				'Failed to delete status'
-			toast.error('Error', { description: message })
+			if (context?.previousApplications) {
+				queryClient.setQueryData(applicationQueryKeys.all, context.previousApplications)
+			}
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to delete status') })
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(applicationId) })

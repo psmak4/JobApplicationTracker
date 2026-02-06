@@ -33,6 +33,7 @@ export function useEmailTemplates() {
 			const { data } = await apiClient.get<ApiSuccessResponse<EmailTemplatesResponse>>('/admin/email/templates')
 			return extractData(data)
 		},
+		staleTime: 1000 * 60 * 5,
 	})
 }
 
