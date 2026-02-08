@@ -1,11 +1,14 @@
+import { Plus } from 'lucide-react'
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
-import { KanbanBoard } from '@/components/dashboard'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ResponsiveApplicationView } from '@/components/dashboard'
+import { buttonVariants } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { useApplicationPrefetch, useApplications } from '@/hooks/useApplications'
 import { useAddStatusDynamic } from '@/hooks/useMutations'
+import { cn } from '@/lib/utils'
 import type { ApplicationStatus } from '@/types'
 
 export default function JobBoard() {
@@ -45,15 +48,24 @@ export default function JobBoard() {
 	return (
 		<div className="space-y-6">
 			{/* Header */}
-			<PageHeader title="Application Pipeline" subtitle="Visualize your application pipeline." />
+			<PageHeader
+				title="Pipeline"
+				subtitle="Visualize your application pipeline."
+				actions={[
+					<Link
+						to="/new"
+						className={cn(buttonVariants({ variant: 'default' }), 'flex items-center gap-2')}
+						aria-label="Create new application"
+					>
+						<Plus className="h-4 w-4" /> New Application
+					</Link>,
+				]}
+			/>
 
 			{/* Kanban Board */}
 			<Card>
-				<CardHeader className="pb-3">
-					<CardTitle className="text-lg font-semibold">Application Pipeline</CardTitle>
-				</CardHeader>
 				<CardContent>
-					<KanbanBoard
+					<ResponsiveApplicationView
 						applications={applications}
 						onNavigate={handleNavigate}
 						onPrefetch={handlePrefetch}

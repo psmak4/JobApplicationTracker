@@ -12,7 +12,7 @@ import { useSession } from './lib/auth-client'
 
 // Lazy load pages
 const Dashboard = lazy(() => import('./pages/Dashboard'))
-const JobBoard = lazy(() => import('./pages/ApplicationPipeline'))
+const JobBoard = lazy(() => import('./pages/Pipeline'))
 const NewApplication = lazy(() => import('./pages/NewApplication'))
 const ApplicationView = lazy(() => import('./pages/ApplicationView'))
 const ApplicationEdit = lazy(() => import('./pages/ApplicationEdit'))
