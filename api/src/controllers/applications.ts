@@ -46,29 +46,6 @@ const updateApplicationSchema = createApplicationSchema
 	})
 
 export const applicationController = {
-	// Get all applications for the logged-in user
-	// Uses Drizzle relational queries to avoid N+1 problem
-	getAll: async (req: Request, res: Response) => {
-		try {
-			const userId = req.user!.id
-
-			// Use relational query to fetch applications with their status history in one query
-			const userApplications = await db.query.applications.findMany({
-				where: eq(applications.userId, userId),
-				with: {
-					statusHistory: {
-						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
-					},
-				},
-				orderBy: [desc(applications.updatedAt)],
-			})
-
-			res.json(successResponse(userApplications, getRequestId(req)))
-		} catch (error) {
-			console.error('Error fetching applications:', error)
-			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch applications', getRequestId(req)))
-		}
-	},
 	// Lightweight list of applications (no full status history)
 	getList: async (req: Request, res: Response) => {
 		try {
