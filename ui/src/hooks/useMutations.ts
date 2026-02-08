@@ -139,6 +139,79 @@ export const useAddStatus = (applicationId: string) => {
 	})
 }
 
+/**
+ * Dynamic version of useAddStatus that accepts applicationId in the mutation data.
+ * Useful for kanban boards where you need to update different applications.
+ */
+export const useAddStatusDynamic = () => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: async (data: { applicationId: string; status: ApplicationStatus; date: string }) => {
+			const response = await apiClient.post(`/statuses/application/${data.applicationId}`, {
+				status: data.status,
+				date: data.date,
+			})
+			return extractData(response.data)
+		},
+		onMutate: async (newData) => {
+			const { applicationId, status, date } = newData
+			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
+			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.all })
+			const previousApplication = queryClient.getQueryData<Application>(
+				applicationQueryKeys.detail(applicationId),
+			)
+			const previousApplications = queryClient.getQueryData<ApplicationSummary[]>(applicationQueryKeys.all)
+
+			const newStatusEntry: StatusHistoryEntry = {
+				id: `temp-${Date.now()}`,
+				status: status,
+				date: date,
+				createdAt: new Date().toISOString(),
+			}
+
+			queryClient.setQueryData<Application>(applicationQueryKeys.detail(applicationId), (old) => {
+				if (!old) return undefined
+				return { ...old, statusHistory: [newStatusEntry, ...old.statusHistory] }
+			})
+
+			if (previousApplications) {
+				queryClient.setQueryData<ApplicationSummary[]>(applicationQueryKeys.all, (old) => {
+					if (!old) return old
+					return old.map((app) => {
+						if (app.id !== applicationId) return app
+						return {
+							...app,
+							currentStatus: status,
+							lastStatusDate: date,
+						}
+					})
+				})
+			}
+
+			return { previousApplication, previousApplications, applicationId }
+		},
+		onSuccess: () => {
+			toast.success('Status updated successfully')
+		},
+		onError: (error: MutationError, _newData, context) => {
+			if (context?.previousApplication && context?.applicationId) {
+				queryClient.setQueryData(
+					applicationQueryKeys.detail(context.applicationId),
+					context.previousApplication,
+				)
+			}
+			if (context?.previousApplications) {
+				queryClient.setQueryData(applicationQueryKeys.all, context.previousApplications)
+			}
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to update status') })
+		},
+		onSettled: (_data, _error, variables) => {
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(variables.applicationId) })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
+		},
+	})
+}
+
 export const useDeleteStatus = (applicationId: string) => {
 	const queryClient = useQueryClient()
 	return useMutation({

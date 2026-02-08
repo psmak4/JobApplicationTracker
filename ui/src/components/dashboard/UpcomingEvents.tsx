@@ -12,17 +12,11 @@ export interface UpcomingEvent {
 
 interface UpcomingEventsProps {
 	events: UpcomingEvent[]
-	onHoverApplication?: (applicationId: string | null) => void
 }
 
-/**
- * Dashboard component displaying upcoming calendar events across all applications
- * Uses the shared EventList component with application context
- */
-export function UpcomingEvents({ events, onHoverApplication }: UpcomingEventsProps) {
+export function UpcomingEvents({ events }: UpcomingEventsProps) {
 	if (events.length === 0) return null
 
-	// Transform to EventItem format for the shared EventList component
 	const eventItems: EventItem[] = events.map((event) => ({
 		id: event.id,
 		title: event.title,
@@ -33,5 +27,5 @@ export function UpcomingEvents({ events, onHoverApplication }: UpcomingEventsPro
 		jobTitle: event.jobTitle,
 	}))
 
-	return <EventList title="Upcoming Events" events={eventItems} onHoverApplication={onHoverApplication} />
+	return <EventList title="Upcoming Events" events={eventItems} />
 }
