@@ -1,19 +1,21 @@
-import { useCallback, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Plus } from 'lucide-react'
+import { useCallback, useMemo, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
-import { EmptyState, ResponsiveApplicationView, UpcomingEvents } from '@/components/dashboard'
+import { ApplicationList, EmptyState, UpcomingEvents } from '@/components/dashboard'
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useApplicationPrefetch, useApplications } from '@/hooks/useApplications'
-import { useAddStatusDynamic } from '@/hooks/useMutations'
-import type { ApplicationStatus } from '@/types'
+import { useActiveApplications, useApplicationPrefetch } from '@/hooks/useApplications'
+import { cn } from '@/lib/utils'
 
 export default function Dashboard() {
 	const navigate = useNavigate()
-	const { data: applications = [], isLoading, error } = useApplications()
+	const { data: applications = [], isLoading, error } = useActiveApplications()
 	const prefetchApplication = useApplicationPrefetch()
-	const addStatusMutation = useAddStatusDynamic()
+	const [highlightedApplicationId, setHighlightedApplicationId] = useState<string | null>(null)
 
+	// Derived data - upcoming events from all applications
 	const upcomingEvents = useMemo(() => {
 		const events = applications.flatMap((app) =>
 			(app.upcomingEvents || [])
@@ -31,6 +33,7 @@ export default function Dashboard() {
 		return events.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
 	}, [applications])
 
+	// Navigation handlers
 	const handleNavigate = useCallback(
 		(id: string) => {
 			navigate(`/applications/${id}`)
@@ -45,19 +48,13 @@ export default function Dashboard() {
 		[prefetchApplication],
 	)
 
-	const handleStatusChange = useCallback(
-		(applicationId: string, newStatus: ApplicationStatus) => {
-			const today = new Date().toLocaleDateString('en-CA')
-			addStatusMutation.mutate({ applicationId, status: newStatus, date: today })
-		},
-		[addStatusMutation],
-	)
-
+	// Loading and error states
 	if (isLoading) return <QueryLoading text="Loading applications..." />
 	if (error) return <QueryError error={error} title="Unable to load applications" />
 
 	return (
 		<div className="space-y-6">
+			{/* Header */}
 			<PageHeader title="Dashboard" subtitle="Overview of your job applications." />
 
 			{applications.length === 0 ? (
@@ -65,25 +62,40 @@ export default function Dashboard() {
 			) : (
 				<>
 					<div className="flex flex-col-reverse lg:flex-row gap-6 justify-center">
+						{/* Main Content */}
 						<div className="min-w-0 flex-1">
 							<Card>
-								<CardHeader className="pb-3">
-									<CardTitle className="text-lg font-semibold">Applications</CardTitle>
+								<CardHeader className="pb-3 flex items-center justify-between">
+									<CardTitle className="text-lg font-semibold">Active Applications</CardTitle>
+									<Link
+										to="/new"
+										className={cn(
+											buttonVariants({ variant: 'default' }),
+											'flex items-center gap-2',
+										)}
+										aria-label="Create new application"
+									>
+										<Plus className="h-4 w-4" /> New Application
+									</Link>
 								</CardHeader>
 								<CardContent>
-									<ResponsiveApplicationView
+									<ApplicationList
 										applications={applications}
 										onNavigate={handleNavigate}
 										onPrefetch={handlePrefetch}
-										onStatusChange={handleStatusChange}
+										highlightedApplicationId={highlightedApplicationId}
 									/>
 								</CardContent>
 							</Card>
 						</div>
 
+						{/* Sidebar */}
 						{upcomingEvents.length > 0 && (
 							<div>
-								<UpcomingEvents events={upcomingEvents} />
+								<UpcomingEvents
+									events={upcomingEvents}
+									onHoverApplication={setHighlightedApplicationId}
+								/>
 							</div>
 						)}
 					</div>

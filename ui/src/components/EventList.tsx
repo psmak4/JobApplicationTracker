@@ -20,6 +20,7 @@ interface EventListProps {
 	events: EventItem[]
 	emptyMessage?: string
 	onDelete?: (eventId: string) => void
+	onHoverApplication?: (applicationId: string | null) => void
 	headerAction?: React.ReactNode
 	className?: string
 }
@@ -33,6 +34,7 @@ export function EventList({
 	events,
 	emptyMessage = 'No events scheduled.',
 	onDelete,
+	onHoverApplication,
 	headerAction,
 	className,
 }: EventListProps) {
@@ -115,6 +117,8 @@ export function EventList({
 										<div
 											key={event.id}
 											className="group flex items-center gap-4 p-3 transition-colors hover:bg-muted/50"
+											onMouseEnter={() => onHoverApplication?.(event.applicationId ?? null)}
+											onMouseLeave={() => onHoverApplication?.(null)}
 										>
 											{/* Time */}
 											<div className="w-16 shrink-0 text-xs font-medium text-muted-foreground text-right tabular-nums">

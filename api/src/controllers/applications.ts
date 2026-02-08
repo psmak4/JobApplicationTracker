@@ -100,7 +100,7 @@ export const applicationController = {
 						limit: 1,
 					},
 				},
-				orderBy: [desc(applications.updatedAt)],
+				orderBy: [asc(applications.company)],
 			})
 
 			const applicationIds = applicationList.map((app) => app.id)
@@ -159,6 +159,107 @@ export const applicationController = {
 			res.json(successResponse(response, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching application list:', error)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch applications', getRequestId(req)))
+		}
+	},
+
+	// Active applications list (only Applied and Interviewing status)
+	getActiveList: async (req: Request, res: Response) => {
+		try {
+			const userId = req.user!.id
+			const activeStatuses = ['Applied', 'Interviewing'] as const
+
+			const applicationList = await db.query.applications.findMany({
+				where: eq(applications.userId, userId),
+				columns: {
+					id: true,
+					company: true,
+					jobTitle: true,
+					jobDescriptionUrl: true,
+					salary: true,
+					location: true,
+					workType: true,
+					contactInfo: true,
+					notes: true,
+					createdAt: true,
+					updatedAt: true,
+				},
+				with: {
+					statusHistory: {
+						columns: {
+							status: true,
+							date: true,
+							createdAt: true,
+						},
+						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
+						limit: 1,
+					},
+				},
+				orderBy: [asc(applications.company)],
+			})
+
+			// Filter to only include applications with active status
+			const activeApplications = applicationList.filter((app) => {
+				const latestStatus = app.statusHistory[0]?.status
+				return latestStatus && activeStatuses.includes(latestStatus as (typeof activeStatuses)[number])
+			})
+
+			const applicationIds = activeApplications.map((app) => app.id)
+
+			if (applicationIds.length === 0) {
+				res.json(successResponse([], getRequestId(req)))
+				return
+			}
+
+			const startOfToday = new Date()
+			startOfToday.setHours(0, 0, 0, 0)
+
+			// Query upcoming events from calendarEvents table
+			const upcomingEvents = await db
+				.select({
+					id: calendarEvents.id,
+					applicationId: calendarEvents.applicationId,
+					googleEventId: calendarEvents.googleEventId,
+					title: calendarEvents.title,
+					url: calendarEvents.url,
+					startTime: calendarEvents.startTime,
+					endTime: calendarEvents.endTime,
+				})
+				.from(calendarEvents)
+				.where(
+					and(
+						inArray(calendarEvents.applicationId, applicationIds),
+						gte(calendarEvents.startTime, startOfToday),
+					),
+				)
+				.orderBy(asc(calendarEvents.startTime))
+
+			const eventsByApplication = new Map<string, typeof upcomingEvents>()
+
+			for (const event of upcomingEvents) {
+				const existing = eventsByApplication.get(event.applicationId)
+				if (existing) {
+					existing.push(event)
+				} else {
+					eventsByApplication.set(event.applicationId, [event])
+				}
+			}
+
+			const response = activeApplications.map((app) => {
+				const { statusHistory: latestStatusHistory, ...appData } = app
+				const latestStatus = latestStatusHistory[0]
+
+				return {
+					...appData,
+					currentStatus: latestStatus?.status ?? null,
+					lastStatusDate: latestStatus?.date ?? null,
+					upcomingEvents: eventsByApplication.get(app.id) ?? [],
+				}
+			})
+
+			res.json(successResponse(response, getRequestId(req)))
+		} catch (error) {
+			console.error('Error fetching active application list:', error)
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch applications', getRequestId(req)))
 		}
 	},

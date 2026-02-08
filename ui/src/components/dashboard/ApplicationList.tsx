@@ -1,5 +1,5 @@
 import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
-import { useDashboardFilters } from '@/hooks/useDashboardFilters'
+import { getCurrentStatus, getLastStatusDate, getStalenessColor } from '@/lib/application-helpers'
 import { cn } from '@/lib/utils'
 import { formatDisplayDate } from '@/lib/utils'
 import type { ApplicationSummary } from '@/types'
@@ -12,11 +12,14 @@ interface ApplicationListProps {
 	highlightedApplicationId?: string | null
 }
 
-export function ApplicationList({ applications, onNavigate, onPrefetch, highlightedApplicationId }: ApplicationListProps) {
-	const { getCurrentStatus, getLastStatusDate, getStalenessColor, resetFilters } = useDashboardFilters()
-
+export function ApplicationList({
+	applications,
+	onNavigate,
+	onPrefetch,
+	highlightedApplicationId,
+}: ApplicationListProps) {
 	if (applications.length === 0) {
-		return <EmptyState isFiltered onResetFilters={resetFilters} />
+		return <EmptyState />
 	}
 
 	return (
@@ -31,8 +34,10 @@ export function ApplicationList({ applications, onNavigate, onPrefetch, highligh
 					<div
 						key={app.id}
 						className={cn(
-							"group flex items-center overflow-hidden transition-all",
-							isHighlighted ? 'bg-muted/80 ring-2 ring-primary ring-offset-2 ring-offset-background' : 'hover:bg-muted/50'
+							'group flex items-center overflow-hidden transition-all',
+							isHighlighted
+								? 'bg-muted/80 ring-2 ring-primary ring-offset-2 ring-offset-background'
+								: 'hover:bg-muted/50',
 						)}
 						onMouseEnter={() => onPrefetch(app.id)}
 					>

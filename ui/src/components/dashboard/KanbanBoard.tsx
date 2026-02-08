@@ -2,7 +2,7 @@ import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import { useCallback, useMemo, useState } from 'react'
 import { APPLICATION_STATUS_OPTIONS } from '@/constants'
-import { useDashboardFilters } from '@/hooks/useDashboardFilters'
+import { getCurrentStatus } from '@/lib/application-helpers'
 import type { ApplicationStatus, ApplicationSummary } from '@/types'
 import { KanbanCard } from './KanbanCard'
 import { KanbanColumn } from './KanbanColumn'
@@ -15,7 +15,6 @@ interface KanbanBoardProps {
 }
 
 export function KanbanBoard({ applications, onNavigate, onPrefetch, onStatusChange }: KanbanBoardProps) {
-	const { getCurrentStatus } = useDashboardFilters()
 	const [activeApplication, setActiveApplication] = useState<ApplicationSummary | null>(null)
 
 	// Group applications by status
@@ -36,7 +35,7 @@ export function KanbanBoard({ applications, onNavigate, onPrefetch, onStatusChan
 		}
 
 		return grouped
-	}, [applications, getCurrentStatus])
+	}, [applications])
 
 	// Configure pointer sensor with activation constraint to prevent accidental drags
 	const sensors = useSensors(
@@ -74,7 +73,7 @@ export function KanbanBoard({ applications, onNavigate, onPrefetch, onStatusChan
 			// Trigger status update via callback
 			onStatusChange(applicationId, newStatus)
 		},
-		[applications, getCurrentStatus, onStatusChange],
+		[applications, onStatusChange],
 	)
 
 	return (

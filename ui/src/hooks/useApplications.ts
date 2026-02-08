@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import apiClient, { extractData } from '@/lib/api-client'
-import { applicationQueryKeys } from '@/lib/queryKeys'
 import { getErrorMessage } from '@/lib/error-utils'
+import { applicationQueryKeys } from '@/lib/queryKeys'
 import type { Application, ApplicationSummary, MutationError } from '@/types'
 
 export const useApplications = () => {
@@ -10,6 +10,17 @@ export const useApplications = () => {
 		queryKey: applicationQueryKeys.all,
 		queryFn: async () => {
 			const response = await apiClient.get('/applications/list')
+			return extractData(response.data)
+		},
+		staleTime: 1000 * 60 * 2,
+	})
+}
+
+export const useActiveApplications = () => {
+	return useQuery<ApplicationSummary[]>({
+		queryKey: applicationQueryKeys.active,
+		queryFn: async () => {
+			const response = await apiClient.get('/applications/active')
 			return extractData(response.data)
 		},
 		staleTime: 1000 * 60 * 2,

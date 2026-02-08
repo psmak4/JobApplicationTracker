@@ -11,6 +11,7 @@ router.use(requireAuth)
 
 router.get('/', applicationController.getAll)
 router.get('/list', applicationController.getList)
+router.get('/active', applicationController.getActiveList)
 router.get('/:id', validateUUID('id'), applicationController.getOne)
 
 router.post('/', createProtection, applicationController.create)

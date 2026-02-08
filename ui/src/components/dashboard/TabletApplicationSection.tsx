@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { APPLICATION_STATUS_OPTIONS } from '@/constants'
-import { useDashboardFilters } from '@/hooks/useDashboardFilters'
+import { getCurrentStatus, getLastStatusDate } from '@/lib/application-helpers'
 import { formatDisplayDate, safeLocalStorage } from '@/lib/utils'
 import type { ApplicationStatus, ApplicationSummary } from '@/types'
 
@@ -48,7 +48,6 @@ function TabletApplicationCard({
 	onPrefetch: (id: string) => void
 	onStatusChange: (applicationId: string, newStatus: ApplicationStatus) => void
 }) {
-	const { getCurrentStatus, getLastStatusDate } = useDashboardFilters()
 	const currentStatus = getCurrentStatus(application)
 	const lastStatusDate = getLastStatusDate(application)
 

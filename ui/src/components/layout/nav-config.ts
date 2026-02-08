@@ -1,10 +1,15 @@
-import { Home, PlusCircle, Users } from 'lucide-react'
+import { Home, Kanban, PlusCircle, Users } from 'lucide-react'
 
 export const mainNavItems = [
 	{
 		title: 'Dashboard',
 		url: '/',
 		icon: Home,
+	},
+	{
+		title: 'Application Pipeline',
+		url: '/pipeline',
+		icon: Kanban,
 	},
 	{
 		title: 'New Application',

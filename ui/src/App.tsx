@@ -12,6 +12,7 @@ import { useSession } from './lib/auth-client'
 
 // Lazy load pages
 const Dashboard = lazy(() => import('./pages/Dashboard'))
+const JobBoard = lazy(() => import('./pages/ApplicationPipeline'))
 const NewApplication = lazy(() => import('./pages/NewApplication'))
 const ApplicationView = lazy(() => import('./pages/ApplicationView'))
 const ApplicationEdit = lazy(() => import('./pages/ApplicationEdit'))
@@ -121,6 +122,7 @@ function App() {
 								}
 							>
 								<Route index element={<Dashboard />} />
+								<Route path="pipeline" element={<JobBoard />} />
 								<Route path="new" element={<NewApplication />} />
 								<Route path="profile" element={<Profile />} />
 								<Route path="applications/:id" element={<ApplicationView />} />

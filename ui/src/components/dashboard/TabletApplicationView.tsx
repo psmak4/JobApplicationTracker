@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { APPLICATION_STATUS_OPTIONS } from '@/constants'
-import { useDashboardFilters } from '@/hooks/useDashboardFilters'
+import { getCurrentStatus } from '@/lib/application-helpers'
 import type { ApplicationStatus, ApplicationSummary } from '@/types'
 import { TabletApplicationSection } from './TabletApplicationSection'
 
@@ -17,8 +17,6 @@ export function TabletApplicationView({
 	onPrefetch,
 	onStatusChange,
 }: TabletApplicationViewProps) {
-	const { getCurrentStatus } = useDashboardFilters()
-
 	// Group applications by status
 	const applicationsByStatus = useMemo(() => {
 		const grouped: Record<ApplicationStatus, ApplicationSummary[]> = {
@@ -37,7 +35,7 @@ export function TabletApplicationView({
 		}
 
 		return grouped
-	}, [applications, getCurrentStatus])
+	}, [applications])
 
 	return (
 		<div className="space-y-3">
