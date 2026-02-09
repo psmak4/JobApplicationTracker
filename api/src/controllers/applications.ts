@@ -503,7 +503,7 @@ export const applicationController = {
 		}
 	},
 
-	// Restore a closed application
+	// Restore an archived application
 	restore: async (req: Request, res: Response) => {
 		try {
 			const userId = req.user!.id

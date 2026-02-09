@@ -49,7 +49,7 @@ export default function ApplicationArchive() {
 
 	return (
 		<div className="space-y-6 p-6 pb-20 md:pb-6 animate-in fade-in duration-500">
-			<PageHeader title="Archived Applications" subtitle="View and restore previously closed applications." />
+			<PageHeader title="Archived Applications" subtitle="View and restore previously archived applications." />
 
 			{!applications || applications.length === 0 ? (
 				<Card className="text-center py-12">
@@ -59,7 +59,8 @@ export default function ApplicationArchive() {
 						</div>
 						<CardTitle>No archived applications</CardTitle>
 						<CardDescription>
-							Closed applications will appear here. You can close an application from its details page.
+							Archived applications will appear here. You can archive an application from its details
+							page.
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
