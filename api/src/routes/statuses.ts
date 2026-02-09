@@ -12,6 +12,7 @@ router.get('/types', statusController.getTypes)
 router.get('/application/:applicationId', validateUUID('applicationId'), statusController.getByApplication)
 
 router.post('/application/:applicationId', createProtection, validateUUID('applicationId'), statusController.create)
+router.patch('/:id', createProtection, validateUUID('id'), statusController.update)
 
 router.delete('/:id', deleteProtection, validateUUID('id'), statusController.delete)
 

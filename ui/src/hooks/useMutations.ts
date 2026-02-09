@@ -212,6 +212,45 @@ export const useAddStatusDynamic = () => {
 	})
 }
 
+export const useUpdateStatusDate = (applicationId: string) => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: async ({ statusId, date }: { statusId: string; date: string }) => {
+			const response = await apiClient.patch(`/statuses/${statusId}`, { date })
+			return extractData(response.data)
+		},
+		onMutate: async ({ statusId, date }) => {
+			await queryClient.cancelQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
+			const previousApplication = queryClient.getQueryData<Application>(
+				applicationQueryKeys.detail(applicationId),
+			)
+			queryClient.setQueryData<Application>(applicationQueryKeys.detail(applicationId), (old) => {
+				if (!old) return undefined
+				return {
+					...old,
+					statusHistory: old.statusHistory.map((status) =>
+						status.id === statusId ? { ...status, date } : status,
+					),
+				}
+			})
+			return { previousApplication }
+		},
+		onSuccess: () => {
+			toast.success('Status date updated successfully')
+		},
+		onError: (error: MutationError, _variables, context) => {
+			if (context?.previousApplication) {
+				queryClient.setQueryData(applicationQueryKeys.detail(applicationId), context.previousApplication)
+			}
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to update status date') })
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.detail(applicationId) })
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
+		},
+	})
+}
+
 export const useDeleteStatus = (applicationId: string) => {
 	const queryClient = useQueryClient()
 	return useMutation({

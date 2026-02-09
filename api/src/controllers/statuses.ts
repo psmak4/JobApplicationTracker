@@ -160,4 +160,74 @@ export const statusController = {
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete status entry', getRequestId(req)))
 		}
 	},
+
+	// Update a status entry (date only)
+	update: async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const userId = req.user!.id
+			const { id } = req.params as { id: string }
+
+			// We only allow updating the date for now
+			const updateStatusSchema = z.object({
+				date: z.string().refine(
+					(date) => {
+						try {
+							return !isNaN(Date.parse(date))
+						} catch (e) {
+							return false
+						}
+					},
+					{
+						message: 'Invalid date format. Please use ISO 8601 date string.',
+					},
+				),
+			})
+
+			const validation = updateStatusSchema.safeParse(req.body)
+
+			if (!validation.success) {
+				next(validation.error)
+				return
+			}
+
+			// Find the status entry with its related application to check ownership
+			const statusEntry = await db.query.statusHistory.findFirst({
+				where: eq(statusHistory.id, id),
+				with: {
+					application: true,
+				},
+			})
+
+			// Type-safe check: statusEntry.application is properly typed via Drizzle relations
+			if (!statusEntry || !statusEntry.application || statusEntry.application.userId !== userId) {
+				res.status(404).json(errorResponse('NOT_FOUND', 'Status entry not found', getRequestId(req)))
+				return
+			}
+
+			const statusDate = validation.data.date
+
+			const [updatedStatus] = await db
+				.update(statusHistory)
+				.set({
+					date: statusDate,
+				})
+				.where(eq(statusHistory.id, id))
+				.returning()
+
+			// Update the application's updatedAt timestamp
+			await db
+				.update(applications)
+				.set({ updatedAt: new Date() })
+				.where(eq(applications.id, statusEntry.applicationId))
+
+			res.json(successResponse(updatedStatus, getRequestId(req)))
+		} catch (error) {
+			if (error instanceof ZodError) {
+				next(error)
+				return
+			}
+			console.error('Error updating status entry:', error)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to update status entry', getRequestId(req)))
+		}
+	},
 }
