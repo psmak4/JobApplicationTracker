@@ -5,8 +5,8 @@ import { google } from 'googleapis'
 import { db } from '../db'
 import { account } from '../db/schema'
 import { requireAuth } from '../middleware/auth'
-import { ErrorCodes, errorResponse, successResponse } from '../utils/responses'
 import { getRequestId } from '../utils/request'
+import { ErrorCodes, errorResponse, successResponse } from '../utils/responses'
 
 const router = Router()
 
@@ -34,11 +34,7 @@ router.get('/events', async (req, res) => {
 			return res
 				.status(400)
 				.json(
-					errorResponse(
-						ErrorCodes.BAD_REQUEST,
-						'Date parameter is required (YYYY-MM-DD)',
-						getRequestId(req),
-					),
+					errorResponse(ErrorCodes.BAD_REQUEST, 'Date parameter is required (YYYY-MM-DD)', getRequestId(req)),
 				)
 		}
 
@@ -58,13 +54,7 @@ router.get('/events', async (req, res) => {
 			// User hasn't linked Google or we don't have tokens
 			return res
 				.status(400)
-				.json(
-					errorResponse(
-						ErrorCodes.BAD_REQUEST,
-						'Google Calendar not connected',
-						getRequestId(req),
-					),
-				)
+				.json(errorResponse(ErrorCodes.BAD_REQUEST, 'Google Calendar not connected', getRequestId(req)))
 		}
 
 		// 2. Set credentials
@@ -147,8 +137,21 @@ router.get('/events', async (req, res) => {
 		}))
 
 		res.json(successResponse(mappedEvents, getRequestId(req)))
-	} catch (error) {
+	} catch (error: any) {
 		console.error('Error fetching calendar events:', error)
+
+		if (error.code === 403 || error.status === 403) {
+			return res
+				.status(403)
+				.json(
+					errorResponse(
+						ErrorCodes.FORBIDDEN,
+						'Insufficient permissions to access Google Calendar. Please reconnect your account by signing out and signing back in.',
+						getRequestId(req),
+					),
+				)
+		}
+
 		res.status(500).json(
 			errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to fetch calendar events', getRequestId(req)),
 		)
@@ -179,9 +182,7 @@ router.get('/status', async (req, res) => {
  */
 router.delete('/', async (req, res) => {
 	try {
-		await db
-			.delete(account)
-			.where(and(eq(account.userId, req.user!.id), eq(account.providerId, 'google')))
+		await db.delete(account).where(and(eq(account.userId, req.user!.id), eq(account.providerId, 'google')))
 
 		res.json(successResponse({ disconnected: true }, getRequestId(req)))
 	} catch (error) {

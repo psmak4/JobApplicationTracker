@@ -56,7 +56,7 @@ export default function ApplicationView() {
 			<PageHeader
 				title={application.company}
 				subtitle={application.jobTitle}
-				backUrl="/"
+				backUrl="/pipeline"
 				actions={[
 					<Button
 						render={
@@ -110,14 +110,14 @@ export default function ApplicationView() {
 			{/* Content Grid */}
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				{/* Left Column: Read-only Details */}
-				<div className="lg:col-span-2 space-y-6">
+				<div className="lg:col-span-2">
 					<ApplicationDetailsCard application={application} />
 				</div>
 
 				{/* Right Column: Status History & Events */}
-				<div className="space-y-6">
-					<StatusHistoryCard application={application} />
+				<div className="flex flex-col gap-6">
 					<EventsCard application={application} />
+					<StatusHistoryCard application={application} />
 				</div>
 			</div>
 		</div>

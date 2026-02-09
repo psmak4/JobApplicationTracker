@@ -1,9 +1,8 @@
-import { Plus, Trash2, X } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { APPLICATION_STATUS_OPTIONS } from '@/constants'
-import { useAddStatus, useDeleteStatus } from '@/hooks/useMutations'
+import { useDeleteStatus } from '@/hooks/useMutations'
 import { formatDisplayDate } from '@/lib/utils'
-import type { Application, ApplicationStatus } from '@/types'
+import type { Application } from '@/types'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -16,9 +15,6 @@ import {
 } from './ui/alert-dialog'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { FieldLabel } from './ui/field'
-import { Input } from './ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 
 interface StatusHistoryCardProps {
 	application: Application
@@ -29,27 +25,9 @@ interface StatusHistoryCardProps {
  * (Event linking has been moved to a separate EventsCard component)
  */
 export function StatusHistoryCard({ application }: StatusHistoryCardProps) {
-	const addStatusMutation = useAddStatus(application.id)
 	const deleteStatusMutation = useDeleteStatus(application.id)
 
-	const [isNewStatusOpen, setIsNewStatusOpen] = useState(false)
 	const [statusToDelete, setStatusToDelete] = useState<string | null>(null)
-
-	// New Status State
-	const [newStatus, setNewStatus] = useState<ApplicationStatus>('Applied')
-	const [newStatusDate, setNewStatusDate] = useState(new Date().toLocaleDateString('en-CA'))
-
-	const onAddStatus = async () => {
-		try {
-			await addStatusMutation.mutateAsync({
-				status: newStatus,
-				date: newStatusDate,
-			})
-			setIsNewStatusOpen(false)
-		} catch {
-			// Error handled by mutation hook
-		}
-	}
 
 	const onDeleteStatus = async () => {
 		if (!statusToDelete) return
@@ -67,63 +45,8 @@ export function StatusHistoryCard({ application }: StatusHistoryCardProps) {
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 					<CardTitle className="text-lg font-medium">Status History</CardTitle>
-					{!isNewStatusOpen ? (
-						<Button size="sm" variant="outline" onClick={() => setIsNewStatusOpen(true)}>
-							<Plus className="h-4 w-4 mr-2" />
-							Update
-						</Button>
-					) : (
-						<Button
-							size="icon-sm"
-							variant="outline"
-							onClick={() => setIsNewStatusOpen(false)}
-							aria-label="Close status form"
-						>
-							<X className="h-4 w-4" />
-						</Button>
-					)}
 				</CardHeader>
 				<CardContent>
-					{isNewStatusOpen && (
-						<div className="mb-6 p-4 border rounded-lg bg-muted/50 space-y-4">
-							<h4 className="font-medium text-sm">Add New Status</h4>
-							<div className="grid gap-4">
-								<div className="grid gap-2">
-									<FieldLabel htmlFor="status-select">Status</FieldLabel>
-									<Select
-										id="status-select"
-										value={newStatus}
-										onValueChange={(v) => setNewStatus(v as ApplicationStatus)}
-									>
-										<SelectTrigger className="w-full">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											{APPLICATION_STATUS_OPTIONS.map((status) => (
-												<SelectItem key={status} value={status}>
-													{status}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
-								<div className="grid gap-2">
-									<FieldLabel htmlFor="status-date-input">Date</FieldLabel>
-									<Input
-										id="status-date-input"
-										type="date"
-										value={newStatusDate}
-										onChange={(e) => setNewStatusDate(e.target.value)}
-									/>
-								</div>
-
-								<Button onClick={onAddStatus} size="sm" disabled={addStatusMutation.isPending}>
-									{addStatusMutation.isPending ? 'Saving...' : 'Save Status'}
-								</Button>
-							</div>
-						</div>
-					)}
-
 					<div className="relative border-l border-muted ml-2 space-y-6">
 						{application.statusHistory &&
 							application.statusHistory.map((entry, index) => (
