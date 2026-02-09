@@ -43,6 +43,13 @@
       "when": 1770359993804,
       "tag": "0005_curvy_hedge_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1770612334310,
+      "tag": "0006_lush_exiles",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, inArray, isNull } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError, z } from 'zod'
 import { db } from '../db/index'
@@ -52,7 +52,7 @@ export const applicationController = {
 			const userId = req.user!.id
 
 			const applicationList = await db.query.applications.findMany({
-				where: eq(applications.userId, userId),
+				where: and(eq(applications.userId, userId), isNull(applications.closedAt)),
 				columns: {
 					id: true,
 					company: true,
@@ -147,7 +147,7 @@ export const applicationController = {
 			const activeStatuses = ['Applied', 'Interviewing'] as const
 
 			const applicationList = await db.query.applications.findMany({
-				where: eq(applications.userId, userId),
+				where: and(eq(applications.userId, userId), isNull(applications.closedAt)),
 				columns: {
 					id: true,
 					company: true,
@@ -249,7 +249,11 @@ export const applicationController = {
 			const applicationId = req.params.id as string
 
 			const application = await db.query.applications.findFirst({
-				where: and(eq(applications.id, applicationId), eq(applications.userId, userId)),
+				where: and(
+					eq(applications.id, applicationId),
+					eq(applications.userId, userId),
+					isNull(applications.closedAt),
+				),
 				with: {
 					statusHistory: {
 						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
@@ -422,6 +426,33 @@ export const applicationController = {
 		} catch (error) {
 			console.error('Error deleting application:', error)
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete application', getRequestId(req)))
+		}
+	},
+
+	// Close an application
+	close: async (req: Request, res: Response) => {
+		try {
+			const userId = req.user!.id
+			const applicationId = req.params.id as string
+
+			const [closedApp] = await db
+				.update(applications)
+				.set({
+					closedAt: new Date(),
+					updatedAt: new Date(),
+				})
+				.where(and(eq(applications.id, applicationId), eq(applications.userId, userId)))
+				.returning()
+
+			if (!closedApp) {
+				res.status(404).json(errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)))
+				return
+			}
+
+			res.json(successResponse(closedApp, getRequestId(req)))
+		} catch (error) {
+			console.error('Error closing application:', error)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to close application', getRequestId(req)))
 		}
 	},
 }

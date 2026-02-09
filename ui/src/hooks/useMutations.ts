@@ -246,3 +246,20 @@ export const useDeleteStatus = (applicationId: string) => {
 		},
 	})
 }
+
+export const useCloseApplication = () => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const response = await apiClient.post(`/applications/${id}/close`)
+			return extractData(response.data)
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
+			toast.success('Application closed successfully')
+		},
+		onError: (error: MutationError) => {
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to close application') })
+		},
+	})
+}

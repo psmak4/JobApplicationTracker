@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm'
+import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError, z } from 'zod'
 import { db } from '../db/index'
@@ -34,7 +34,11 @@ export const statusController = {
 
 			// Verify ownership
 			const app = await db.query.applications.findFirst({
-				where: and(eq(applications.id, applicationId), eq(applications.userId, userId)),
+				where: and(
+					eq(applications.id, applicationId),
+					eq(applications.userId, userId),
+					isNull(applications.closedAt),
+				),
 			})
 
 			if (!app) {
@@ -70,7 +74,11 @@ export const statusController = {
 
 			// Verify ownership
 			const app = await db.query.applications.findFirst({
-				where: and(eq(applications.id, applicationId), eq(applications.userId, userId)),
+				where: and(
+					eq(applications.id, applicationId),
+					eq(applications.userId, userId),
+					isNull(applications.closedAt),
+				),
 			})
 
 			if (!app) {

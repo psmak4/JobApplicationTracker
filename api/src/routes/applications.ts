@@ -17,5 +17,6 @@ router.post('/', createProtection, applicationController.create)
 router.put('/:id', createProtection, validateUUID('id'), applicationController.update)
 
 router.delete('/:id', deleteProtection, validateUUID('id'), applicationController.delete)
+router.post('/:id/close', createProtection, validateUUID('id'), applicationController.close)
 
 export default router
