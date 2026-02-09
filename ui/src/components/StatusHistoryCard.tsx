@@ -55,7 +55,7 @@ export function StatusHistoryCard({ application }: StatusHistoryCardProps) {
 										className={`absolute -left-5.25 mt-1.5 h-2.5 w-2.5 rounded-full border border-background ${index === 0 ? 'bg-primary' : 'bg-muted-foreground'}`}
 									/>
 									<div className="flex items-start justify-between gap-2">
-										<div className="flex flex-col gap-1">
+										<div className="flex items-center gap-4">
 											<span className="font-semibold text-sm">{entry.status}</span>
 											<span className="text-xs text-muted-foreground">
 												{formatDisplayDate(entry.date)}
