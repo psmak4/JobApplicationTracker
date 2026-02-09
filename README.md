@@ -5,8 +5,12 @@ A full-stack application designed to help job seekers organize their career jour
 ## Features
 
 - **Static Landing Page**: A high-performance, SEO-friendly marketing page.
-- **Dynamic Dashboard**: A React-powered SPA to manage your job hunt.
-- **Pipeline Management**: Track applications through various stages (Applied, Interview, Offer, etc.).
+- **Dynamic Dashboard**: A React-powered SPA with **Kanban** and **List** views.
+- **Job Parsing**: Auto-fill application details from URLs (e.g., Glassdoor).
+- **Pipeline Management**: Track applications through various stages with drag-and-drop.
+- **Archive & Restore**: Keep your dashboard clean by archiving old applications.
+- **Calendar Integration**: Track upcoming interviews and events capable of syncing with Google Calendar.
+- **Admin Panel**: Manage users and test email templates.
 - **Authentication**: Secure login and signup powered by Better Auth.
 - **Dark Mode**: Automatic theme switching based on system preferences.
 - **Mobile Responsive**: Fully optimized for all screen sizes.

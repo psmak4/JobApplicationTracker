@@ -19,6 +19,26 @@
   - **Authentication:** `better-auth` Node.js handler with rate limiting.
   - **Validation:** `zod`.
   - **Security:** Rate limiting via `express-rate-limit` and `express-slow-down`.
+  - **Parsing:** Custom job description parser (supports Glassdoor, etc.) with SSRF protection.
+
+### Key Features
+
+1.  **Dashboard:**
+    - **View Modes:** Toggle between Kanban Board (Grid) and List View.
+    - **Responsive Kanban:** Horizontal drag-and-drop (Desktop), Stacked sections (Tablet), and Card list (Mobile).
+    - **Filtering & Sorting:** Advanced filters by status, work type, and date.
+    - **Upcoming Events:** Dedicated section for interviews and meetings.
+2.  **Application Management:**
+    - **CRUD:** Create, Read, Update, Delete applications.
+    - **Archive/Restore:** Archive old applications to keep the dashboard clean without losing data.
+    - **Job Parsing:** Auto-fill application details from job URLs (e.g., Glassdoor).
+    - **Status History:** Track the timeline of application status changes.
+3.  **User Features:**
+    - **Profile:** Manage account details and password.
+    - **Theme:** Light, Dark, and System preferences.
+4.  **Admin Panel:**
+    - **User Management:** Ban/unban users, manage roles.
+    - **Email Testing:** Test email templates directly from the UI.
 
 ---
 
