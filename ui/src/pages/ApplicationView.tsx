@@ -1,34 +1,18 @@
-import { Edit, Trash2 } from 'lucide-react'
-import { useState } from 'react'
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Edit } from 'lucide-react'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { ApplicationDetailsCard } from '@/components/ApplicationDetailsCard'
 import { EventsCard } from '@/components/EventsCard'
 import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
 import { StatusHistoryCard } from '@/components/StatusHistoryCard'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { useApplication, useDeleteApplication } from '@/hooks/useApplications'
+import { useApplication } from '@/hooks/useApplications'
 
 export default function ApplicationView() {
 	const { id } = useParams<{ id: string }>()
-	const navigate = useNavigate()
 
 	// All hooks must be called before any conditional returns
 	const { data: application, isLoading, error } = useApplication(id ?? '')
-	const deleteApplicationMutation = useDeleteApplication()
-
-	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
 	// Handle missing id - redirect to dashboard (after all hooks)
 	if (!id) {
@@ -38,17 +22,6 @@ export default function ApplicationView() {
 	if (isLoading) return <QueryLoading />
 	if (error) return <QueryError error={error} title="Unable to load application" />
 	if (!application) return <QueryError title="Application not found" message="This application no longer exists." />
-
-	const onDeleteApplication = async () => {
-		try {
-			await deleteApplicationMutation.mutateAsync(id)
-			navigate('/')
-		} catch {
-			// Error handled by mutation hook
-		} finally {
-			setIsDeleteDialogOpen(false)
-		}
-	}
 
 	return (
 		<div className="space-y-6">
@@ -70,40 +43,6 @@ export default function ApplicationView() {
 						aria-label="Edit application"
 						nativeButton={false}
 					/>,
-					<AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-						<AlertDialogTrigger
-							render={
-								<Button
-									variant="outline"
-									size="sm"
-									className="text-destructive hover:text-destructive hover:bg-destructive/10"
-								>
-									<Trash2 className="h-4 w-4 mr-2" />
-									Delete
-								</Button>
-							}
-							nativeButton={true}
-						/>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Delete Application?</AlertDialogTitle>
-								<AlertDialogDescription>
-									This will permanently delete the application for{' '}
-									<strong>{application.company}</strong>. This action cannot be undone.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Cancel</AlertDialogCancel>
-								<AlertDialogAction
-									onClick={onDeleteApplication}
-									className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-									disabled={deleteApplicationMutation.isPending}
-								>
-									{deleteApplicationMutation.isPending ? 'Deleting...' : 'Delete'}
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>,
 				]}
 			/>
 
