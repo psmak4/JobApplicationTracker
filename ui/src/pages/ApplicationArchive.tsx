@@ -1,6 +1,7 @@
-import { ArchiveRestore, Building2, CalendarIcon, MapPin } from 'lucide-react'
+import { ArchiveRestore, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
 import { LoadingFallback } from '@/components/LoadingSpinner'
 import PageHeader from '@/components/PageHeader'
 import {
@@ -13,7 +14,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useArchivedApplications } from '@/hooks/useApplications'
@@ -96,32 +96,12 @@ export default function ApplicationArchive() {
 										key={app.id}
 										className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
 									>
-										<td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 font-medium">
-											<div className="flex items-center gap-2">
-												<div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center text-primary font-bold text-xs ring-1 ring-primary/20">
-													{app.company.substring(0, 2).toUpperCase()}
-												</div>
-												{app.company}
-											</div>
+										<td className="p-4 align-middle font-medium">{app.company}</td>
+										<td className="p-4 align-middle">{app.jobTitle}</td>
+										<td className="p-4 align-middle hidden md:table-cell">
+											<ApplicationStatusBadge currentStatus={app.currentStatus!} />
 										</td>
-										<td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-											{app.jobTitle}
-										</td>
-										<td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 hidden md:table-cell">
-											<div className="flex flex-col gap-1 text-xs text-muted-foreground">
-												{app.location && (
-													<div className="flex items-center gap-1">
-														<MapPin className="h-3 w-3" /> {app.location}
-													</div>
-												)}
-												{app.workType && (
-													<div className="flex items-center gap-1">
-														<Building2 className="h-3 w-3" /> {app.workType}
-													</div>
-												)}
-											</div>
-										</td>
-										<td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
+										<td className="p-4 align-middle">
 											<div className="flex flex-col gap-1">
 												<div className="flex items-center gap-2 text-sm text-muted-foreground">
 													<CalendarIcon className="h-3 w-3" />
@@ -134,20 +114,13 @@ export default function ApplicationArchive() {
 															}).format(new Date(app.archivedAt))
 														: 'Unknown'}
 												</div>
-												{app.currentStatus && (
-													<Badge
-														variant="outline"
-														className="w-fit text-[10px] px-1 py-0 h-5"
-													>
-														Was: {app.currentStatus}
-													</Badge>
-												)}
 											</div>
 										</td>
-										<td className="p-4 align-middle [&:has([role=checkbox])]:pr-0 text-right">
+										<td className="p-4 align-middle text-right">
 											<Button
 												variant="ghost"
 												size="sm"
+												className="bg-green-600/10 text-green-600 hover:bg-green-600/20 focus-visible:ring-green-600/20 dark:bg-green-400/10 dark:text-green-400 dark:hover:bg-green-400/20 dark:focus-visible:ring-green-400/40"
 												onClick={() => setApplicationToRestore(app.id)}
 											>
 												<ArchiveRestore className="h-4 w-4 mr-2" />
