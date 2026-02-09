@@ -50,6 +50,13 @@
       "when": 1770612334310,
       "tag": "0006_lush_exiles",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1770615617374,
+      "tag": "0007_warm_jean_grey",
+      "breakpoints": true
     }
   ]
 }

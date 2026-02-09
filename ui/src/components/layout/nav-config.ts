@@ -1,4 +1,4 @@
-import { Home, Kanban, Users } from 'lucide-react'
+import { Archive, Home, Kanban, Users } from 'lucide-react'
 
 export const mainNavItems = [
 	{
@@ -10,6 +10,11 @@ export const mainNavItems = [
 		title: 'Pipeline',
 		url: '/pipeline',
 		icon: Kanban,
+	},
+	{
+		title: 'Archive',
+		url: '/archive',
+		icon: Archive,
 	},
 ]
 

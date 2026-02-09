@@ -37,7 +37,7 @@ export const statusController = {
 				where: and(
 					eq(applications.id, applicationId),
 					eq(applications.userId, userId),
-					isNull(applications.closedAt),
+					isNull(applications.archivedAt),
 				),
 			})
 
@@ -77,7 +77,7 @@ export const statusController = {
 				where: and(
 					eq(applications.id, applicationId),
 					eq(applications.userId, userId),
-					isNull(applications.closedAt),
+					isNull(applications.archivedAt),
 				),
 			})
 

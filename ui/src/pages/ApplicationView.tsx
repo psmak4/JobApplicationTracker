@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { useApplication } from '@/hooks/useApplications'
-import { useCloseApplication } from '@/hooks/useMutations'
+import { useArchiveApplication } from '@/hooks/useMutations'
 
 export default function ApplicationView() {
 	const { id } = useParams<{ id: string }>()
@@ -27,8 +27,8 @@ export default function ApplicationView() {
 
 	// All hooks must be called before any conditional returns
 	const { data: application, isLoading, error } = useApplication(id ?? '')
-	const closeApplicationMutation = useCloseApplication()
-	const [isCloseDialogOpen, setIsCloseDialogOpen] = useState(false)
+	const archiveApplicationMutation = useArchiveApplication()
+	const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false)
 
 	// Handle missing id - redirect to dashboard (after all hooks)
 	if (!id) {
@@ -39,14 +39,14 @@ export default function ApplicationView() {
 	if (error) return <QueryError error={error} title="Unable to load application" />
 	if (!application) return <QueryError title="Application not found" message="This application no longer exists." />
 
-	const onCloseApplication = async () => {
+	const onArchiveApplication = async () => {
 		try {
-			await closeApplicationMutation.mutateAsync(id)
+			await archiveApplicationMutation.mutateAsync(id)
 			navigate('/pipeline')
 		} catch {
 			// Error handled by mutation hook
 		} finally {
-			setIsCloseDialogOpen(false)
+			setIsArchiveDialogOpen(false)
 		}
 	}
 
@@ -70,31 +70,32 @@ export default function ApplicationView() {
 						aria-label="Edit application"
 						nativeButton={false}
 					/>,
-					<AlertDialog open={isCloseDialogOpen} onOpenChange={setIsCloseDialogOpen}>
+					<AlertDialog open={isArchiveDialogOpen} onOpenChange={setIsArchiveDialogOpen}>
 						<AlertDialogTrigger
 							render={
 								<Button variant="outline" size="sm">
 									<Archive className="h-4 w-4 mr-2" />
-									Close
+									Archive
 								</Button>
 							}
 							nativeButton={true}
 						/>
 						<AlertDialogContent>
 							<AlertDialogHeader>
-								<AlertDialogTitle>Close Application?</AlertDialogTitle>
+								<AlertDialogTitle>Archive Application?</AlertDialogTitle>
 								<AlertDialogDescription>
-									This will mark the application for <strong>{application.company}</strong> as closed
-									and remove it from your active views. You can re-open it later from the settings.
+									This will mark the application for <strong>{application.company}</strong> as
+									archived and remove it from your active views. You can restore it later from the
+									archive.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
 								<AlertDialogCancel>Cancel</AlertDialogCancel>
 								<AlertDialogAction
-									onClick={onCloseApplication}
-									disabled={closeApplicationMutation.isPending}
+									onClick={onArchiveApplication}
+									disabled={archiveApplicationMutation.isPending}
 								>
-									{closeApplicationMutation.isPending ? 'Closing...' : 'Close Application'}
+									{archiveApplicationMutation.isPending ? 'Archiving...' : 'Archive Application'}
 								</AlertDialogAction>
 							</AlertDialogFooter>
 						</AlertDialogContent>

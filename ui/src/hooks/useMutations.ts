@@ -247,19 +247,38 @@ export const useDeleteStatus = (applicationId: string) => {
 	})
 }
 
-export const useCloseApplication = () => {
+export const useArchiveApplication = () => {
 	const queryClient = useQueryClient()
 	return useMutation({
 		mutationFn: async (id: string) => {
-			const response = await apiClient.post(`/applications/${id}/close`)
+			const response = await apiClient.post(`/applications/${id}/archive`)
 			return extractData(response.data)
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: applicationQueryKeys.all })
-			toast.success('Application closed successfully')
+			queryClient.refetchQueries({ queryKey: applicationQueryKeys.all })
+			queryClient.refetchQueries({ queryKey: applicationQueryKeys.archived })
+			toast.success('Application archived successfully')
 		},
 		onError: (error: MutationError) => {
-			toast.error('Error', { description: getErrorMessage(error, 'Failed to close application') })
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to archive application') })
+		},
+	})
+}
+
+export const useRestoreApplication = () => {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: async (id: string) => {
+			const response = await apiClient.post(`/applications/${id}/restore`)
+			return extractData(response.data)
+		},
+		onSuccess: () => {
+			queryClient.refetchQueries({ queryKey: applicationQueryKeys.all })
+			queryClient.refetchQueries({ queryKey: applicationQueryKeys.archived })
+			toast.success('Application restored successfully')
+		},
+		onError: (error: MutationError) => {
+			toast.error('Error', { description: getErrorMessage(error, 'Failed to restore application') })
 		},
 	})
 }

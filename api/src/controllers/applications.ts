@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNull } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, inArray, isNotNull, isNull } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError, z } from 'zod'
 import { db } from '../db/index'
@@ -52,7 +52,7 @@ export const applicationController = {
 			const userId = req.user!.id
 
 			const applicationList = await db.query.applications.findMany({
-				where: and(eq(applications.userId, userId), isNull(applications.closedAt)),
+				where: and(eq(applications.userId, userId), isNull(applications.archivedAt)),
 				columns: {
 					id: true,
 					company: true,
@@ -147,7 +147,7 @@ export const applicationController = {
 			const activeStatuses = ['Applied', 'Interviewing'] as const
 
 			const applicationList = await db.query.applications.findMany({
-				where: and(eq(applications.userId, userId), isNull(applications.closedAt)),
+				where: and(eq(applications.userId, userId), isNull(applications.archivedAt)),
 				columns: {
 					id: true,
 					company: true,
@@ -252,7 +252,7 @@ export const applicationController = {
 				where: and(
 					eq(applications.id, applicationId),
 					eq(applications.userId, userId),
-					isNull(applications.closedAt),
+					isNull(applications.archivedAt),
 				),
 				with: {
 					statusHistory: {
@@ -429,30 +429,104 @@ export const applicationController = {
 		}
 	},
 
-	// Close an application
-	close: async (req: Request, res: Response) => {
+	// Archive an application
+	archive: async (req: Request, res: Response) => {
 		try {
 			const userId = req.user!.id
 			const applicationId = req.params.id as string
 
-			const [closedApp] = await db
+			const [archivedApp] = await db
 				.update(applications)
 				.set({
-					closedAt: new Date(),
+					archivedAt: new Date(),
 					updatedAt: new Date(),
 				})
 				.where(and(eq(applications.id, applicationId), eq(applications.userId, userId)))
 				.returning()
 
-			if (!closedApp) {
+			if (!archivedApp) {
 				res.status(404).json(errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)))
 				return
 			}
 
-			res.json(successResponse(closedApp, getRequestId(req)))
+			res.json(successResponse(archivedApp, getRequestId(req)))
 		} catch (error) {
-			console.error('Error closing application:', error)
-			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to close application', getRequestId(req)))
+			console.error('Error archiving application:', error)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to archive application', getRequestId(req)))
+		}
+	},
+	// Get archived applications list
+	getArchivedList: async (req: Request, res: Response) => {
+		try {
+			const userId = req.user!.id
+
+			const applicationList = await db.query.applications.findMany({
+				where: and(eq(applications.userId, userId), isNotNull(applications.archivedAt)),
+				columns: {
+					id: true,
+					company: true,
+					jobTitle: true,
+					archivedAt: true,
+					updatedAt: true,
+				},
+				with: {
+					statusHistory: {
+						columns: {
+							status: true,
+							date: true,
+							createdAt: true,
+						},
+						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
+						limit: 1,
+					},
+				},
+				orderBy: [desc(applications.archivedAt)],
+			})
+
+			const response = applicationList.map((app) => {
+				const { statusHistory: latestStatusHistory, ...appData } = app
+				const latestStatus = latestStatusHistory[0]
+
+				return {
+					...appData,
+					currentStatus: latestStatus?.status ?? null,
+					lastStatusDate: latestStatus?.date ?? null,
+				}
+			})
+
+			res.json(successResponse(response, getRequestId(req)))
+		} catch (error) {
+			console.error('Error fetching archived applications:', error)
+			res.status(500).json(
+				errorResponse('INTERNAL_ERROR', 'Failed to fetch archived applications', getRequestId(req)),
+			)
+		}
+	},
+
+	// Restore a closed application
+	restore: async (req: Request, res: Response) => {
+		try {
+			const userId = req.user!.id
+			const applicationId = req.params.id as string
+
+			const [restoredApp] = await db
+				.update(applications)
+				.set({
+					archivedAt: null,
+					updatedAt: new Date(),
+				})
+				.where(and(eq(applications.id, applicationId), eq(applications.userId, userId)))
+				.returning()
+
+			if (!restoredApp) {
+				res.status(404).json(errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)))
+				return
+			}
+
+			res.json(successResponse(restoredApp, getRequestId(req)))
+		} catch (error) {
+			console.error('Error restoring application:', error)
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to restore application', getRequestId(req)))
 		}
 	},
 }

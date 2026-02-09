@@ -67,3 +67,14 @@ export const useDeleteApplication = () => {
 		},
 	})
 }
+
+export const useArchivedApplications = () => {
+	return useQuery<ApplicationSummary[]>({
+		queryKey: applicationQueryKeys.archived,
+		queryFn: async () => {
+			const response = await apiClient.get('/applications/archived/list')
+			return extractData(response.data)
+		},
+		staleTime: 1000 * 60 * 5, // 5 minutes
+	})
+}

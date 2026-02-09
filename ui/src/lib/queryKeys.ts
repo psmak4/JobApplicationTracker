@@ -8,6 +8,8 @@ export const applicationQueryKeys = {
 	all: ['applications'] as const,
 	/** Active applications only (Applied/Interviewing) */
 	active: ['applications', 'active'] as const,
+	/** Archived applications */
+	archived: ['applications', 'archived'] as const,
 	/** Single application by ID */
 	detail: (id: string) => ['applications', id] as const,
 }

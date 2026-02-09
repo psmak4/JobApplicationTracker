@@ -48,6 +48,7 @@ export interface Application {
 	calendarEvents: CalendarEventEntry[]
 	createdAt: string // ISO timestamp
 	updatedAt: string // ISO timestamp
+	archivedAt?: string | null
 }
 
 export interface ApplicationSummary {
@@ -64,6 +65,7 @@ export interface ApplicationSummary {
 	updatedAt: string // ISO timestamp
 	currentStatus?: ApplicationStatus | null
 	lastStatusDate?: string | null
+	archivedAt?: string | null
 	upcomingEvents: UpcomingEventEntry[]
 }
 

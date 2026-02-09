@@ -90,15 +90,15 @@ export const applications = pgTable(
 		notes: text('notes'),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 		updatedAt: timestamp('updated_at').notNull().defaultNow(),
-		closedAt: timestamp('closed_at'),
+		archivedAt: timestamp('archived_at'),
 	},
 	(table) => [
 		// Index for filtering applications by user
 		index('applications_user_id_idx').on(table.userId),
 		// Index for sorting by updatedAt (descending order is most common)
 		index('applications_updated_at_idx').on(table.updatedAt),
-		// Index for filtering closed applications
-		index('applications_closed_at_idx').on(table.closedAt),
+		// Index for filtering archived applications
+		index('applications_archived_at_idx').on(table.archivedAt),
 	],
 )
 

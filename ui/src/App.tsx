@@ -16,6 +16,7 @@ const JobBoard = lazy(() => import('./pages/Pipeline'))
 const NewApplication = lazy(() => import('./pages/NewApplication'))
 const ApplicationView = lazy(() => import('./pages/ApplicationView'))
 const ApplicationEdit = lazy(() => import('./pages/ApplicationEdit'))
+const ApplicationArchive = lazy(() => import('./pages/ApplicationArchive'))
 const Login = lazy(() => import('./pages/auth/Login'))
 const Signup = lazy(() => import('./pages/auth/Signup'))
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'))
@@ -123,6 +124,7 @@ function App() {
 							>
 								<Route index element={<Dashboard />} />
 								<Route path="pipeline" element={<JobBoard />} />
+								<Route path="archive" element={<ApplicationArchive />} />
 								<Route path="new" element={<NewApplication />} />
 								<Route path="profile" element={<Profile />} />
 								<Route path="applications/:id" element={<ApplicationView />} />
