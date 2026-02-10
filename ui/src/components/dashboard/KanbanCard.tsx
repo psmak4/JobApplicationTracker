@@ -26,14 +26,14 @@ function KanbanCardComponent({ application, onNavigate, onPrefetch }: KanbanCard
 			ref={setNodeRef}
 			style={style}
 			className={cn(
-				'bg-card cursor-grab active:cursor-grabbing transition-shadow select-none touch-none',
-				isDragging && 'opacity-50 shadow-lg ring-2 ring-primary',
+				'bg-card cursor-grab active:cursor-grabbing transition-all select-none touch-none hover:-translate-y-1 hover:shadow-md border-l-4 border-l-transparent hover:border-l-primary/50',
+				isDragging && 'opacity-50 shadow-lg ring-2 ring-primary rotate-2',
 			)}
 			onMouseEnter={() => onPrefetch(application.id)}
 			{...listeners}
 			{...attributes}
 		>
-			<CardContent className="py-0">
+			<CardContent className="py-3 px-4">
 				{/* Company & Job Title */}
 				<div
 					className="cursor-pointer"
@@ -42,15 +42,15 @@ function KanbanCardComponent({ application, onNavigate, onPrefetch }: KanbanCard
 						onNavigate(application.id)
 					}}
 				>
-					<div className="font-medium text-base leading-tight hover:text-primary transition-colors">
+					<div className="font-bold text-base leading-tight hover:text-primary transition-colors mb-1">
 						{application.company}
 					</div>
-					<div className="text-sm truncate">{application.jobTitle}</div>
+					<div className="text-sm text-muted-foreground truncate">{application.jobTitle}</div>
 				</div>
 
 				{/* Location & Work Type */}
 				{(application.location || application.workType) && (
-					<div className="flex flex-col gap-0.5 text-xs text-muted-foreground pt-1">
+					<div className="flex flex-col gap-0.5 text-xs text-muted-foreground/80 pt-2 mt-2 border-t border-border/50">
 						{application.location && <span>{application.location}</span>}
 						{application.workType && <span>{application.workType}</span>}
 					</div>

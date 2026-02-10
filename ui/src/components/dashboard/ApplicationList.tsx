@@ -40,17 +40,17 @@ export function ApplicationList({
 					>
 						{/* Clickable Area Wrapper */}
 						<div
-							className="flex flex-1 items-center p-4 gap-4 cursor-pointer pl-6"
+							className="flex flex-1 items-center p-4 gap-4 cursor-pointer pl-6 hover:bg-muted/50 transition-colors"
 							onClick={() => onNavigate(app.id)}
 						>
 							{/* Main Info */}
-							<div className="flex-1 min-w-0 flex gap-4 items-start justify-between">
+							<div className="flex-1 min-w-0 flex items-center justify-between gap-4">
 								{/* Company & Role */}
-								<div className="flex flex-col gap-1 min-w-0">
-									<div className="text-lg leading-tight group-hover:text-primary transition-colors">
+								<div className="flex flex-col gap-0.5 min-w-0">
+									<div className="font-bold text-lg leading-tight group-hover:text-primary transition-colors">
 										{app.company}
 									</div>
-									<div className="text-sm">{app.jobTitle}</div>
+									<div className="text-sm text-muted-foreground truncate">{app.jobTitle}</div>
 								</div>
 
 								{/* Status Badge */}

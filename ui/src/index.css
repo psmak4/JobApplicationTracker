@@ -1,7 +1,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-/* @import 'shadcn/tailwind.css';
-@import '@fontsource-variable/inter'; */
+/* @import 'shadcn/tailwind.css'; */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/outfit';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -33,6 +34,7 @@
  *   Orange: #FFB86C
  *   Red: #FF5555
  *   Yellow: #F1FA8C
+ *   Feature: Outfit Font for headings
  */
 
 :root {
@@ -69,6 +71,9 @@
 	--sidebar-accent-foreground: #1f1f1f;
 	--sidebar-border: #ceccc0;
 	--sidebar-ring: #644ac9;
+
+	--font-sans: 'Inter Variable', sans-serif;
+	--font-heading: 'Outfit Variable', sans-serif;
 }
 
 .dark {
@@ -154,6 +159,9 @@
 	--color-dracula-red: #ff5555;
 	--color-dracula-yellow: #f1fa8c;
 	--color-dracula-comment: #6272a4;
+
+	--font-heading: var(--font-heading);
+	--font-sans: var(--font-sans);
 }
 
 @layer base {
@@ -165,5 +173,13 @@
 	}
 	html {
 		@apply font-sans;
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@apply font-heading tracking-tight;
 	}
 }

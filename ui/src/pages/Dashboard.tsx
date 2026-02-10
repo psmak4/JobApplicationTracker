@@ -71,11 +71,12 @@ export default function Dashboard() {
 										to="/new"
 										className={cn(
 											buttonVariants({ variant: 'default' }),
-											'flex items-center gap-2',
+											'flex items-center gap-2 group transition-all duration-300 hover:scale-105 hover:shadow-lg',
 										)}
 										aria-label="Create new application"
 									>
-										<Plus className="h-4 w-4" /> New Application
+										<Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />{' '}
+										New Application
 									</Link>
 								</CardHeader>
 								<CardContent>

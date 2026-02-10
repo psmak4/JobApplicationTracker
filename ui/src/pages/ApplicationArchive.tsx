@@ -48,7 +48,7 @@ export default function ApplicationArchive() {
 	const appToRestore = applications?.find((app) => app.id === applicationToRestore)
 
 	return (
-		<div className="space-y-6 p-6 pb-20 md:pb-6 animate-in fade-in duration-500">
+		<div className="space-y-6">
 			<PageHeader title="Archived Applications" subtitle="View and restore previously archived applications." />
 
 			{!applications || applications.length === 0 ? (
