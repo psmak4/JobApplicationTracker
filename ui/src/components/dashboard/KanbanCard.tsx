@@ -1,6 +1,5 @@
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { Briefcase, MapPin } from 'lucide-react'
 import React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -52,18 +51,8 @@ function KanbanCardComponent({ application, onNavigate, onPrefetch }: KanbanCard
 				{/* Location & Work Type */}
 				{(application.location || application.workType) && (
 					<div className="flex flex-col gap-0.5 text-xs text-muted-foreground pt-1">
-						{application.location && (
-							<span className="flex items-center gap-1 truncate">
-								<MapPin className="h-3 w-3 shrink-0" />
-								<span className="truncate">{application.location}</span>
-							</span>
-						)}
-						{application.workType && (
-							<span className="flex items-center gap-1">
-								<Briefcase className="h-3 w-3 shrink-0" />
-								{application.workType}
-							</span>
-						)}
+						{application.location && <span>{application.location}</span>}
+						{application.workType && <span>{application.workType}</span>}
 					</div>
 				)}
 			</CardContent>

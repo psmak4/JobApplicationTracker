@@ -1,7 +1,6 @@
 import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
-import { getCurrentStatus, getLastStatusDate, getStalenessColor } from '@/lib/application-helpers'
+import { getCurrentStatus } from '@/lib/application-helpers'
 import { cn } from '@/lib/utils'
-import { formatDisplayDate } from '@/lib/utils'
 import type { ApplicationSummary } from '@/types'
 import { EmptyState } from './EmptyState'
 
@@ -26,8 +25,6 @@ export function ApplicationList({
 		<div className="rounded-lg border bg-card divide-y">
 			{applications.map((app) => {
 				const currentStatus = getCurrentStatus(app)
-				const lastStatusDate = getLastStatusDate(app)
-				const stalenessColor = getStalenessColor(lastStatusDate, currentStatus)
 				const isHighlighted = highlightedApplicationId === app.id
 
 				return (
@@ -57,11 +54,10 @@ export function ApplicationList({
 								</div>
 
 								{/* Status Badge */}
-								<div className="flex flex-col gap-1 items-end">
+								<div className="flex flex-col gap-2 items-end">
 									<ApplicationStatusBadge currentStatus={currentStatus} />
-									<div className="text-sm text-muted-foreground text-nowrap flex items-center gap-1">
-										<span>Most Recent Status:</span>
-										<span className={stalenessColor}>{formatDisplayDate(lastStatusDate)}</span>
+									<div className="text-xs text-muted-foreground text-nowrap flex gap-1">
+										<span>{app.location}</span> • <span>{app.workType}</span>
 									</div>
 								</div>
 							</div>
