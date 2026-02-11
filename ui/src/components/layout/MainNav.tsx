@@ -17,7 +17,7 @@ export function MainNav() {
 				<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
 					<Briefcase className="h-4 w-4" />
 				</div>
-				<span className="hidden font-bold sm:inline-block">Job Application Tracker</span>
+				<span className="hidden font-bold font-heading text-2xl sm:inline-block">Job Application Tracker</span>
 			</Link>
 			<nav className="flex items-center gap-6 text-sm font-medium">
 				{mainNavItems.map((item) => (

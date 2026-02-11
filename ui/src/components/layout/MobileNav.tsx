@@ -30,7 +30,7 @@ export function MobileNav() {
 						<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
 							<Briefcase className="h-4 w-4" />
 						</div>
-						<span className="font-bold">Job Application Tracker</span>
+						<span className="font-bold font-heading text-2xl">Job Application Tracker</span>
 					</SheetTitle>
 				</SheetHeader>
 				<div className="flex flex-col gap-4 p-6">
