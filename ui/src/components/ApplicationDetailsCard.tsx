@@ -1,101 +1,145 @@
-import { ExternalLink } from 'lucide-react'
-import { ApplicationStatusBadge } from '@/components/ApplicationStatusBadge'
+import {
+	Briefcase,
+	Building2,
+	Calendar,
+	Clock,
+	DollarSign,
+	ExternalLink,
+	Laptop,
+	MapPin,
+	StickyNote,
+	User,
+} from 'lucide-react'
 import type { Application } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Separator } from './ui/separator'
 
 interface ApplicationDetailsCardProps {
 	application: Application
 }
 
 /**
- * Read-only display of application details (job info, salary, location, notes, etc.)
+ * Read-only display of application details with icons and visual hierarchy
  */
 export function ApplicationDetailsCard({ application }: ApplicationDetailsCardProps) {
 	return (
 		<Card>
-			<CardHeader className="pb-3 flex flex-row items-center justify-between">
+			<CardHeader className="pb-3">
 				<CardTitle className="text-lg font-semibold">Application Details</CardTitle>
-				<ApplicationStatusBadge status={application.status} />
 			</CardHeader>
-			<CardContent className="space-y-6">
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-					<div className="space-y-1">
-						<span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-							Job Title
-						</span>
-						<p className="font-medium">{application.jobTitle}</p>
-					</div>
-					<div className="space-y-1">
-						<span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-							Company
-						</span>
-						<p className="font-medium">{application.company}</p>
-					</div>
-					{application.salary && (
-						<div className="space-y-1">
-							<span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-								Salary
-							</span>
-							<p>{application.salary}</p>
-						</div>
-					)}
-					{application.workType && (
-						<div className="space-y-1">
-							<span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-								Work Type
-							</span>
-							<p>{application.workType}</p>
-						</div>
-					)}
-					{application.location && (
-						<div className="space-y-1">
-							<span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-								Location
-							</span>
-							<p>{application.location}</p>
-						</div>
-					)}
-					{application.contactInfo && (
-						<div className="space-y-1">
-							<span className="text-sm font-medium text-muted-foreground">Contact</span>
-							<p>{application.contactInfo}</p>
-						</div>
-					)}
-					<div className="space-y-1">
-						<span className="text-sm font-medium text-muted-foreground">Date Applied</span>
-						<p>{new Date(application.appliedAt).toLocaleDateString()}</p>
-					</div>
-					<div className="space-y-1">
-						<span className="text-sm font-medium text-muted-foreground">Date Last Updated</span>
-						<p>{new Date(application.statusUpdatedAt).toLocaleDateString()}</p>
-					</div>
+			<CardContent className="space-y-5">
+				{/* Primary info */}
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+					<DetailField icon={Briefcase} label="Job Title" value={application.jobTitle} />
+					<DetailField icon={Building2} label="Company" value={application.company} />
 				</div>
 
-				{application.jobDescriptionUrl && (
-					<div className="space-y-1">
-						<span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-							<ExternalLink className="h-4 w-4" /> Job Description
-						</span>
-						<a
-							href={application.jobDescriptionUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-primary hover:underline break-all"
-						>
-							{application.jobDescriptionUrl}
-						</a>
-					</div>
+				{/* Secondary info */}
+				{(application.location || application.salary || application.workType || application.contactInfo) && (
+					<>
+						<Separator />
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+							{application.location && (
+								<DetailField icon={MapPin} label="Location" value={application.location} />
+							)}
+							{application.salary && (
+								<DetailField icon={DollarSign} label="Salary" value={application.salary} />
+							)}
+							{application.workType && (
+								<DetailField icon={Laptop} label="Work Type" value={application.workType} />
+							)}
+							{application.contactInfo && (
+								<DetailField icon={User} label="Contact" value={application.contactInfo} />
+							)}
+						</div>
+					</>
 				)}
 
-				{application.notes && (
-					<div className="space-y-1">
-						<span className="text-sm font-medium text-muted-foreground flex items-center gap-2">Notes</span>
-						<div className="p-4 bg-card rounded-lg border whitespace-pre-wrap text-sm">
-							{application.notes}
+				{/* Dates */}
+				<Separator />
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+					<DetailField
+						icon={Calendar}
+						label="Date Applied"
+						value={new Date(application.appliedAt).toLocaleDateString(undefined, {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric',
+						})}
+					/>
+					<DetailField
+						icon={Clock}
+						label="Last Updated"
+						value={new Date(application.statusUpdatedAt).toLocaleDateString(undefined, {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric',
+						})}
+					/>
+				</div>
+
+				{/* Job Description URL */}
+				{application.jobDescriptionUrl && (
+					<>
+						<Separator />
+						<div>
+							<a
+								href={application.jobDescriptionUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border bg-muted/50 hover:bg-muted text-sm font-medium transition-colors group"
+							>
+								<ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+								<span className="text-muted-foreground group-hover:text-foreground transition-colors">
+									View Job Description
+								</span>
+								<span className="text-xs text-muted-foreground/60 truncate max-w-[200px]">
+									{new URL(application.jobDescriptionUrl).hostname}
+								</span>
+							</a>
 						</div>
-					</div>
+					</>
+				)}
+
+				{/* Notes */}
+				{application.notes && (
+					<>
+						<Separator />
+						<div className="space-y-2">
+							<div className="flex items-center gap-2">
+								<StickyNote className="h-4 w-4 text-muted-foreground" />
+								<span className="text-sm font-medium text-muted-foreground">Notes</span>
+							</div>
+							<div className="p-4 bg-muted/30 rounded-lg border whitespace-pre-wrap text-sm leading-relaxed">
+								{application.notes}
+							</div>
+						</div>
+					</>
 				)}
 			</CardContent>
 		</Card>
+	)
+}
+
+/** Individual detail field with icon */
+function DetailField({
+	icon: Icon,
+	label,
+	value,
+}: {
+	icon: React.ComponentType<{ className?: string }>
+	label: string
+	value: string
+}) {
+	return (
+		<div className="flex items-start gap-3">
+			<div className="mt-0.5 p-1.5 rounded-md bg-muted/50">
+				<Icon className="h-4 w-4 text-muted-foreground" />
+			</div>
+			<div className="space-y-0.5 min-w-0">
+				<span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</span>
+				<p className="font-medium text-sm">{value}</p>
+			</div>
+		</div>
 	)
 }

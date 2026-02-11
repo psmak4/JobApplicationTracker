@@ -82,3 +82,54 @@ export const STATUS_COLORS: Record<ApplicationStatus, { bg: string; text: string
 			darkText: 'dark:text-[#6272A4]',
 		},
 	}
+
+/** Accent colors for hero section gradients and borders */
+export const STATUS_ACCENT_COLORS: Record<ApplicationStatus, { gradient: string; border: string; dot: string }> = {
+	Applied: {
+		gradient: 'from-[#8BE9FD]/10 via-transparent to-transparent dark:from-[#8BE9FD]/15',
+		border: 'border-[#8BE9FD]/30 dark:border-[#8BE9FD]/40',
+		dot: 'bg-[#036A96] dark:bg-[#8BE9FD]',
+	},
+	Interviewing: {
+		gradient: 'from-[#BD93F9]/10 via-transparent to-transparent dark:from-[#BD93F9]/15',
+		border: 'border-[#BD93F9]/30 dark:border-[#BD93F9]/40',
+		dot: 'bg-[#644AC9] dark:bg-[#BD93F9]',
+	},
+	'Offer Received': {
+		gradient: 'from-[#F1FA8C]/10 via-transparent to-transparent dark:from-[#F1FA8C]/15',
+		border: 'border-[#F1FA8C]/30 dark:border-[#F1FA8C]/40',
+		dot: 'bg-[#8B7E00] dark:bg-[#F1FA8C]',
+	},
+	'Offer Accepted': {
+		gradient: 'from-[#50FA7B]/10 via-transparent to-transparent dark:from-[#50FA7B]/15',
+		border: 'border-[#50FA7B]/30 dark:border-[#50FA7B]/40',
+		dot: 'bg-[#14710A] dark:bg-[#50FA7B]',
+	},
+	'Offer Declined': {
+		gradient: 'from-[#FFB86C]/10 via-transparent to-transparent dark:from-[#FFB86C]/15',
+		border: 'border-[#FFB86C]/30 dark:border-[#FFB86C]/40',
+		dot: 'bg-[#9C5700] dark:bg-[#FFB86C]',
+	},
+	Rejected: {
+		gradient: 'from-[#FF5555]/10 via-transparent to-transparent dark:from-[#FF5555]/15',
+		border: 'border-[#FF5555]/30 dark:border-[#FF5555]/40',
+		dot: 'bg-[#CB3A2A] dark:bg-[#FF5555]',
+	},
+	Withdrawn: {
+		gradient: 'from-[#6272A4]/10 via-transparent to-transparent dark:from-[#6272A4]/15',
+		border: 'border-[#6272A4]/30 dark:border-[#6272A4]/40',
+		dot: 'bg-[#6C664B] dark:bg-[#6272A4]',
+	},
+}
+
+/** Pipeline steps for the status timeline */
+export const PIPELINE_STEPS: Array<{
+	key: string
+	label: string
+	statuses: ApplicationStatus[]
+}> = [
+	{ key: 'Applied', label: 'Applied', statuses: ['Applied'] },
+	{ key: 'Interviewing', label: 'Interviewing', statuses: ['Interviewing'] },
+	{ key: 'Offer', label: 'Offer', statuses: ['Offer Received', 'Offer Accepted', 'Offer Declined'] },
+	{ key: 'Closed', label: 'Closed', statuses: ['Offer Accepted', 'Offer Declined', 'Rejected', 'Withdrawn'] },
+]

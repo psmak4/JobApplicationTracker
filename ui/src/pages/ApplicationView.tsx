@@ -2,9 +2,10 @@ import { Archive, Edit } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ApplicationDetailsCard } from '@/components/ApplicationDetailsCard'
+import { ApplicationHero } from '@/components/ApplicationHero'
 import { EventsCard } from '@/components/EventsCard'
-import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
+import { StatusTimeline } from '@/components/StatusTimeline'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -14,7 +15,6 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { useApplication } from '@/hooks/useApplications'
@@ -51,56 +51,54 @@ export default function ApplicationView() {
 
 	return (
 		<div className="space-y-6">
-			{/* Header */}
-			<PageHeader
-				title={application.company}
-				subtitle={application.jobTitle}
-				backUrl="/pipeline"
-				actions={[
-					<Button
-						render={
-							<Link to={`/applications/${application.id}/edit`}>
-								<Edit className="h-4 w-4 mr-2" />
-								Edit
-							</Link>
-						}
-						variant="outline"
-						size="sm"
-						aria-label="Edit application"
-						nativeButton={false}
-					/>,
-					<AlertDialog open={isArchiveDialogOpen} onOpenChange={setIsArchiveDialogOpen}>
-						<AlertDialogTrigger
+			{/* Hero Section */}
+			<ApplicationHero
+				application={application}
+				actions={
+					<>
+						<Button
 							render={
-								<Button variant="outline" size="sm">
-									<Archive className="h-4 w-4 mr-2" />
-									Archive
-								</Button>
+								<Link to={`/applications/${application.id}/edit`}>
+									<Edit className="h-4 w-4 mr-2" />
+									Edit
+								</Link>
 							}
-							nativeButton={true}
+							variant="outline"
+							size="sm"
+							aria-label="Edit application"
+							nativeButton={false}
 						/>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Archive Application?</AlertDialogTitle>
-								<AlertDialogDescription>
-									This will mark the application for <strong>{application.company}</strong> as
-									archived and remove it from your active views. You can restore it later from the
-									archive.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Cancel</AlertDialogCancel>
-								<AlertDialogAction
-									onClick={onArchiveApplication}
-									disabled={archiveApplicationMutation.isPending}
-								>
-									{archiveApplicationMutation.isPending ? 'Archiving...' : 'Archive Application'}
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>,
-				]}
+						<AlertDialog open={isArchiveDialogOpen} onOpenChange={setIsArchiveDialogOpen}>
+							<Button variant="outline" size="sm" onClick={() => setIsArchiveDialogOpen(true)}>
+								<Archive className="h-4 w-4 mr-2" />
+								Archive
+							</Button>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>Archive Application?</AlertDialogTitle>
+									<AlertDialogDescription>
+										This will mark the application for <strong>{application.company}</strong> as
+										archived and remove it from your active views. You can restore it later from the
+										archive.
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Cancel</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={onArchiveApplication}
+										disabled={archiveApplicationMutation.isPending}
+									>
+										{archiveApplicationMutation.isPending ? 'Archiving...' : 'Archive Application'}
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
+					</>
+				}
 			/>
+
+			{/* Status Timeline */}
+			<StatusTimeline status={application.status} />
 
 			{/* Content Grid */}
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
