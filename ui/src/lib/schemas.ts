@@ -13,23 +13,37 @@ export const applicationSchema = z.object({
 	workType: z.enum(['Remote', 'Hybrid', 'On-site'] as [string, ...string[]]).optional(),
 	contactInfo: z.string().optional(),
 	notes: z.string().optional(),
+	status: z
+		.enum([
+			'Applied',
+			'Interviewing',
+			'Offer Received',
+			'Offer Accepted',
+			'Offer Declined',
+			'Rejected',
+			'Withdrawn',
+		] as [string, ...string[]])
+		.optional(),
+	appliedAt: z
+		.string()
+		.refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid date' })
+		.optional(),
 })
 
 /**
- * Extended schema for creating a new application (includes initial status).
+ * Extended schema for creating a new application (includes required status and appliedAt).
  */
 export const newApplicationSchema = applicationSchema.extend({
-	initialStatus: z.enum([
+	status: z.enum([
 		'Applied',
-		'Phone Screen',
-		'Technical Interview',
-		'On-site Interview',
-		'Offer',
+		'Interviewing',
+		'Offer Received',
+		'Offer Accepted',
+		'Offer Declined',
 		'Rejected',
 		'Withdrawn',
-		'Other',
 	] as [string, ...string[]]),
-	initialStatusDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+	appliedAt: z.string().refine((val) => !isNaN(Date.parse(val)), {
 		message: 'Invalid date',
 	}),
 })

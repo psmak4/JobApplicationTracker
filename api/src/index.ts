@@ -12,7 +12,6 @@ import applicationRoutes from './routes/applications'
 import calendarRoutes from './routes/calendar'
 import eventRoutes from './routes/events'
 import parserRoutes from './routes/parser'
-import statusRoutes from './routes/statuses'
 
 const app = express()
 const PORT = env.PORT
@@ -52,7 +51,6 @@ app.all('/api/auth/*path', ...authProtection, toNodeHandler(auth))
 // API Routes
 app.use('/api/admin', adminRoutes)
 app.use('/api/applications', applicationRoutes)
-app.use('/api/statuses', statusRoutes)
 app.use('/api/events', eventRoutes)
 app.use('/api/calendar', calendarRoutes)
 app.use('/api/parser', parserRoutes)

@@ -1,7 +1,7 @@
 import type { Control, FieldError, FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 import { useWatch } from 'react-hook-form'
-import { WORK_TYPE_OPTIONS } from '@/constants'
-import type { WorkType } from '@/types'
+import { APPLICATION_STATUS_OPTIONS, WORK_TYPE_OPTIONS } from '@/constants'
+import type { ApplicationStatus, WorkType } from '@/types'
 import { Field, FieldError as FieldErrorComponent, FieldGroup, FieldLabel, FieldLegend, FieldSet } from './ui/field'
 import { Input } from './ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
@@ -44,6 +44,8 @@ interface ApplicationFormFieldsProps {
 	companyPlaceholder?: string
 	/** Custom placeholder for job title field */
 	jobTitlePlaceholder?: string
+	/** Show status and appliedAt fields above notes */
+	showStatusFields?: boolean
 }
 
 /**
@@ -71,8 +73,10 @@ export function ApplicationFormFields({
 	urlFieldDisabled = false,
 	companyPlaceholder = 'Acme Inc.',
 	jobTitlePlaceholder = 'Software Engineer',
+	showStatusFields = false,
 }: ApplicationFormFieldsProps) {
 	const currentWorkType = useWatch({ control, name: 'workType' })
+	const currentStatus = useWatch({ control, name: 'status' })
 
 	return (
 		<>
@@ -163,6 +167,38 @@ export function ApplicationFormFields({
 							<FieldErrorComponent errors={[getFieldError(errors.contactInfo)]} />
 						</Field>
 					</div>
+
+					{showStatusFields && (
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<Field>
+								<FieldLabel>Current Status</FieldLabel>
+								<Select
+									value={currentStatus || ''}
+									onValueChange={(value) =>
+										value && setValue('status', value as ApplicationStatus, { shouldDirty: true })
+									}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="Select status" />
+									</SelectTrigger>
+									<SelectContent>
+										{APPLICATION_STATUS_OPTIONS.map((status) => (
+											<SelectItem key={status} value={status}>
+												{status}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								<FieldErrorComponent errors={[getFieldError(errors.status)]} />
+							</Field>
+
+							<Field>
+								<FieldLabel htmlFor="appliedAt">Applied At</FieldLabel>
+								<Input type="date" id="appliedAt" {...register('appliedAt')} />
+								<FieldErrorComponent errors={[getFieldError(errors.appliedAt)]} />
+							</Field>
+						</div>
+					)}
 
 					<Field>
 						<FieldLabel htmlFor="notes">Notes</FieldLabel>

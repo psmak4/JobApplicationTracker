@@ -5,7 +5,6 @@ import { ApplicationDetailsCard } from '@/components/ApplicationDetailsCard'
 import { EventsCard } from '@/components/EventsCard'
 import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
-import { StatusHistoryCard } from '@/components/StatusHistoryCard'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -110,10 +109,9 @@ export default function ApplicationView() {
 					<ApplicationDetailsCard application={application} />
 				</div>
 
-				{/* Right Column: Status History & Events */}
+				{/* Right Column: Events */}
 				<div className="flex flex-col gap-6">
 					<EventsCard application={application} />
-					<StatusHistoryCard application={application} />
 				</div>
 			</div>
 		</div>

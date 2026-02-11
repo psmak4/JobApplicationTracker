@@ -1,4 +1,5 @@
 import { ExternalLink } from 'lucide-react'
+import { ApplicationStatusBadge } from '@/components/ApplicationStatusBadge'
 import type { Application } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 
@@ -14,6 +15,7 @@ export function ApplicationDetailsCard({ application }: ApplicationDetailsCardPr
 		<Card>
 			<CardHeader className="pb-3 flex flex-row items-center justify-between">
 				<CardTitle className="text-lg font-semibold">Application Details</CardTitle>
+				<ApplicationStatusBadge status={application.status} />
 			</CardHeader>
 			<CardContent className="space-y-6">
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -55,12 +57,18 @@ export function ApplicationDetailsCard({ application }: ApplicationDetailsCardPr
 					)}
 					{application.contactInfo && (
 						<div className="space-y-1">
-							<span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-								Contact
-							</span>
+							<span className="text-sm font-medium text-muted-foreground">Contact</span>
 							<p>{application.contactInfo}</p>
 						</div>
 					)}
+					<div className="space-y-1">
+						<span className="text-sm font-medium text-muted-foreground">Date Applied</span>
+						<p>{new Date(application.appliedAt).toLocaleDateString()}</p>
+					</div>
+					<div className="space-y-1">
+						<span className="text-sm font-medium text-muted-foreground">Date Last Updated</span>
+						<p>{new Date(application.statusUpdatedAt).toLocaleDateString()}</p>
+					</div>
 				</div>
 
 				{application.jobDescriptionUrl && (

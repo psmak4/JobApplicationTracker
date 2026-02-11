@@ -2,7 +2,7 @@ import { and, asc, desc, eq, gte, inArray, isNotNull, isNull } from 'drizzle-orm
 import { NextFunction, Request, Response } from 'express'
 import { ZodError, z } from 'zod'
 import { db } from '../db/index'
-import { applicationStatusEnum, applications, calendarEvents, statusHistory } from '../db/schema'
+import { applicationStatusEnum, applications, calendarEvents } from '../db/schema'
 import { getRequestId } from '../utils/request'
 import { errorResponse, successResponse } from '../utils/responses'
 
@@ -34,8 +34,8 @@ const createApplicationSchema = z.object({
 		.string()
 		.optional()
 		.transform((v) => (v ? v.trim() : v)),
-	status: z.enum(applicationStatusEnum.enumValues).default('Applied'), // Initial status
-	date: z.string().optional(),
+	status: z.enum(applicationStatusEnum.enumValues).default('Applied'),
+	appliedAt: z.string().optional(),
 })
 
 const updateApplicationSchema = createApplicationSchema
@@ -43,10 +43,14 @@ const updateApplicationSchema = createApplicationSchema
 	.partial()
 	.extend({
 		status: z.enum(applicationStatusEnum.enumValues).optional(),
+		appliedAt: z.string().optional(),
 	})
 
+// Active statuses shown on the dashboard
+const ACTIVE_STATUSES = ['Applied', 'Interviewing', 'Offer Received'] as const
+
 export const applicationController = {
-	// Lightweight list of applications (no full status history)
+	// Lightweight list of applications (no history joins needed)
 	getList: async (req: Request, res: Response) => {
 		try {
 			const userId = req.user!.id
@@ -63,19 +67,11 @@ export const applicationController = {
 					workType: true,
 					contactInfo: true,
 					notes: true,
+					status: true,
+					appliedAt: true,
+					statusUpdatedAt: true,
 					createdAt: true,
 					updatedAt: true,
-				},
-				with: {
-					statusHistory: {
-						columns: {
-							status: true,
-							date: true,
-							createdAt: true,
-						},
-						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
-						limit: 1,
-					},
 				},
 				orderBy: [asc(applications.company)],
 			})
@@ -121,17 +117,10 @@ export const applicationController = {
 				}
 			}
 
-			const response = applicationList.map((app) => {
-				const { statusHistory: latestStatusHistory, ...appData } = app
-				const latestStatus = latestStatusHistory[0]
-
-				return {
-					...appData,
-					currentStatus: latestStatus?.status ?? null,
-					lastStatusDate: latestStatus?.date ?? null,
-					upcomingEvents: eventsByApplication.get(app.id) ?? [],
-				}
-			})
+			const response = applicationList.map((app) => ({
+				...app,
+				upcomingEvents: eventsByApplication.get(app.id) ?? [],
+			}))
 
 			res.json(successResponse(response, getRequestId(req)))
 		} catch (error) {
@@ -140,14 +129,17 @@ export const applicationController = {
 		}
 	},
 
-	// Active applications list (only Applied and Interviewing status)
+	// Active applications list (Applied, Interviewing, Offer Received)
 	getActiveList: async (req: Request, res: Response) => {
 		try {
 			const userId = req.user!.id
-			const activeStatuses = ['Applied', 'Interviewing'] as const
 
 			const applicationList = await db.query.applications.findMany({
-				where: and(eq(applications.userId, userId), isNull(applications.archivedAt)),
+				where: and(
+					eq(applications.userId, userId),
+					isNull(applications.archivedAt),
+					inArray(applications.status, [...ACTIVE_STATUSES]),
+				),
 				columns: {
 					id: true,
 					company: true,
@@ -158,30 +150,16 @@ export const applicationController = {
 					workType: true,
 					contactInfo: true,
 					notes: true,
+					status: true,
+					appliedAt: true,
+					statusUpdatedAt: true,
 					createdAt: true,
 					updatedAt: true,
-				},
-				with: {
-					statusHistory: {
-						columns: {
-							status: true,
-							date: true,
-							createdAt: true,
-						},
-						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
-						limit: 1,
-					},
 				},
 				orderBy: [asc(applications.company)],
 			})
 
-			// Filter to only include applications with active status
-			const activeApplications = applicationList.filter((app) => {
-				const latestStatus = app.statusHistory[0]?.status
-				return latestStatus && activeStatuses.includes(latestStatus as (typeof activeStatuses)[number])
-			})
-
-			const applicationIds = activeApplications.map((app) => app.id)
+			const applicationIds = applicationList.map((app) => app.id)
 
 			if (applicationIds.length === 0) {
 				res.json(successResponse([], getRequestId(req)))
@@ -222,17 +200,10 @@ export const applicationController = {
 				}
 			}
 
-			const response = activeApplications.map((app) => {
-				const { statusHistory: latestStatusHistory, ...appData } = app
-				const latestStatus = latestStatusHistory[0]
-
-				return {
-					...appData,
-					currentStatus: latestStatus?.status ?? null,
-					lastStatusDate: latestStatus?.date ?? null,
-					upcomingEvents: eventsByApplication.get(app.id) ?? [],
-				}
-			})
+			const response = applicationList.map((app) => ({
+				...app,
+				upcomingEvents: eventsByApplication.get(app.id) ?? [],
+			}))
 
 			res.json(successResponse(response, getRequestId(req)))
 		} catch (error) {
@@ -241,8 +212,7 @@ export const applicationController = {
 		}
 	},
 
-	// Get a single application details (including history and calendar events)
-	// Uses Drizzle relational queries to fetch application, status history, and events in one query
+	// Get a single application details (including calendar events)
 	getOne: async (req: Request, res: Response) => {
 		try {
 			const userId = req.user!.id
@@ -255,9 +225,6 @@ export const applicationController = {
 					isNull(applications.archivedAt),
 				),
 				with: {
-					statusHistory: {
-						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
-					},
 					calendarEvents: {
 						orderBy: [desc(calendarEvents.startTime)],
 					},
@@ -269,7 +236,9 @@ export const applicationController = {
 				return
 			}
 
-			res.json(successResponse(application, getRequestId(req)))
+			// Omit statusHistory from the response
+			const { statusHistory: _sh, ...appData } = application as any
+			res.json(successResponse(appData, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching application:', error)
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch application', getRequestId(req)))
@@ -283,39 +252,26 @@ export const applicationController = {
 			const validation = createApplicationSchema.safeParse(req.body)
 
 			if (!validation.success) {
-				// Let the error handler middleware handle Zod errors for consistent formatting
 				next(validation.error)
 				return
 			}
 
-			const { status, date, ...appData } = validation.data
-			const statusDate = date
-				? new Date(date).toISOString().split('T')[0]
-				: new Date().toISOString().split('T')[0]
+			const { status, appliedAt, ...appData } = validation.data
+			const now = new Date()
+			const appliedAtDate = appliedAt ? new Date(appliedAt) : now
 
-			// Transaction to create app and initial status
-			const result = await db.transaction(async (tx) => {
-				const [newApp] = await tx
-					.insert(applications)
-					.values({
-						...appData,
-						userId,
-					})
-					.returning()
+			const [newApp] = await db
+				.insert(applications)
+				.values({
+					...appData,
+					userId,
+					status,
+					appliedAt: appliedAtDate,
+					statusUpdatedAt: now,
+				})
+				.returning()
 
-				const [initialStatus] = await tx
-					.insert(statusHistory)
-					.values({
-						applicationId: newApp.id,
-						status: status,
-						date: statusDate,
-					})
-					.returning()
-
-				return { ...newApp, currentStatus: initialStatus }
-			})
-
-			res.status(201).json(successResponse(result, getRequestId(req)))
+			res.status(201).json(successResponse(newApp, getRequestId(req)))
 		} catch (error) {
 			if (error instanceof ZodError) {
 				next(error)
@@ -334,7 +290,6 @@ export const applicationController = {
 			const validation = updateApplicationSchema.safeParse(req.body)
 
 			if (!validation.success) {
-				// Let the error handler middleware handle Zod errors for consistent formatting
 				next(validation.error)
 				return
 			}
@@ -349,46 +304,31 @@ export const applicationController = {
 				return
 			}
 
-			const { status, date, ...updateData } = validation.data
+			const { status, appliedAt, ...updateData } = validation.data
+			const now = new Date()
 
-			const updatedApp = await db.transaction(async (tx) => {
-				const [app] = await tx
-					.update(applications)
-					.set({ ...updateData, updatedAt: new Date() })
-					.where(eq(applications.id, applicationId))
-					.returning()
+			// Build the update set
+			const updateSet: Record<string, unknown> = {
+				...updateData,
+				updatedAt: now,
+			}
 
-				if (!app) {
-					return null
-				}
+			// If appliedAt is provided, update it
+			if (appliedAt) {
+				updateSet.appliedAt = new Date(appliedAt)
+			}
 
-				// If status is provided and different from current, add to history
-				// Note: This logic assumes the client sends 'status' only when it changes or wants to force an update.
-				// To be robust, we should check the latest status in DB.
-				if (status) {
-					// Check latest status
-					const [latestStatus] = await tx
-						.select()
-						.from(statusHistory)
-						.where(eq(statusHistory.applicationId, applicationId))
-						.orderBy(desc(statusHistory.date), desc(statusHistory.createdAt))
-						.limit(1)
+			// If status is provided and different from current, update status and statusUpdatedAt
+			if (status && status !== existingApp.status) {
+				updateSet.status = status
+				updateSet.statusUpdatedAt = now
+			}
 
-					if (!latestStatus || latestStatus.status !== status) {
-						const statusDate = date
-							? new Date(date).toISOString().split('T')[0]
-							: new Date().toISOString().split('T')[0]
-
-						await tx.insert(statusHistory).values({
-							applicationId: applicationId,
-							status: status,
-							date: statusDate,
-						})
-					}
-				}
-
-				return app
-			})
+			const [updatedApp] = await db
+				.update(applications)
+				.set(updateSet)
+				.where(eq(applications.id, applicationId))
+				.returning()
 
 			if (!updatedApp) {
 				res.status(404).json(errorResponse('NOT_FOUND', 'Application not found', getRequestId(req)))
@@ -466,35 +406,14 @@ export const applicationController = {
 					id: true,
 					company: true,
 					jobTitle: true,
+					status: true,
 					archivedAt: true,
 					updatedAt: true,
-				},
-				with: {
-					statusHistory: {
-						columns: {
-							status: true,
-							date: true,
-							createdAt: true,
-						},
-						orderBy: [desc(statusHistory.date), desc(statusHistory.createdAt)],
-						limit: 1,
-					},
 				},
 				orderBy: [desc(applications.archivedAt)],
 			})
 
-			const response = applicationList.map((app) => {
-				const { statusHistory: latestStatusHistory, ...appData } = app
-				const latestStatus = latestStatusHistory[0]
-
-				return {
-					...appData,
-					currentStatus: latestStatus?.status ?? null,
-					lastStatusDate: latestStatus?.date ?? null,
-				}
-			})
-
-			res.json(successResponse(response, getRequestId(req)))
+			res.json(successResponse(applicationList, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching archived applications:', error)
 			res.status(500).json(

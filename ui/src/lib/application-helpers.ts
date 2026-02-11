@@ -1,29 +1,17 @@
-import type { ApplicationStatus, ApplicationSummary } from '@/types'
+import { CLOSED_STATUSES } from '@/constants'
+import type { ApplicationStatus } from '@/types'
 
 /**
- * Get the current status from an application summary.
+ * Check if a status is a terminal/closed status.
  */
-export function getCurrentStatus(app: ApplicationSummary): ApplicationStatus | 'Unknown' {
-	return app.currentStatus ?? 'Unknown'
+export function isClosedStatus(status: ApplicationStatus): boolean {
+	return CLOSED_STATUSES.includes(status)
 }
 
 /**
- * Get the last status date from an application summary.
+ * Get the kanban column for a given status.
  */
-export function getLastStatusDate(app: ApplicationSummary): string {
-	return app.lastStatusDate ?? app.updatedAt
-}
-
-/**
- * Get a color class based on how stale an application is.
- */
-export function getStalenessColor(statusDate: string, status: string): string {
-	const isInactive = ['Offer Received', 'Rejected', 'Withdrawn'].includes(status)
-	if (isInactive) return 'text-muted-foreground'
-
-	const daysSinceUpdate = (new Date().getTime() - new Date(statusDate).getTime()) / (1000 * 3600 * 24)
-
-	if (daysSinceUpdate > 14) return 'text-red-500 font-medium'
-	if (daysSinceUpdate > 7) return 'text-yellow-600 font-medium'
-	return 'text-muted-foreground'
+export function getKanbanColumn(status: ApplicationStatus): string {
+	if (CLOSED_STATUSES.includes(status)) return 'Closed'
+	return status
 }

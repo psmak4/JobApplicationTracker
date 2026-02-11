@@ -1,9 +1,17 @@
 import type { AxiosError } from 'axios'
 
-export type ApplicationStatus = 'Applied' | 'Interviewing' | 'Offer Received' | 'Rejected' | 'Withdrawn'
+export type ApplicationStatus =
+	| 'Applied'
+	| 'Interviewing'
+	| 'Offer Received'
+	| 'Offer Accepted'
+	| 'Offer Declined'
+	| 'Rejected'
+	| 'Withdrawn'
 
 export type WorkType = 'Remote' | 'Hybrid' | 'On-site'
 
+/** @deprecated Status history is no longer used. Kept for type compatibility. */
 export interface StatusHistoryEntry {
 	id: string // UUID
 	status: ApplicationStatus
@@ -44,7 +52,9 @@ export interface Application {
 	workType?: WorkType
 	contactInfo?: string
 	notes?: string
-	statusHistory: StatusHistoryEntry[]
+	status: ApplicationStatus
+	appliedAt: string // ISO timestamp
+	statusUpdatedAt: string // ISO timestamp
 	calendarEvents: CalendarEventEntry[]
 	createdAt: string // ISO timestamp
 	updatedAt: string // ISO timestamp
@@ -61,10 +71,11 @@ export interface ApplicationSummary {
 	workType?: WorkType
 	contactInfo?: string
 	notes?: string
+	status: ApplicationStatus
+	appliedAt: string // ISO timestamp
+	statusUpdatedAt: string // ISO timestamp
 	createdAt: string // ISO timestamp
 	updatedAt: string // ISO timestamp
-	currentStatus?: ApplicationStatus | null
-	lastStatusDate?: string | null
 	archivedAt?: string | null
 	upcomingEvents: UpcomingEventEntry[]
 }

@@ -1,63 +1,63 @@
 import { useDraggable } from '@dnd-kit/core'
-import { CSS } from '@dnd-kit/utilities'
+import { MapPin } from 'lucide-react'
 import React from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { useNavigate } from 'react-router-dom'
+import { ApplicationStatusBadge } from '@/components/ApplicationStatusBadge'
+import { useApplicationPrefetch } from '@/hooks/useApplications'
 import type { ApplicationSummary } from '@/types'
 
 interface KanbanCardProps {
 	application: ApplicationSummary
-	onNavigate: (id: string) => void
-	onPrefetch: (id: string) => void
+	isOverlay?: boolean
+	showStatusBadge?: boolean
 }
 
-function KanbanCardComponent({ application, onNavigate, onPrefetch }: KanbanCardProps) {
-	const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+export const KanbanCard = React.memo(function KanbanCard({
+	application,
+	isOverlay = false,
+	showStatusBadge = false,
+}: KanbanCardProps) {
+	const navigate = useNavigate()
+	const prefetch = useApplicationPrefetch()
+	const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
 		id: application.id,
-		data: { application },
 	})
 
-	const style = {
-		transform: CSS.Translate.toString(transform),
-	}
-
 	return (
-		<Card
+		<div
 			ref={setNodeRef}
-			style={style}
-			className={cn(
-				'bg-card cursor-grab active:cursor-grabbing transition-all select-none touch-none hover:-translate-y-1 hover:shadow-md border-l-4 border-l-transparent hover:border-l-primary/50',
-				isDragging && 'opacity-50 shadow-lg ring-2 ring-primary rotate-2',
-			)}
-			onMouseEnter={() => onPrefetch(application.id)}
 			{...listeners}
 			{...attributes}
+			className={`p-3 rounded-md border cursor-grab active:cursor-grabbing transition-all bg-card hover:bg-accent/50 hover:border-primary/30 ${
+				isDragging ? 'opacity-50' : ''
+			} ${isOverlay ? 'shadow-lg ring-2 ring-primary/20' : ''}`}
+			onClick={(e) => {
+				if (!isDragging) {
+					e.preventDefault()
+					navigate(`/applications/${application.id}`)
+				}
+			}}
+			onMouseEnter={() => {
+				prefetch(application.id)
+			}}
 		>
-			<CardContent className="py-3 px-4">
-				{/* Company & Job Title */}
-				<div
-					className="cursor-pointer"
-					onClick={(e) => {
-						e.stopPropagation()
-						onNavigate(application.id)
-					}}
-				>
-					<div className="font-bold text-base leading-tight hover:text-primary transition-colors mb-1">
-						{application.company}
-					</div>
-					<div className="text-sm text-muted-foreground truncate">{application.jobTitle}</div>
-				</div>
-
-				{/* Location & Work Type */}
+			<div className="space-y-1.5">
+				<p className="font-outfit font-bold text-sm leading-tight">{application.company}</p>
+				<p className="text-xs text-muted-foreground leading-snug">{application.jobTitle}</p>
 				{(application.location || application.workType) && (
-					<div className="flex flex-col gap-0.5 text-xs text-muted-foreground/80 pt-2 mt-2 border-t border-border/50">
-						{application.location && <span>{application.location}</span>}
-						{application.workType && <span>{application.workType}</span>}
+					<div className="flex items-center gap-1 text-xs text-muted-foreground">
+						<MapPin className="h-3 w-3 shrink-0" />
+						<span className="truncate">
+							{[application.location, application.workType].filter(Boolean).join(' · ')}
+						</span>
 					</div>
 				)}
-			</CardContent>
-		</Card>
+				{showStatusBadge && (
+					<div className="pt-1">
+						<ApplicationStatusBadge status={application.status} />
+					</div>
+				)}
+			</div>
+		</div>
 	)
-}
-
-export const KanbanCard = React.memo(KanbanCardComponent)
+})

@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Trash2 } from 'lucide-react'
-import { useState } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ApplicationFormFields } from '@/components/ApplicationFormFields'
@@ -23,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useApplication, useDeleteApplication } from '@/hooks/useApplications'
 import { useUpdateApplication } from '@/hooks/useMutations'
 import { type ApplicationFormValues, applicationSchema } from '@/lib/schemas'
+import type { ApplicationStatus } from '@/types'
 
 export default function ApplicationEdit() {
 	const { id } = useParams<{ id: string }>()
@@ -53,6 +53,8 @@ export default function ApplicationEdit() {
 			workType: 'Remote',
 			contactInfo: '',
 			notes: '',
+			status: 'Applied',
+			appliedAt: new Date().toISOString().split('T')[0],
 		},
 	})
 
@@ -67,6 +69,10 @@ export default function ApplicationEdit() {
 				workType: application.workType,
 				contactInfo: application.contactInfo || '',
 				notes: application.notes || '',
+				status: application.status,
+				appliedAt: application.appliedAt
+					? new Date(application.appliedAt).toISOString().split('T')[0]
+					: new Date().toISOString().split('T')[0],
 			})
 		}
 	}, [application, reset])
@@ -84,6 +90,8 @@ export default function ApplicationEdit() {
 			await updateMutation.mutateAsync({
 				...data,
 				workType: data.workType as 'Remote' | 'Hybrid' | 'On-site' | undefined,
+				status: data.status as ApplicationStatus | undefined,
+				appliedAt: data.appliedAt,
 			})
 			navigate(`/applications/${id}`)
 		} catch {
@@ -119,7 +127,9 @@ export default function ApplicationEdit() {
 								control={control}
 								errors={errors}
 								showJobDescriptionUrl={true}
+								showStatusFields={true}
 							/>
+
 							<div className="flex justify-between items-center pt-4 border-t">
 								<AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
 									<AlertDialogTrigger

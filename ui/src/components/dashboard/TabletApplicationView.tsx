@@ -1,54 +1,43 @@
-import { useMemo } from 'react'
-import { APPLICATION_STATUS_OPTIONS } from '@/constants'
-import { getCurrentStatus } from '@/lib/application-helpers'
-import type { ApplicationStatus, ApplicationSummary } from '@/types'
+import React from 'react'
+import { KANBAN_COLUMNS, type KanbanColumn } from '@/constants'
+import { getKanbanColumn } from '@/lib/application-helpers'
+import type { ApplicationSummary } from '@/types'
 import { TabletApplicationSection } from './TabletApplicationSection'
 
 interface TabletApplicationViewProps {
 	applications: ApplicationSummary[]
-	onNavigate: (id: string) => void
-	onPrefetch: (id: string) => void
-	onStatusChange: (applicationId: string, newStatus: ApplicationStatus) => void
 }
 
-export function TabletApplicationView({
+export const TabletApplicationView = React.memo(function TabletApplicationView({
 	applications,
-	onNavigate,
-	onPrefetch,
-	onStatusChange,
 }: TabletApplicationViewProps) {
-	// Group applications by status
-	const applicationsByStatus = useMemo(() => {
-		const grouped: Record<ApplicationStatus, ApplicationSummary[]> = {
+	// Group applications by kanban column
+	const groupedApplications = React.useMemo(() => {
+		const groups: Record<KanbanColumn, ApplicationSummary[]> = {
 			Applied: [],
 			Interviewing: [],
 			'Offer Received': [],
-			Rejected: [],
-			Withdrawn: [],
+			Closed: [],
 		}
-
 		for (const app of applications) {
-			const status = getCurrentStatus(app)
-			if (status in grouped) {
-				grouped[status as ApplicationStatus].push(app)
+			const column = getKanbanColumn(app.status)
+			if (column in groups) {
+				groups[column as KanbanColumn].push(app)
 			}
 		}
-
-		return grouped
+		return groups
 	}, [applications])
 
 	return (
 		<div className="space-y-3">
-			{APPLICATION_STATUS_OPTIONS.map((status) => (
+			{KANBAN_COLUMNS.map((column) => (
 				<TabletApplicationSection
-					key={status}
-					status={status}
-					applications={applicationsByStatus[status]}
-					onNavigate={onNavigate}
-					onPrefetch={onPrefetch}
-					onStatusChange={onStatusChange}
+					key={column}
+					status={column}
+					applications={groupedApplications[column]}
+					showStatusBadge={column === 'Closed'}
 				/>
 			))}
 		</div>
 	)
-}
+})

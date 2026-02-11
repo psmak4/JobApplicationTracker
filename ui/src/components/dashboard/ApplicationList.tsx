@@ -1,5 +1,4 @@
-import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
-import { getCurrentStatus } from '@/lib/application-helpers'
+import { ApplicationStatusBadge } from '@/components/ApplicationStatusBadge'
 import { cn } from '@/lib/utils'
 import type { ApplicationSummary } from '@/types'
 import { EmptyState } from './EmptyState'
@@ -24,7 +23,6 @@ export function ApplicationList({
 	return (
 		<div className="rounded-lg border bg-card divide-y">
 			{applications.map((app) => {
-				const currentStatus = getCurrentStatus(app)
 				const isHighlighted = highlightedApplicationId === app.id
 
 				return (
@@ -55,7 +53,7 @@ export function ApplicationList({
 
 								{/* Status Badge */}
 								<div className="flex flex-col gap-2 items-end">
-									<ApplicationStatusBadge currentStatus={currentStatus} />
+									<ApplicationStatusBadge status={app.status} />
 									<div className="text-xs text-muted-foreground text-nowrap flex gap-1">
 										<span>{app.location}</span> • <span>{app.workType}</span>
 									</div>

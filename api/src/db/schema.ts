@@ -6,6 +6,8 @@ export const applicationStatusEnum = pgEnum('application_status', [
 	'Applied',
 	'Interviewing',
 	'Offer Received',
+	'Offer Accepted',
+	'Offer Declined',
 	'Rejected',
 	'Withdrawn',
 ])
@@ -88,6 +90,10 @@ export const applications = pgTable(
 		workType: workTypeEnum('work_type'),
 		contactInfo: text('contact_info'),
 		notes: text('notes'),
+		// Direct status fields (replaces status history lookups)
+		status: applicationStatusEnum('status').notNull().default('Applied'),
+		appliedAt: timestamp('applied_at').notNull().defaultNow(),
+		statusUpdatedAt: timestamp('status_updated_at').notNull().defaultNow(),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 		updatedAt: timestamp('updated_at').notNull().defaultNow(),
 		archivedAt: timestamp('archived_at'),
@@ -95,6 +101,8 @@ export const applications = pgTable(
 	(table) => [
 		// Index for filtering applications by user
 		index('applications_user_id_idx').on(table.userId),
+		// Index for filtering by status
+		index('applications_status_idx').on(table.status),
 		// Index for sorting by updatedAt (descending order is most common)
 		index('applications_updated_at_idx').on(table.updatedAt),
 		// Index for filtering archived applications
@@ -102,7 +110,10 @@ export const applications = pgTable(
 	],
 )
 
-// Status History table - using text id
+/**
+ * @deprecated Status history is no longer read or written to.
+ * Kept for historical data preservation only.
+ */
 export const statusHistory = pgTable(
 	'status_history',
 	{
@@ -148,10 +159,13 @@ export const calendarEvents = pgTable(
 )
 
 export const applicationsRelations = relations(applications, ({ many }) => ({
+	/** @deprecated Kept for schema compatibility only */
+
 	statusHistory: many(statusHistory),
 	calendarEvents: many(calendarEvents),
 }))
 
+/** @deprecated Status history relations are no longer used */
 export const statusHistoryRelations = relations(statusHistory, ({ one }) => ({
 	application: one(applications, {
 		fields: [statusHistory.applicationId],

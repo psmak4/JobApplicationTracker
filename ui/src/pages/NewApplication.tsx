@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Sparkles, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ApplicationFormFields } from '@/components/ApplicationFormFields'
@@ -18,8 +18,6 @@ import {
 	FieldSet,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { APPLICATION_STATUS_OPTIONS } from '@/constants'
 import { useCreateApplication } from '@/hooks/useMutations'
 import apiClient from '@/lib/api-client'
 import { getErrorMessage, isAxiosError, isRateLimitError } from '@/lib/error-utils'
@@ -67,13 +65,12 @@ export default function NewApplication() {
 			workType: 'Remote',
 			contactInfo: '',
 			notes: '',
-			initialStatus: 'Applied',
-			initialStatusDate: new Date().toISOString().split('T')[0],
+			status: 'Applied',
+			appliedAt: new Date().toISOString().split('T')[0],
 		},
 	})
 
 	const jobDescriptionUrl = watch('jobDescriptionUrl')
-	const currentStatus = useWatch({ control, name: 'initialStatus' })
 
 	const handleCancelParse = () => {
 		if (abortControllerRef.current) {
@@ -181,8 +178,8 @@ export default function NewApplication() {
 				workType: data.workType as WorkType | undefined,
 				contactInfo: data.contactInfo || undefined,
 				notes: data.notes || undefined,
-				status: data.initialStatus as ApplicationStatus,
-				date: data.initialStatusDate,
+				status: data.status as ApplicationStatus,
+				appliedAt: data.appliedAt,
 			})
 			navigate('/')
 		} catch {
@@ -274,47 +271,8 @@ export default function NewApplication() {
 								control={control}
 								errors={errors}
 								showJobDescriptionUrl={false}
+								showStatusFields={true}
 							/>
-
-							{/* Status section (only for new applications) */}
-							<FieldSet>
-								<FieldLegend>Status</FieldLegend>
-								<FieldGroup>
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<Field>
-											<FieldLabel>Initial Status</FieldLabel>
-											<Select
-												onValueChange={(value) =>
-													setValue('initialStatus', value as ApplicationStatus)
-												}
-												value={currentStatus}
-											>
-												<SelectTrigger>
-													<SelectValue placeholder="Select status" />
-												</SelectTrigger>
-												<SelectContent>
-													{APPLICATION_STATUS_OPTIONS.map((status) => (
-														<SelectItem key={status} value={status}>
-															{status}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											<FieldError errors={[errors.initialStatus]} />
-										</Field>
-
-										<Field>
-											<FieldLabel htmlFor="initialStatusDate">Date</FieldLabel>
-											<Input
-												type="date"
-												id="initialStatusDate"
-												{...register('initialStatusDate')}
-											/>
-											<FieldError errors={[errors.initialStatusDate]} />
-										</Field>
-									</div>
-								</FieldGroup>
-							</FieldSet>
 
 							<div className="flex justify-end space-x-4">
 								<Button variant="outline" type="button" onClick={() => navigate('/')}>

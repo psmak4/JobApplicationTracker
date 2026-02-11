@@ -1,7 +1,7 @@
 import { ArchiveRestore, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import ApplicationStatusBadge from '@/components/ApplicationStatusBadge'
+import { ApplicationStatusBadge } from '@/components/ApplicationStatusBadge'
 import { LoadingFallback } from '@/components/LoadingSpinner'
 import PageHeader from '@/components/PageHeader'
 import {
@@ -99,7 +99,7 @@ export default function ApplicationArchive() {
 										<td className="p-4 align-middle font-medium">{app.company}</td>
 										<td className="p-4 align-middle">{app.jobTitle}</td>
 										<td className="p-4 align-middle hidden md:table-cell">
-											<ApplicationStatusBadge currentStatus={app.currentStatus!} />
+											<ApplicationStatusBadge status={app.status} />
 										</td>
 										<td className="p-4 align-middle">
 											<div className="flex flex-col gap-1">

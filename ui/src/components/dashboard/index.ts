@@ -1,4 +1,5 @@
 export { ApplicationList } from './ApplicationList'
+export { ClosedStatusModal } from './ClosedStatusModal'
 export { EmptyState } from './EmptyState'
 export { KanbanBoard } from './KanbanBoard'
 export { ResponsiveApplicationView } from './ResponsiveApplicationView'

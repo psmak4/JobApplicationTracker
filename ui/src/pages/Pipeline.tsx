@@ -1,45 +1,15 @@
 import { Plus } from 'lucide-react'
-import { useCallback } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
 import { ResponsiveApplicationView } from '@/components/dashboard'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { useApplicationPrefetch, useApplications } from '@/hooks/useApplications'
-import { useAddStatusDynamic } from '@/hooks/useMutations'
+import { useApplications } from '@/hooks/useApplications'
 import { cn } from '@/lib/utils'
-import type { ApplicationStatus } from '@/types'
 
 export default function JobBoard() {
-	const navigate = useNavigate()
 	const { data: applications = [], isLoading, error } = useApplications()
-	const prefetchApplication = useApplicationPrefetch()
-	const addStatusMutation = useAddStatusDynamic()
-
-	// Navigation handlers
-	const handleNavigate = useCallback(
-		(id: string) => {
-			navigate(`/applications/${id}`)
-		},
-		[navigate],
-	)
-
-	const handlePrefetch = useCallback(
-		(id: string) => {
-			prefetchApplication(id)
-		},
-		[prefetchApplication],
-	)
-
-	// Status change handler for kanban board
-	const handleStatusChange = useCallback(
-		(applicationId: string, newStatus: ApplicationStatus) => {
-			const today = new Date().toLocaleDateString('en-CA')
-			addStatusMutation.mutate({ applicationId, status: newStatus, date: today })
-		},
-		[addStatusMutation],
-	)
 
 	// Loading and error states
 	if (isLoading) return <QueryLoading text="Loading applications..." />
@@ -69,12 +39,7 @@ export default function JobBoard() {
 			{/* Kanban Board */}
 			<Card>
 				<CardContent>
-					<ResponsiveApplicationView
-						applications={applications}
-						onNavigate={handleNavigate}
-						onPrefetch={handlePrefetch}
-						onStatusChange={handleStatusChange}
-					/>
+					<ResponsiveApplicationView applications={applications} />
 				</CardContent>
 			</Card>
 		</div>

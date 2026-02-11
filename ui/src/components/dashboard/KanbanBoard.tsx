@@ -1,43 +1,33 @@
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
-import { useCallback, useMemo, useState } from 'react'
-import { APPLICATION_STATUS_OPTIONS } from '@/constants'
-import { getCurrentStatus } from '@/lib/application-helpers'
+import {
+	DndContext,
+	type DragEndEvent,
+	DragOverlay,
+	type DragStartEvent,
+	PointerSensor,
+	closestCenter,
+	useSensor,
+	useSensors,
+} from '@dnd-kit/core'
+import React, { useCallback, useMemo, useState } from 'react'
+import { KANBAN_COLUMNS, type KanbanColumn } from '@/constants'
+import { useUpdateStatusDynamic } from '@/hooks/useMutations'
+import { getKanbanColumn } from '@/lib/application-helpers'
 import type { ApplicationStatus, ApplicationSummary } from '@/types'
+import { ClosedStatusModal } from './ClosedStatusModal'
 import { KanbanCard } from './KanbanCard'
-import { KanbanColumn } from './KanbanColumn'
+import { KanbanColumn as KanbanColumnComponent } from './KanbanColumn'
 
 interface KanbanBoardProps {
 	applications: ApplicationSummary[]
-	onNavigate: (id: string) => void
-	onPrefetch: (id: string) => void
-	onStatusChange: (applicationId: string, newStatus: ApplicationStatus) => void
 }
 
-export function KanbanBoard({ applications, onNavigate, onPrefetch, onStatusChange }: KanbanBoardProps) {
-	const [activeApplication, setActiveApplication] = useState<ApplicationSummary | null>(null)
+export const KanbanBoard = React.memo(function KanbanBoard({ applications }: KanbanBoardProps) {
+	const statusMutation = useUpdateStatusDynamic()
+	const [activeId, setActiveId] = useState<string | null>(null)
+	const [pendingClosedDrop, setPendingClosedDrop] = useState<{
+		applicationId: string
+	} | null>(null)
 
-	// Group applications by status
-	const applicationsByStatus = useMemo(() => {
-		const grouped: Record<ApplicationStatus, ApplicationSummary[]> = {
-			Applied: [],
-			Interviewing: [],
-			'Offer Received': [],
-			Rejected: [],
-			Withdrawn: [],
-		}
-
-		for (const app of applications) {
-			const status = getCurrentStatus(app)
-			if (status in grouped) {
-				grouped[status as ApplicationStatus].push(app)
-			}
-		}
-
-		return grouped
-	}, [applications])
-
-	// Configure pointer sensor with activation constraint to prevent accidental drags
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
 			activationConstraint: {
@@ -46,60 +36,105 @@ export function KanbanBoard({ applications, onNavigate, onPrefetch, onStatusChan
 		}),
 	)
 
-	const handleDragStart = useCallback((event: DragStartEvent) => {
-		const { active } = event
-		const application = active.data.current?.application as ApplicationSummary | undefined
-		if (application) {
-			setActiveApplication(application)
+	// Group applications by kanban column
+	const groupedApplications = useMemo(() => {
+		const groups: Record<KanbanColumn, ApplicationSummary[]> = {
+			Applied: [],
+			Interviewing: [],
+			'Offer Received': [],
+			Closed: [],
 		}
+		for (const app of applications) {
+			const column = getKanbanColumn(app.status)
+			if (column in groups) {
+				groups[column as KanbanColumn].push(app)
+			}
+		}
+		return groups
+	}, [applications])
+
+	const activeApplication = useMemo(() => applications.find((app) => app.id === activeId), [applications, activeId])
+
+	const handleDragStart = useCallback((event: DragStartEvent) => {
+		setActiveId(event.active.id as string)
 	}, [])
 
 	const handleDragEnd = useCallback(
 		(event: DragEndEvent) => {
+			setActiveId(null)
 			const { active, over } = event
-			setActiveApplication(null)
-
 			if (!over) return
 
 			const applicationId = active.id as string
-			const newStatus = over.id as ApplicationStatus
-			const application = applications.find((app) => app.id === applicationId)
+			const targetColumn = over.id as KanbanColumn
 
-			if (!application) return
+			// Find the application
+			const app = applications.find((a) => a.id === applicationId)
+			if (!app) return
 
-			const currentStatus = getCurrentStatus(application)
-			if (currentStatus === newStatus) return
+			// Determine current column
+			const currentColumn = getKanbanColumn(app.status)
+			if (currentColumn === targetColumn) return
 
-			// Trigger status update via callback
-			onStatusChange(applicationId, newStatus)
+			if (targetColumn === 'Closed') {
+				// Show modal to select terminal status
+				setPendingClosedDrop({ applicationId })
+			} else {
+				// Direct status update for non-closed columns
+				statusMutation.mutate({
+					applicationId,
+					status: targetColumn as ApplicationStatus,
+				})
+			}
 		},
-		[applications, onStatusChange],
+		[applications, statusMutation],
 	)
 
+	const handleClosedStatusConfirm = useCallback(
+		(status: ApplicationStatus) => {
+			if (pendingClosedDrop) {
+				statusMutation.mutate({
+					applicationId: pendingClosedDrop.applicationId,
+					status,
+				})
+			}
+			setPendingClosedDrop(null)
+		},
+		[pendingClosedDrop, statusMutation],
+	)
+
+	const handleClosedStatusCancel = useCallback(() => {
+		setPendingClosedDrop(null)
+	}, [])
+
 	return (
-		<DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-			<div className="overflow-x-auto pb-4 -mx-6 px-6">
-				<div className="flex gap-4 min-w-max">
-					{APPLICATION_STATUS_OPTIONS.map((status) => (
-						<KanbanColumn
-							key={status}
-							status={status}
-							applications={applicationsByStatus[status]}
-							onNavigate={onNavigate}
-							onPrefetch={onPrefetch}
+		<>
+			<DndContext
+				sensors={sensors}
+				collisionDetection={closestCenter}
+				onDragStart={handleDragStart}
+				onDragEnd={handleDragEnd}
+			>
+				<div className="grid grid-cols-4 gap-4 min-h-[400px]">
+					{KANBAN_COLUMNS.map((column) => (
+						<KanbanColumnComponent
+							key={column}
+							id={column}
+							title={column}
+							applications={groupedApplications[column]}
+							showStatusBadge={column === 'Closed'}
 						/>
 					))}
 				</div>
-			</div>
-
-			{/* Drag Overlay - shows the card being dragged */}
-			<DragOverlay>
-				{activeApplication && (
-					<div className="opacity-90 rotate-2">
-						<KanbanCard application={activeApplication} onNavigate={() => {}} onPrefetch={() => {}} />
-					</div>
-				)}
-			</DragOverlay>
-		</DndContext>
+				<DragOverlay>
+					{activeApplication ? <KanbanCard application={activeApplication} isOverlay /> : null}
+				</DragOverlay>
+			</DndContext>
+			<ClosedStatusModal
+				open={!!pendingClosedDrop}
+				onConfirm={handleClosedStatusConfirm}
+				onCancel={handleClosedStatusCancel}
+			/>
+		</>
 	)
-}
+})
