@@ -2,6 +2,13 @@ import { Briefcase } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { useSession } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
+import {
+	NavigationMenu,
+	NavigationMenuItem,
+	NavigationMenuLink,
+	NavigationMenuList,
+	navigationMenuTriggerStyle,
+} from '../ui/navigation-menu'
 import { AdminNav } from './AdminNav'
 import { mainNavItems } from './nav-config'
 
@@ -19,21 +26,31 @@ export function MainNav() {
 				</div>
 				<span className="hidden font-bold font-heading text-2xl sm:inline-block">Job Application Tracker</span>
 			</Link>
-			<nav className="flex items-center gap-6 text-sm font-medium">
-				{mainNavItems.map((item) => (
-					<Link
-						key={item.url}
-						to={item.url}
-						className={cn(
-							'transition-colors hover:text-foreground/80',
-							location.pathname === item.url ? 'text-foreground' : 'text-foreground/60',
-						)}
-					>
-						{item.title}
-					</Link>
-				))}
-				{isAdmin && <AdminNav />}
-			</nav>
+			<NavigationMenu>
+				<NavigationMenuList>
+					{mainNavItems.map((item) => (
+						<NavigationMenuItem key={item.url}>
+							<NavigationMenuLink
+								render={
+									<Link
+										to={item.url}
+										className={cn(
+											navigationMenuTriggerStyle(),
+											'text-lg transition-colors hover:text-foreground/80',
+											location.pathname === item.url
+												? 'text-foreground font-bold'
+												: 'text-foreground/60',
+										)}
+									>
+										{item.title}
+									</Link>
+								}
+							/>
+						</NavigationMenuItem>
+					))}
+					{isAdmin && <AdminNav />}
+				</NavigationMenuList>
+			</NavigationMenu>
 		</div>
 	)
 }
