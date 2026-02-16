@@ -59,7 +59,6 @@ export interface Application {
 	location?: string // City, State
 	workType?: WorkType
 	contactInfo?: string
-	notes?: string // @deprecated - kept temporarily for migration
 	status: ApplicationStatus
 	appliedAt: string // ISO timestamp
 	statusUpdatedAt: string // ISO timestamp

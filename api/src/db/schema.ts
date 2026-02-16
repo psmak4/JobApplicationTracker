@@ -89,7 +89,6 @@ export const applications = pgTable(
 		location: varchar('location', { length: 255 }),
 		workType: workTypeEnum('work_type'),
 		contactInfo: text('contact_info'),
-		notes: text('notes'),
 		// Direct status fields (replaces status history lookups)
 		status: applicationStatusEnum('status').notNull().default('Applied'),
 		appliedAt: timestamp('applied_at').notNull().defaultNow(),
