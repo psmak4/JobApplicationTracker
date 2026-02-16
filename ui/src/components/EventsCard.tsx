@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { type EventItem, EventList } from '@/components/EventList'
 import { type CalendarEvent, useCalendarEvents } from '@/hooks/useCalendar'
 import { useAddEvent, useDeleteEvent } from '@/hooks/useEvents'
+import { formatDate } from '@/lib/utils'
 import type { Application } from '@/types'
 import {
 	AlertDialog,
@@ -171,10 +172,7 @@ export function EventsCard({ application }: EventsCardProps) {
 													<div className="font-medium truncate">{event.title}</div>
 													<div className="text-xs text-muted-foreground">
 														{!event.isAllDay && event.start
-															? new Date(event.start).toLocaleTimeString([], {
-																	hour: 'numeric',
-																	minute: '2-digit',
-																})
+															? formatDate(event.start, 'time')
 															: 'All Day'}
 													</div>
 												</div>

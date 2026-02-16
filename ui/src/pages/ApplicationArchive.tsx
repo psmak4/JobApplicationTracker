@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useArchivedApplications } from '@/hooks/useApplications'
 import { useRestoreApplication } from '@/hooks/useMutations'
+import { formatDate } from '@/lib/utils'
 
 export default function ApplicationArchive() {
 	const { data: applications, isLoading, isError } = useArchivedApplications()
@@ -105,14 +106,7 @@ export default function ApplicationArchive() {
 											<div className="flex flex-col gap-1">
 												<div className="flex items-center gap-2 text-sm text-muted-foreground">
 													<CalendarIcon className="h-3 w-3" />
-													{app.archivedAt
-														? new Intl.DateTimeFormat('en-US', {
-																month: 'short',
-																day: 'numeric',
-																year: 'numeric',
-																dayPeriod: undefined,
-															}).format(new Date(app.archivedAt))
-														: 'Unknown'}
+													{app.archivedAt ? formatDate(app.archivedAt, 'short') : 'Unknown'}
 												</div>
 											</div>
 										</td>

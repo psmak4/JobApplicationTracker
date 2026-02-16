@@ -46,6 +46,7 @@ import {
 	useSetUserRole,
 	useUnbanUser,
 } from '@/hooks/useAdmin'
+import { formatDate } from '@/lib/utils'
 
 // Memoized user row component for performance
 const UserRow = React.memo(function UserRow({
@@ -117,13 +118,7 @@ const UserRow = React.memo(function UserRow({
 					)}
 				</div>
 			</td>
-			<td className="py-4 px-4 text-sm text-muted-foreground">
-				{new Date(user.createdAt).toLocaleDateString('en-US', {
-					year: 'numeric',
-					month: 'short',
-					day: 'numeric',
-				})}
-			</td>
+			<td className="py-4 px-4 text-sm text-muted-foreground">{formatDate(user.createdAt, 'short')}</td>
 			<td className="py-4 px-4">
 				<DropdownMenu>
 					<DropdownMenuTrigger

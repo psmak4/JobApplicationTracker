@@ -2,7 +2,7 @@ import { ExternalLink, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, formatDate } from '@/lib/utils'
 
 export interface EventItem {
 	id: string
@@ -79,11 +79,7 @@ export function EventList({
 		if (date.toDateString() === today.toDateString()) return 'Today'
 		if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow'
 
-		return date.toLocaleDateString(undefined, {
-			weekday: 'long',
-			month: 'long',
-			day: 'numeric',
-		})
+		return formatDate(date, 'weekday')
 	}
 
 	return (
@@ -122,10 +118,7 @@ export function EventList({
 										>
 											{/* Time */}
 											<div className="w-16 shrink-0 text-xs font-medium text-muted-foreground text-right tabular-nums">
-												{new Date(event.startTime).toLocaleTimeString(undefined, {
-													hour: 'numeric',
-													minute: '2-digit',
-												})}
+												{formatDate(event.startTime, 'time')}
 											</div>
 
 											{/* Event Info */}

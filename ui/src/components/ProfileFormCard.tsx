@@ -7,6 +7,7 @@ import { useCalendarStatus, useDisconnectCalendar } from '@/hooks/useCalendar'
 import { useUpdateProfile } from '@/hooks/useProfile'
 import { authClient } from '@/lib/auth-client'
 import { type ProfileFormValues, profileSchema } from '@/lib/schemas'
+import { formatDate } from '@/lib/utils'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from './ui/field'
@@ -141,12 +142,7 @@ export function ProfileFormCard({ user }: ProfileFormCardProps) {
 					{/* Member Since */}
 					<div className="pt-4 border-t border-border">
 						<p className="text-sm text-muted-foreground">
-							Member since{' '}
-							{new Date(user.createdAt).toLocaleDateString('en-US', {
-								year: 'numeric',
-								month: 'long',
-								day: 'numeric',
-							})}
+							Member since {formatDate(user.createdAt, 'long')}
 						</p>
 					</div>
 

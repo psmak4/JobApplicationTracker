@@ -1,7 +1,7 @@
 import { MessageSquarePlus, StickyNote, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useAddNote, useDeleteNote } from '@/hooks/useNotes'
-import { formatDisplayDate } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 import type { Application } from '@/types'
 import {
 	AlertDialog,
@@ -145,7 +145,7 @@ export function NotesCard({ application }: NotesCardProps) {
 									className="group relative p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
 								>
 									<span className="text-xs text-muted-foreground">
-										{formatDisplayDate(note.createdAt)}
+										{formatDate(note.createdAt, 'long')}
 									</span>
 									<div className="whitespace-pre-wrap text-sm leading-relaxed pr-8 mt-1">
 										{note.content}

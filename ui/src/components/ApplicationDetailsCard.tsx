@@ -1,4 +1,5 @@
 import { Briefcase, Building2, Calendar, Clock, DollarSign, ExternalLink, Laptop, MapPin, User } from 'lucide-react'
+import { formatDate } from '@/lib/utils'
 import type { Application } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Separator } from './ui/separator'
@@ -50,20 +51,12 @@ export function ApplicationDetailsCard({ application }: ApplicationDetailsCardPr
 					<DetailField
 						icon={Calendar}
 						label="Date Applied"
-						value={new Date(application.appliedAt).toLocaleDateString(undefined, {
-							year: 'numeric',
-							month: 'long',
-							day: 'numeric',
-						})}
+						value={formatDate(application.appliedAt, 'long')}
 					/>
 					<DetailField
 						icon={Clock}
 						label="Last Updated"
-						value={new Date(application.statusUpdatedAt).toLocaleDateString(undefined, {
-							year: 'numeric',
-							month: 'long',
-							day: 'numeric',
-						})}
+						value={formatDate(application.statusUpdatedAt, 'long')}
 					/>
 				</div>
 
