@@ -70,7 +70,7 @@ export default function Dashboard() {
 									<Link
 										to="/new"
 										className={cn(
-											buttonVariants({ variant: 'default' }),
+											buttonVariants({ variant: 'default', size: 'sm' }),
 											'flex items-center gap-2 group transition-all duration-300 hover:scale-105 hover:shadow-lg',
 										)}
 										aria-label="Create new application"
