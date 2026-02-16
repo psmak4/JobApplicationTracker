@@ -31,6 +31,14 @@ export interface CalendarEventEntry {
 	createdAt: string // ISO timestamp
 }
 
+// Note linked to an application
+export interface NoteEntry {
+	id: string // UUID
+	applicationId: string
+	content: string
+	createdAt: string // ISO timestamp
+}
+
 // Upcoming event for dashboard display (includes application context)
 export interface UpcomingEventEntry {
 	id: string
@@ -51,11 +59,12 @@ export interface Application {
 	location?: string // City, State
 	workType?: WorkType
 	contactInfo?: string
-	notes?: string
+	notes?: string // @deprecated - kept temporarily for migration
 	status: ApplicationStatus
 	appliedAt: string // ISO timestamp
 	statusUpdatedAt: string // ISO timestamp
 	calendarEvents: CalendarEventEntry[]
+	noteEntries: NoteEntry[]
 	createdAt: string // ISO timestamp
 	updatedAt: string // ISO timestamp
 	archivedAt?: string | null
@@ -70,7 +79,6 @@ export interface ApplicationSummary {
 	location?: string // City, State
 	workType?: WorkType
 	contactInfo?: string
-	notes?: string
 	status: ApplicationStatus
 	appliedAt: string // ISO timestamp
 	statusUpdatedAt: string // ISO timestamp

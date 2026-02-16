@@ -13,7 +13,6 @@ export interface CreateApplicationData {
 	location?: string
 	workType?: WorkType
 	contactInfo?: string
-	notes?: string
 	status: ApplicationStatus
 	appliedAt?: string
 }

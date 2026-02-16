@@ -52,7 +52,6 @@ export default function ApplicationEdit() {
 			location: '',
 			workType: 'Remote',
 			contactInfo: '',
-			notes: '',
 			status: 'Applied',
 			appliedAt: new Date().toISOString().split('T')[0],
 		},
@@ -68,7 +67,6 @@ export default function ApplicationEdit() {
 				location: application.location || '',
 				workType: application.workType,
 				contactInfo: application.contactInfo || '',
-				notes: application.notes || '',
 				status: application.status,
 				appliedAt: application.appliedAt
 					? new Date(application.appliedAt).toISOString().split('T')[0]

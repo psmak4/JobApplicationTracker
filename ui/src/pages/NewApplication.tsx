@@ -64,7 +64,6 @@ export default function NewApplication() {
 			location: '',
 			workType: 'Remote',
 			contactInfo: '',
-			notes: '',
 			status: 'Applied',
 			appliedAt: new Date().toISOString().split('T')[0],
 		},
@@ -177,7 +176,6 @@ export default function NewApplication() {
 				location: data.location || undefined,
 				workType: data.workType as WorkType | undefined,
 				contactInfo: data.contactInfo || undefined,
-				notes: data.notes || undefined,
 				status: data.status as ApplicationStatus,
 				appliedAt: data.appliedAt,
 			})

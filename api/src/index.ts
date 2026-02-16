@@ -11,6 +11,7 @@ import adminRoutes from './routes/admin'
 import applicationRoutes from './routes/applications'
 import calendarRoutes from './routes/calendar'
 import eventRoutes from './routes/events'
+import noteRoutes from './routes/notes'
 import parserRoutes from './routes/parser'
 
 const app = express()
@@ -52,6 +53,7 @@ app.all('/api/auth/*path', ...authProtection, toNodeHandler(auth))
 app.use('/api/admin', adminRoutes)
 app.use('/api/applications', applicationRoutes)
 app.use('/api/events', eventRoutes)
+app.use('/api/notes', noteRoutes)
 app.use('/api/calendar', calendarRoutes)
 app.use('/api/parser', parserRoutes)
 app.get('/', (_, res) => {

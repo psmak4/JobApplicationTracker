@@ -2,7 +2,7 @@ import { and, asc, desc, eq, gte, inArray, isNotNull, isNull } from 'drizzle-orm
 import { NextFunction, Request, Response } from 'express'
 import { ZodError, z } from 'zod'
 import { db } from '../db/index'
-import { applicationStatusEnum, applications, calendarEvents } from '../db/schema'
+import { applicationStatusEnum, applications, calendarEvents, notes } from '../db/schema'
 import { getRequestId } from '../utils/request'
 import { errorResponse, successResponse } from '../utils/responses'
 
@@ -27,10 +27,6 @@ const createApplicationSchema = z.object({
 		.transform((v) => (v ? v.trim() : v)),
 	workType: z.enum(['Remote', 'Hybrid', 'On-site']).optional(),
 	contactInfo: z
-		.string()
-		.optional()
-		.transform((v) => (v ? v.trim() : v)),
-	notes: z
 		.string()
 		.optional()
 		.transform((v) => (v ? v.trim() : v)),
@@ -66,7 +62,6 @@ export const applicationController = {
 					location: true,
 					workType: true,
 					contactInfo: true,
-					notes: true,
 					status: true,
 					appliedAt: true,
 					statusUpdatedAt: true,
@@ -149,7 +144,6 @@ export const applicationController = {
 					location: true,
 					workType: true,
 					contactInfo: true,
-					notes: true,
 					status: true,
 					appliedAt: true,
 					statusUpdatedAt: true,
@@ -228,6 +222,9 @@ export const applicationController = {
 					calendarEvents: {
 						orderBy: [desc(calendarEvents.startTime)],
 					},
+					notes: {
+						orderBy: [desc(notes.createdAt)],
+					},
 				},
 			})
 
@@ -236,9 +233,9 @@ export const applicationController = {
 				return
 			}
 
-			// Omit statusHistory from the response
-			const { statusHistory: _sh, ...appData } = application as any
-			res.json(successResponse(appData, getRequestId(req)))
+			// Omit statusHistory from the response and rename notes relation to noteEntries
+			const { statusHistory: _sh, notes: noteEntries, ...appData } = application as any
+			res.json(successResponse({ ...appData, noteEntries }, getRequestId(req)))
 		} catch (error) {
 			console.error('Error fetching application:', error)
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch application', getRequestId(req)))

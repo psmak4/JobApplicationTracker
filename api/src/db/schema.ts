@@ -158,11 +158,30 @@ export const calendarEvents = pgTable(
 	],
 )
 
+// Notes table - linked to applications
+export const notes = pgTable(
+	'notes',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		applicationId: text('application_id')
+			.notNull()
+			.references(() => applications.id, { onDelete: 'cascade' }),
+		content: text('content').notNull(),
+		createdAt: timestamp('created_at').notNull().defaultNow(),
+	},
+	(table) => [
+		index('notes_application_id_idx').on(table.applicationId),
+		index('notes_created_at_idx').on(table.createdAt),
+	],
+)
+
 export const applicationsRelations = relations(applications, ({ many }) => ({
 	/** @deprecated Kept for schema compatibility only */
-
 	statusHistory: many(statusHistory),
 	calendarEvents: many(calendarEvents),
+	notes: many(notes),
 }))
 
 /** @deprecated Status history relations are no longer used */
@@ -180,6 +199,13 @@ export const calendarEventsRelations = relations(calendarEvents, ({ one }) => ({
 	}),
 }))
 
+export const notesRelations = relations(notes, ({ one }) => ({
+	application: one(applications, {
+		fields: [notes.applicationId],
+		references: [applications.id],
+	}),
+}))
+
 // Types for TypeScript
 export type User = typeof user.$inferSelect
 export type NewUser = typeof user.$inferInsert
@@ -189,3 +215,5 @@ export type StatusHistory = typeof statusHistory.$inferSelect
 export type NewStatusHistory = typeof statusHistory.$inferInsert
 export type CalendarEvent = typeof calendarEvents.$inferSelect
 export type NewCalendarEvent = typeof calendarEvents.$inferInsert
+export type Note = typeof notes.$inferSelect
+export type NewNote = typeof notes.$inferInsert

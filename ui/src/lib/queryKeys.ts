@@ -42,3 +42,8 @@ export const eventQueryKeys = {
 	/** Events for a specific application */
 	byApplication: (applicationId: string) => ['events', applicationId] as const,
 }
+
+export const noteQueryKeys = {
+	/** Notes for a specific application */
+	byApplication: (applicationId: string) => ['notes', applicationId] as const,
+}

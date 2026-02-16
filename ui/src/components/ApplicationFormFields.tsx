@@ -5,7 +5,6 @@ import type { ApplicationStatus, WorkType } from '@/types'
 import { Field, FieldError as FieldErrorComponent, FieldGroup, FieldLabel, FieldLegend, FieldSet } from './ui/field'
 import { Input } from './ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
-import { Textarea } from './ui/textarea'
 
 /**
  * Base form values for application forms.
@@ -19,7 +18,6 @@ export interface ApplicationFormFieldsValues {
 	location?: string
 	workType?: string
 	contactInfo?: string
-	notes?: string
 }
 
 interface ApplicationFormFieldsProps {
@@ -199,17 +197,6 @@ export function ApplicationFormFields({
 							</Field>
 						</div>
 					)}
-
-					<Field>
-						<FieldLabel htmlFor="notes">Notes</FieldLabel>
-						<Textarea
-							id="notes"
-							placeholder="Interview details, follow-up dates, or any other relevant information..."
-							{...register('notes')}
-							rows={4}
-						/>
-						<FieldErrorComponent errors={[getFieldError(errors.notes)]} />
-					</Field>
 				</FieldGroup>
 			</FieldSet>
 		</>

@@ -1,15 +1,4 @@
-import {
-	Briefcase,
-	Building2,
-	Calendar,
-	Clock,
-	DollarSign,
-	ExternalLink,
-	Laptop,
-	MapPin,
-	StickyNote,
-	User,
-} from 'lucide-react'
+import { Briefcase, Building2, Calendar, Clock, DollarSign, ExternalLink, Laptop, MapPin, User } from 'lucide-react'
 import type { Application } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Separator } from './ui/separator'
@@ -97,22 +86,6 @@ export function ApplicationDetailsCard({ application }: ApplicationDetailsCardPr
 									{new URL(application.jobDescriptionUrl).hostname}
 								</span>
 							</a>
-						</div>
-					</>
-				)}
-
-				{/* Notes */}
-				{application.notes && (
-					<>
-						<Separator />
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<StickyNote className="h-4 w-4 text-muted-foreground" />
-								<span className="text-sm font-medium text-muted-foreground">Notes</span>
-							</div>
-							<div className="p-4 bg-muted/30 rounded-lg border whitespace-pre-wrap text-sm leading-relaxed">
-								{application.notes}
-							</div>
 						</div>
 					</>
 				)}

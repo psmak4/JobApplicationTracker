@@ -12,7 +12,6 @@ export const applicationSchema = z.object({
 	location: z.string().optional(),
 	workType: z.enum(['Remote', 'Hybrid', 'On-site'] as [string, ...string[]]).optional(),
 	contactInfo: z.string().optional(),
-	notes: z.string().optional(),
 	status: z
 		.enum([
 			'Applied',
