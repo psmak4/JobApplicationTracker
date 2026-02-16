@@ -61,9 +61,9 @@ export default function Dashboard() {
 				<EmptyState />
 			) : (
 				<>
-					<div className="flex flex-col-reverse lg:flex-row gap-6 justify-center">
+					<div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
 						{/* Main Content */}
-						<div className="min-w-0 flex-1">
+						<div className="min-w-0">
 							<Card>
 								<CardHeader className="pb-3 flex items-center justify-between">
 									<CardTitle className="text-lg font-semibold">Active Applications</CardTitle>
@@ -90,15 +90,10 @@ export default function Dashboard() {
 							</Card>
 						</div>
 
-						{/* Sidebar */}
-						{upcomingEvents.length > 0 && (
-							<div>
-								<UpcomingEvents
-									events={upcomingEvents}
-									onHoverApplication={setHighlightedApplicationId}
-								/>
-							</div>
-						)}
+						{/* Sidebar - Always visible */}
+						<div>
+							<UpcomingEvents events={upcomingEvents} onHoverApplication={setHighlightedApplicationId} />
+						</div>
 					</div>
 				</>
 			)}

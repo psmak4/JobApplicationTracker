@@ -1,4 +1,4 @@
-import { type EventItem, EventList } from '@/components/EventList'
+import { EventList } from '@/components/EventList'
 
 export interface UpcomingEvent {
 	id: string
@@ -20,18 +20,12 @@ interface UpcomingEventsProps {
  * Uses the shared EventList component with application context
  */
 export function UpcomingEvents({ events, onHoverApplication }: UpcomingEventsProps) {
-	if (events.length === 0) return null
-
-	// Transform to EventItem format for the shared EventList component
-	const eventItems: EventItem[] = events.map((event) => ({
-		id: event.id,
-		title: event.title,
-		startTime: event.startTime,
-		url: event.url,
-		applicationId: event.applicationId,
-		company: event.company,
-		jobTitle: event.jobTitle,
-	}))
-
-	return <EventList title="Upcoming Events" events={eventItems} onHoverApplication={onHoverApplication} />
+	return (
+		<EventList
+			title="Upcoming Events"
+			events={events}
+			onHoverApplication={onHoverApplication}
+			emptyMessage="No upcoming events. Add interviews or meetings to your applications to see them here."
+		/>
+	)
 }
