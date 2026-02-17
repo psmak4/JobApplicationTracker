@@ -1,5 +1,5 @@
 import { useDroppable } from '@dnd-kit/core'
-import type { KanbanColumn as KanbanColumnType } from '@/constants'
+import { type KanbanColumn as KanbanColumnType, STATUS_THEME } from '@/constants'
 import type { ApplicationSummary } from '@/types'
 import { KanbanCard } from './KanbanCard'
 
@@ -11,10 +11,10 @@ interface KanbanColumnProps {
 }
 
 const COLUMN_HEADER_COLORS: Record<KanbanColumnType, string> = {
-	Applied: 'bg-[#8BE9FD]/20 text-[#036A96] dark:text-[#8BE9FD]',
-	Interviewing: 'bg-[#BD93F9]/20 text-[#644AC9] dark:text-[#BD93F9]',
-	'Offer Received': 'bg-[#F1FA8C]/20 text-[#8B7E00] dark:text-[#F1FA8C]',
-	Closed: 'bg-[#6272A4]/20 text-[#6272A4] dark:text-[#9CA3D0]',
+	Applied: `${STATUS_THEME.Applied.solid} text-white`,
+	Interviewing: `${STATUS_THEME.Interviewing.solid} text-white`,
+	'Offer Received': `${STATUS_THEME['Offer Received'].solid} text-white`,
+	Closed: `${STATUS_THEME.Withdrawn.solid} text-white`,
 }
 
 export function KanbanColumn({ id, title, applications, showStatusBadge = false }: KanbanColumnProps) {

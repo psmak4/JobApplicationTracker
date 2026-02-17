@@ -1,4 +1,4 @@
-import { STATUS_COLORS } from '@/constants'
+import { STATUS_THEME } from '@/constants'
 import type { ApplicationStatus } from '@/types'
 import { Badge } from './ui/badge'
 
@@ -7,7 +7,7 @@ interface ApplicationStatusBadgeProps {
 }
 
 export function ApplicationStatusBadge({ status }: ApplicationStatusBadgeProps) {
-	const colors = STATUS_COLORS[status]
+	const colors = STATUS_THEME[status].badge
 
 	return (
 		<Badge

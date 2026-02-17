@@ -6,7 +6,6 @@ import { ApplicationHero } from '@/components/ApplicationHero'
 import { EventsCard } from '@/components/EventsCard'
 import { NotesCard } from '@/components/NotesCard'
 import { QueryError, QueryLoading } from '@/components/QueryState'
-import { StatusTimeline } from '@/components/StatusTimeline'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -108,9 +107,6 @@ export default function ApplicationView() {
 					</>
 				}
 			/>
-
-			{/* Status Timeline */}
-			<StatusTimeline status={application.status} />
 
 			{/* Content Grid */}
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
