@@ -1,4 +1,4 @@
-import { Archive, Edit } from 'lucide-react'
+import { Archive, ArrowLeft, Edit } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ApplicationDetailsCard } from '@/components/ApplicationDetailsCard'
@@ -52,6 +52,17 @@ export default function ApplicationView() {
 
 	return (
 		<div className="space-y-6">
+			{/* Back Link */}
+			<div>
+				<Link
+					to="/pipeline"
+					className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+				>
+					<ArrowLeft className="h-4 w-4 mr-2" />
+					Back to Pipeline
+				</Link>
+			</div>
+
 			{/* Hero Section */}
 			<ApplicationHero
 				application={application}

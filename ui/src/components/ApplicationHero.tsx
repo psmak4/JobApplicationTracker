@@ -1,10 +1,9 @@
-import { ArrowLeft, Calendar, Clock } from 'lucide-react'
+import { Calendar, Clock } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 import { ApplicationStatusBadge } from '@/components/ApplicationStatusBadge'
 import { STATUS_ACCENT_COLORS } from '@/constants'
+import { formatDate } from '@/lib/utils'
 import type { Application } from '@/types'
-import { Button } from './ui/button'
 
 interface ApplicationHeroProps {
 	application: Application
@@ -36,46 +35,27 @@ export function ApplicationHero({ application, actions }: ApplicationHeroProps) 
 			className={`relative rounded-xl border ${accent.border} bg-linear-to-r ${accent.gradient} overflow-hidden transition-colors duration-300`}
 		>
 			<div className="px-6 py-5">
-				{/* Top row: Back + Actions */}
-				<div className="flex items-center justify-between mb-4">
-					<Button
-						render={
-							<Link to="/pipeline">
-								<ArrowLeft className="h-4 w-4 mr-2" />
-								Pipeline
-							</Link>
-						}
-						variant="ghost"
-						size="sm"
-						nativeButton={false}
-						aria-label="Back to pipeline"
-					/>
-					{actions && <div className="flex items-center gap-2">{actions}</div>}
+				{/* Company & Actions Row */}
+				<div className="flex items-start justify-between gap-4">
+					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{application.company}</h1>
+					{actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
 				</div>
 
-				{/* Main content */}
-				<div className="flex flex-col sm:flex-row sm:items-start gap-4">
-					{/* Company & Title */}
-					<div className="flex-1 min-w-0">
-						<h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">
-							{application.company}
-						</h1>
-						<p className="text-lg text-muted-foreground mt-0.5 truncate">{application.jobTitle}</p>
-					</div>
-
-					{/* Status Badge — larger */}
-					<div className="shrink-0">
-						<ApplicationStatusBadge status={application.status} />
-					</div>
+				{/* Job Title & Status Row */}
+				<div className="flex items-center gap-3 mt-1.5 flex-wrap">
+					<p className="text-lg text-muted-foreground truncate">{application.jobTitle}</p>
+					<ApplicationStatusBadge status={application.status} />
 				</div>
 
 				{/* Stat pills */}
 				<div className="flex flex-wrap gap-3 mt-4">
 					<div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/60 backdrop-blur-sm border text-sm text-muted-foreground">
 						<Calendar className="h-3.5 w-3.5" />
-						<span>
-							Applied{' '}
-							<span className="font-medium text-foreground">{formatTimeAgo(application.appliedAt)}</span>
+						<span className="flex items-center gap-1">
+							Applied
+							<span className="font-medium text-foreground">
+								{formatDate(application.appliedAt, 'long')}
+							</span>
 						</span>
 					</div>
 					<div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/60 backdrop-blur-sm border text-sm text-muted-foreground">
