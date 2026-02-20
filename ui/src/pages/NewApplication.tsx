@@ -276,7 +276,7 @@ export default function NewApplication() {
 								<Button variant="outline" type="button" onClick={() => navigate('/')}>
 									Cancel
 								</Button>
-								<Button type="submit" disabled={isSubmitting}>
+								<Button type="submit" disabled={isSubmitting} className="btn-primary-gradient">
 									Save Application
 								</Button>
 							</div>

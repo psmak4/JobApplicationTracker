@@ -59,7 +59,7 @@ export const KanbanCard = React.memo(function KanbanCard({
 				ref={setNodeRef}
 				{...listeners}
 				{...attributes}
-				className={`p-3 rounded-md border cursor-grab active:cursor-grabbing transition-all bg-card hover:bg-accent/50 hover:border-primary/30 ${
+				className={`p-3 card-interactive cursor-grab active:cursor-grabbing hover:border-primary/30 ${
 					isDragging ? 'opacity-50' : ''
 				} ${isOverlay ? 'shadow-lg ring-2 ring-primary/20' : ''}`}
 				onClick={(e) => {

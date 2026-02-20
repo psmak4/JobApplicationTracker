@@ -30,7 +30,7 @@ export default function Profile() {
 		<div className="space-y-6">
 			<PageHeader title="Profile Settings" subtitle="Manage your account information" />
 
-			<div className="max-w-2xl mx-auto space-y-6">
+			<div className="flex flex-col md:flex-row gap-6 items-start">
 				<ProfileFormCard user={user} />
 				<ChangePasswordCard />
 			</div>

@@ -1,13 +1,11 @@
-import { Plus } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import NewApplicationLink from '@/components/NewApplicationLink'
 import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
 import { ApplicationList, EmptyState, UpcomingEvents } from '@/components/dashboard'
-import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useActiveApplications, useApplicationPrefetch } from '@/hooks/useApplications'
-import { cn } from '@/lib/utils'
 
 export default function Dashboard() {
 	const navigate = useNavigate()
@@ -64,20 +62,10 @@ export default function Dashboard() {
 					<div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
 						{/* Main Content */}
 						<div className="min-w-0">
-							<Card>
+							<Card className="shadow-xl">
 								<CardHeader className="pb-3 flex items-center justify-between">
 									<CardTitle className="text-lg font-semibold">Active Applications</CardTitle>
-									<Link
-										to="/new"
-										className={cn(
-											buttonVariants({ variant: 'default', size: 'sm' }),
-											'flex items-center gap-2 group transition-all duration-300 hover:scale-105 hover:shadow-lg',
-										)}
-										aria-label="Create new application"
-									>
-										<Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />{' '}
-										New Application
-									</Link>
+									<NewApplicationLink size="sm" />
 								</CardHeader>
 								<CardContent>
 									<ApplicationList

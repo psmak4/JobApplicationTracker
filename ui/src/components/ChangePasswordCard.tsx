@@ -44,7 +44,7 @@ export function ChangePasswordCard() {
 	}
 
 	return (
-		<Card>
+		<Card className="shadow-xl grow w-full">
 			<CardHeader>
 				<div className="flex items-center gap-3">
 					<div className="h-10 w-10 rounded-lg bg-linear-to-br from-orange-500/20 to-orange-500/5 flex items-center justify-center">

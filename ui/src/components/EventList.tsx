@@ -83,7 +83,7 @@ export function EventList({
 	}
 
 	return (
-		<Card>
+		<Card className="shadow-xl">
 			<CardHeader className="pb-3 flex flex-row items-center justify-between">
 				<CardTitle className="text-lg font-semibold">{title}</CardTitle>
 				{headerAction ? (

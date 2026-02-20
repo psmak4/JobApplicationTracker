@@ -69,7 +69,7 @@ export default function ApplicationArchive() {
 					</CardContent>
 				</Card>
 			) : (
-				<div className="rounded-md border bg-card">
+				<div className="rounded-md border bg-card shadow-xl">
 					<div className="w-full overflow-auto">
 						<table className="w-full caption-bottom text-sm">
 							<thead className="[&_tr]:border-b">

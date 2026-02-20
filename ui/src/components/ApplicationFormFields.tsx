@@ -89,6 +89,7 @@ export function ApplicationFormFields({
 								placeholder="https://linkedin.com/jobs/..."
 								{...register('jobDescriptionUrl')}
 								disabled={urlFieldDisabled}
+								className="input-glow"
 							/>
 							<FieldErrorComponent errors={[getFieldError(errors.jobDescriptionUrl)]} />
 						</Field>
@@ -105,7 +106,12 @@ export function ApplicationFormFields({
 							<FieldLabel htmlFor="company">
 								Company <span className="text-red-500">*</span>
 							</FieldLabel>
-							<Input id="company" placeholder={companyPlaceholder} {...register('company')} />
+							<Input
+								id="company"
+								placeholder={companyPlaceholder}
+								{...register('company')}
+								className="input-glow"
+							/>
 							<FieldErrorComponent errors={[getFieldError(errors.company)]} />
 						</Field>
 
@@ -113,7 +119,12 @@ export function ApplicationFormFields({
 							<FieldLabel htmlFor="jobTitle">
 								Job Title <span className="text-red-500">*</span>
 							</FieldLabel>
-							<Input id="jobTitle" placeholder={jobTitlePlaceholder} {...register('jobTitle')} />
+							<Input
+								id="jobTitle"
+								placeholder={jobTitlePlaceholder}
+								{...register('jobTitle')}
+								className="input-glow"
+							/>
 							<FieldErrorComponent errors={[getFieldError(errors.jobTitle)]} />
 						</Field>
 					</div>
@@ -121,13 +132,23 @@ export function ApplicationFormFields({
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<Field>
 							<FieldLabel htmlFor="location">Location</FieldLabel>
-							<Input id="location" placeholder="City, State or Remote" {...register('location')} />
+							<Input
+								id="location"
+								placeholder="City, State or Remote"
+								{...register('location')}
+								className="input-glow"
+							/>
 							<FieldErrorComponent errors={[getFieldError(errors.location)]} />
 						</Field>
 
 						<Field>
 							<FieldLabel htmlFor="salary">Salary Range</FieldLabel>
-							<Input id="salary" placeholder="e.g., $100k - $150k" {...register('salary')} />
+							<Input
+								id="salary"
+								placeholder="e.g., $100k - $150k"
+								{...register('salary')}
+								className="input-glow"
+							/>
 							<FieldErrorComponent errors={[getFieldError(errors.salary)]} />
 						</Field>
 					</div>
@@ -161,6 +182,7 @@ export function ApplicationFormFields({
 								id="contactInfo"
 								placeholder="Recruiter email, phone, or LinkedIn"
 								{...register('contactInfo')}
+								className="input-glow"
 							/>
 							<FieldErrorComponent errors={[getFieldError(errors.contactInfo)]} />
 						</Field>
@@ -192,7 +214,7 @@ export function ApplicationFormFields({
 
 							<Field>
 								<FieldLabel htmlFor="appliedAt">Applied At</FieldLabel>
-								<Input type="date" id="appliedAt" {...register('appliedAt')} />
+								<Input type="date" id="appliedAt" {...register('appliedAt')} className="input-glow" />
 								<FieldErrorComponent errors={[getFieldError(errors.appliedAt)]} />
 							</Field>
 						</div>

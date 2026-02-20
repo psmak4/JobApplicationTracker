@@ -1,0 +1,437 @@
+/*
+ * Design System 2.0 - Component Utilities
+ * 
+ * Pre-built component patterns and utility classes for common UI elements.
+ * Import this after your main index.css file.
+ * 
+ * Usage: @import './design-utilities.css';
+ */
+
+@layer components {
+	/* ============================================
+	   CARD PATTERNS
+	   ============================================ */
+
+	/* Base card with elevation */
+	.card-elevated {
+		@apply bg-card rounded-lg border border-border;
+		box-shadow: var(--shadow-sm);
+		transition: all var(--transition-base) var(--ease-smooth);
+	}
+
+	.card-elevated:hover {
+		box-shadow: var(--shadow-md);
+		/* transform: translateY(-1px); */
+	}
+
+	/* Interactive card */
+	.card-interactive {
+		@apply bg-card rounded-lg border border-border cursor-pointer;
+		box-shadow: var(--shadow-sm);
+		transition: all var(--transition-base) var(--ease-smooth);
+	}
+
+	.card-interactive:hover {
+		box-shadow: var(--shadow-lg);
+		transform: translateY(-2px);
+		@apply border-primary/20;
+	}
+
+	.card-interactive:active {
+		transform: translateY(0);
+		box-shadow: var(--shadow-sm);
+	}
+
+	/* Flat card (subtle) */
+	.card-flat {
+		@apply bg-card rounded-lg border border-border;
+	}
+
+	/* Gradient card */
+	.card-gradient {
+		@apply rounded-lg border border-border;
+		background: linear-gradient(135deg, var(--card) 0%, var(--muted) 100%);
+		box-shadow: var(--shadow-sm);
+	}
+
+	/* ============================================
+	   BADGE PATTERNS
+	   ============================================ */
+
+	/* Enhanced status badges with subtle gradients */
+	.badge-status {
+		@apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium;
+		transition: all var(--transition-fast) var(--ease-smooth);
+	}
+
+	/* Blue (Applied) */
+	.badge-blue {
+		@apply bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/10;
+	}
+
+	.dark .badge-blue {
+		@apply bg-blue-500/10 text-blue-400 ring-blue-500/20;
+	}
+
+	/* Purple (Interviewing) */
+	.badge-purple {
+		@apply bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-600/10;
+	}
+
+	.dark .badge-purple {
+		@apply bg-purple-500/10 text-purple-400 ring-purple-500/20;
+	}
+
+	/* Amber (Offer Received) */
+	.badge-amber {
+		@apply bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/10;
+	}
+
+	.dark .badge-amber {
+		@apply bg-amber-500/10 text-amber-400 ring-amber-500/20;
+	}
+
+	/* Green (Success/Accepted) */
+	.badge-green {
+		@apply bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/10;
+	}
+
+	.dark .badge-green {
+		@apply bg-green-500/10 text-green-400 ring-green-500/20;
+	}
+
+	/* Red (Rejected) */
+	.badge-red {
+		@apply bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/10;
+	}
+
+	.dark .badge-red {
+		@apply bg-red-500/10 text-red-400 ring-red-500/20;
+	}
+
+	/* Orange (Declined) */
+	.badge-orange {
+		@apply bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-600/10;
+	}
+
+	.dark .badge-orange {
+		@apply bg-orange-500/10 text-orange-400 ring-orange-500/20;
+	}
+
+	/* Slate (Withdrawn/Neutral) */
+	.badge-slate {
+		@apply bg-slate-50 text-slate-700 ring-1 ring-inset ring-slate-600/10;
+	}
+
+	.dark .badge-slate {
+		@apply bg-slate-500/10 text-slate-400 ring-slate-500/20;
+	}
+
+	/* Badge with dot indicator */
+	.badge-with-dot::before {
+		content: '';
+		@apply inline-block w-1.5 h-1.5 rounded-full;
+	}
+
+	.badge-blue.badge-with-dot::before {
+		@apply bg-blue-600;
+	}
+
+	.dark .badge-blue.badge-with-dot::before {
+		@apply bg-blue-400;
+	}
+
+	.badge-purple.badge-with-dot::before {
+		@apply bg-purple-600;
+	}
+
+	.dark .badge-purple.badge-with-dot::before {
+		@apply bg-purple-400;
+	}
+
+	.badge-amber.badge-with-dot::before {
+		@apply bg-amber-600;
+	}
+
+	.dark .badge-amber.badge-with-dot::before {
+		@apply bg-amber-400;
+	}
+
+	.badge-green.badge-with-dot::before {
+		@apply bg-green-600;
+	}
+
+	.dark .badge-green.badge-with-dot::before {
+		@apply bg-green-400;
+	}
+
+	.badge-red.badge-with-dot::before {
+		@apply bg-red-600;
+	}
+
+	.dark .badge-red.badge-with-dot::before {
+		@apply bg-red-400;
+	}
+
+	.badge-orange.badge-with-dot::before {
+		@apply bg-orange-600;
+	}
+
+	.dark .badge-orange.badge-with-dot::before {
+		@apply bg-orange-400;
+	}
+
+	.badge-slate.badge-with-dot::before {
+		@apply bg-slate-600;
+	}
+
+	.dark .badge-slate.badge-with-dot::before {
+		@apply bg-slate-400;
+	}
+
+	/* ============================================
+	   BUTTON ENHANCEMENTS
+	   ============================================ */
+
+	/* Primary button with gradient on hover */
+	.btn-primary-gradient {
+		@apply bg-primary text-primary-foreground hover:opacity-90;
+		transition: all var(--transition-base) var(--ease-smooth);
+	}
+
+	.btn-primary-gradient:hover {
+		background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+		box-shadow: var(--shadow-md);
+		transform: translateY(-1px);
+	}
+
+	.btn-primary-gradient:active {
+		transform: translateY(0);
+		box-shadow: var(--shadow-sm);
+	}
+
+	/* ============================================
+	   STATUS BARS & INDICATORS
+	   ============================================ */
+
+	/* Status bar for kanban/list items */
+	.status-bar {
+		@apply absolute left-0 top-0 bottom-0 w-1 rounded-l-lg;
+		transition: width var(--transition-base) var(--ease-smooth);
+	}
+
+	.status-bar-blue {
+		@apply bg-blue-600;
+	}
+
+	.dark .status-bar-blue {
+		@apply bg-blue-400;
+	}
+
+	.status-bar-purple {
+		@apply bg-purple-600;
+	}
+
+	.dark .status-bar-purple {
+		@apply bg-purple-400;
+	}
+
+	.status-bar-amber {
+		@apply bg-amber-600;
+	}
+
+	.dark .status-bar-amber {
+		@apply bg-amber-400;
+	}
+
+	.status-bar-green {
+		@apply bg-green-600;
+	}
+
+	.dark .status-bar-green {
+		@apply bg-green-400;
+	}
+
+	.status-bar-red {
+		@apply bg-red-600;
+	}
+
+	.dark .status-bar-red {
+		@apply bg-red-400;
+	}
+
+	.status-bar-orange {
+		@apply bg-orange-600;
+	}
+
+	.dark .status-bar-orange {
+		@apply bg-orange-400;
+	}
+
+	.status-bar-slate {
+		@apply bg-slate-600;
+	}
+
+	.dark .status-bar-slate {
+		@apply bg-slate-400;
+	}
+
+	/* Hover effect for status bars */
+	.group:hover .status-bar {
+		@apply w-2;
+	}
+
+	/* ============================================
+	   HERO SECTIONS
+	   ============================================ */
+
+	/* Hero card with gradient background */
+	.hero-card {
+		@apply rounded-xl border p-6;
+		background: linear-gradient(135deg, var(--card) 0%, var(--muted) 100%);
+		box-shadow: var(--shadow-lg);
+	}
+
+	/* Hero with status color accent */
+	.hero-blue {
+		@apply border-blue-200 dark:border-blue-500/30;
+		background: linear-gradient(135deg, var(--card) 0%, rgba(59, 130, 246, 0.03) 100%);
+	}
+
+	.dark .hero-blue {
+		background: linear-gradient(135deg, var(--card) 0%, rgba(96, 165, 250, 0.05) 100%);
+	}
+
+	.hero-purple {
+		@apply border-purple-200 dark:border-purple-500/30;
+		background: linear-gradient(135deg, var(--card) 0%, rgba(139, 92, 246, 0.03) 100%);
+	}
+
+	.dark .hero-purple {
+		background: linear-gradient(135deg, var(--card) 0%, rgba(167, 139, 250, 0.05) 100%);
+	}
+
+	/* ============================================
+	   LOADING & SKELETON STATES
+	   ============================================ */
+
+	/* Skeleton loader with shimmer effect */
+	.skeleton {
+		@apply bg-muted rounded animate-pulse;
+	}
+
+	.skeleton-shimmer {
+		@apply relative overflow-hidden bg-muted rounded;
+	}
+
+	.skeleton-shimmer::after {
+		content: '';
+		@apply absolute inset-0;
+		background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+		animation: shimmer 2s infinite;
+	}
+
+	.dark .skeleton-shimmer::after {
+		background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+	}
+
+	@keyframes shimmer {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
+	/* ============================================
+	   DIVIDERS & SEPARATORS
+	   ============================================ */
+
+	/* Gradient divider */
+	.divider-gradient {
+		@apply h-px w-full;
+		background: linear-gradient(90deg, transparent 0%, var(--border) 50%, transparent 100%);
+	}
+
+	/* ============================================
+	   INPUT ENHANCEMENTS
+	   ============================================ */
+
+	/* Input with focus glow */
+	.input-glow {
+		@apply border-border focus:border-primary;
+		transition: all var(--transition-base) var(--ease-smooth);
+	}
+
+	.input-glow:focus {
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+
+	.dark .input-glow:focus {
+		box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+	}
+
+	/* ============================================
+	   SCROLL ENHANCEMENTS
+	   ============================================ */
+
+	/* Custom scrollbar */
+	.scrollbar-custom {
+		scrollbar-width: thin;
+		scrollbar-color: var(--muted) transparent;
+	}
+
+	.scrollbar-custom::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
+
+	.scrollbar-custom::-webkit-scrollbar-track {
+		@apply bg-transparent;
+	}
+
+	.scrollbar-custom::-webkit-scrollbar-thumb {
+		@apply bg-muted rounded-full;
+	}
+
+	.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+		@apply bg-muted-foreground/30;
+	}
+
+	/* ============================================
+	   EMPTY STATES
+	   ============================================ */
+
+	/* Empty state container */
+	.empty-state {
+		@apply flex flex-col items-center justify-center py-12 px-4;
+		@apply text-center text-muted-foreground;
+	}
+
+	.empty-state-icon {
+		@apply w-16 h-16 mb-4 opacity-40;
+	}
+
+	/* ============================================
+	   NOTIFICATION PATTERNS
+	   ============================================ */
+
+	/* Toast/notification with elevation */
+	.notification {
+		@apply bg-card border border-border rounded-lg p-4;
+		box-shadow: var(--shadow-xl);
+		animation: slideIn 0.3s var(--ease-smooth);
+	}
+
+	@keyframes slideIn {
+		from {
+			transform: translateY(-100%);
+			opacity: 0;
+		}
+		to {
+			transform: translateY(0);
+			opacity: 1;
+		}
+	}
+}

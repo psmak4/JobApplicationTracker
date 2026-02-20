@@ -9,7 +9,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
 	return (
-		<div className="relative flex min-h-screen flex-col bg-background">
+		<div className="relative flex min-h-screen flex-col">
 			<SiteHeader />
 			<main className="flex-1">
 				<div className="container mx-auto py-6 px-2">{children ?? <Outlet />}</div>

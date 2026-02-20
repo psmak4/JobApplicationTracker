@@ -171,7 +171,11 @@ export default function ApplicationEdit() {
 									>
 										Cancel
 									</Button>
-									<Button type="submit" disabled={!isDirty || isSubmitting}>
+									<Button
+										type="submit"
+										disabled={!isDirty || isSubmitting}
+										className="btn-primary-gradient"
+									>
 										{isSubmitting ? 'Saving...' : 'Save Changes'}
 									</Button>
 								</div>

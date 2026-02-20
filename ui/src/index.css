@@ -7,111 +7,166 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Dracula Theme Color Palette
+ * Professional Blue Theme - Design System 2.0
  * 
- * Light Mode (Alucard):
- *   Background: #FFFBEB
- *   Foreground: #1F1F1F
- *   Current Line: #CFCFDE
- *   Comment: #6C664B
- *   Primary (Purple): #644AC9
- *   Pink: #A3144D
- *   Cyan: #036A96
- *   Green: #14710A
- *   Orange: #A34D14
- *   Red: #CB3A2A
- *   Yellow: #846E15
- *
- * Dark Mode (Dracula Classic):
- *   Background: #282A36
- *   Foreground: #F8F8F2
- *   Current Line: #44475A
- *   Comment: #6272A4
- *   Primary (Purple): #BD93F9
- *   Pink: #FF79C6
- *   Cyan: #8BE9FD
- *   Green: #50FA7B
- *   Orange: #FFB86C
- *   Red: #FF5555
- *   Yellow: #F1FA8C
- *   Feature: Outfit Font for headings
+ * Enhanced with:
+ * - Warmer neutrals for reduced eye strain
+ * - Sophisticated elevation system with layered shadows
+ * - Subtle gradients for depth and visual interest
+ * - Refined spacing and typography
+ * - Smooth transitions and micro-interactions
+ * - Accessible color contrasts
  */
 
 :root {
-	--background: #fafafa;
-	--foreground: #18181b;
-	--card: #ffffff;
-	--card-foreground: #18181b;
-	--popover: #ffffff;
-	--popover-foreground: #18181b;
-	--primary: #644ac9;
-	--primary-foreground: #fafafa;
-	--secondary: #f4f4f5;
-	--secondary-foreground: #18181b;
-	--muted: #f4f4f5;
-	--muted-foreground: #71717a;
-	--accent: #f4f4f5;
-	--accent-foreground: #18181b;
-	--destructive: #cb3a2a;
-	--destructive-foreground: #fafafa;
-	--border: #e4e4e7;
-	--input: #e4e4e7;
-	--ring: #644ac9;
-	--chart-1: #644ac9;
-	--chart-2: #a3144d;
-	--chart-3: #036a96;
-	--chart-4: #14710a;
-	--chart-5: #a34d14;
-	--radius: 0.625rem;
-	--sidebar: #f4f4f5;
-	--sidebar-foreground: #18181b;
-	--sidebar-primary: #644ac9;
-	--sidebar-primary-foreground: #fafafa;
-	--sidebar-accent: #e4e4e7;
-	--sidebar-accent-foreground: #18181b;
-	--sidebar-border: #e4e4e7;
-	--sidebar-ring: #644ac9;
+	/* Core colors - warmer neutrals */
+	--background: #fafbfc;
+	--foreground: #0f172a;
 
+	/* Surface colors with subtle warmth */
+	--card: #ffffff;
+	--card-foreground: #0f172a;
+	--popover: #ffffff;
+	--popover-foreground: #0f172a;
+
+	/* Brand colors with gradient support */
+	--primary: #3b82f6;
+	--primary-foreground: #ffffff;
+	--primary-hover: #2563eb;
+	--primary-light: #60a5fa;
+
+	/* Neutral colors */
+	--secondary: #f1f5f9;
+	--secondary-foreground: #0f172a;
+	--muted: #f8fafc;
+	--muted-foreground: #64748b;
+	--accent: #eff6ff;
+	--accent-foreground: #1e40af;
+
+	/* Semantic colors */
+	--destructive: #ef4444;
+	--destructive-foreground: #ffffff;
+	--success: #10b981;
+	--success-foreground: #ffffff;
+	--warning: #f59e0b;
+	--warning-foreground: #ffffff;
+	--info: #3b82f6;
+	--info-foreground: #ffffff;
+
+	/* Interactive elements */
+	--border: #e2e8f0;
+	--input: #e2e8f0;
+	--ring: #3b82f6;
+	--ring-offset: #ffffff;
+
+	/* Elevation system - layered shadows for depth */
+	--shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+	--shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+	--shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+	--shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+	/* Chart colors - professional palette */
+	--chart-1: #3b82f6;
+	--chart-2: #8b5cf6;
+	--chart-3: #06b6d4;
+	--chart-4: #10b981;
+	--chart-5: #f59e0b;
+
+	/* Layout */
+	--radius: 0.625rem;
+
+	/* Sidebar */
+	--sidebar: #f8fafc;
+	--sidebar-foreground: #0f172a;
+	--sidebar-primary: #3b82f6;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #f1f5f9;
+	--sidebar-accent-foreground: #0f172a;
+	--sidebar-border: #e2e8f0;
+	--sidebar-ring: #3b82f6;
+
+	/* Typography */
 	--font-sans: 'Inter Variable', sans-serif;
 	--font-heading: 'Outfit Variable', sans-serif;
+
+	/* Animation timing */
+	--transition-fast: 150ms;
+	--transition-base: 200ms;
+	--transition-slow: 300ms;
+	--ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark {
-	--background: #282a36;
-	--foreground: #f8f8f2;
-	--card: #21222c;
-	--card-foreground: #f8f8f2;
-	--popover: #21222c;
-	--popover-foreground: #f8f8f2;
-	--primary: #bd93f9;
-	--primary-foreground: #282a36;
-	--secondary: #44475a;
-	--secondary-foreground: #f8f8f2;
-	--muted: #44475a;
-	--muted-foreground: #6272a4;
-	--accent: #44475a;
-	--accent-foreground: #f8f8f2;
-	--destructive: #ff5555;
-	--destructive-foreground: #282a36;
-	--border: #44475a;
-	--input: #44475a;
-	--ring: #bd93f9;
-	--chart-1: #bd93f9;
-	--chart-2: #ff79c6;
-	--chart-3: #8be9fd;
-	--chart-4: #50fa7b;
-	--chart-5: #ffb86c;
-	--sidebar: #21222c;
-	--sidebar-foreground: #f8f8f2;
-	--sidebar-primary: #bd93f9;
-	--sidebar-primary-foreground: #282a36;
-	--sidebar-accent: #44475a;
-	--sidebar-accent-foreground: #f8f8f2;
-	--sidebar-border: #44475a;
-	--sidebar-ring: #bd93f9;
+	/* Core colors - refined dark mode */
+	--background: #0f172a;
+	--foreground: #f1f5f9;
+
+	/* Surface colors with better contrast */
+	--card: #1e293b;
+	--card-foreground: #f1f5f9;
+	--popover: #1e293b;
+	--popover-foreground: #f1f5f9;
+
+	/* Brand colors - adjusted for dark mode */
+	--primary: #60a5fa;
+	--primary-foreground: #0f172a;
+	--primary-hover: #3b82f6;
+	--primary-light: #93c5fd;
+
+	/* Neutral colors */
+	--secondary: #1e293b;
+	--secondary-foreground: #f1f5f9;
+	--muted: #1e293b;
+	--muted-foreground: #94a3b8;
+	--accent: #1e3a8a;
+	--accent-foreground: #dbeafe;
+
+	/* Semantic colors */
+	--destructive: #ef4444;
+	--destructive-foreground: #f1f5f9;
+	--success: #10b981;
+	--success-foreground: #f1f5f9;
+	--warning: #f59e0b;
+	--warning-foreground: #0f172a;
+	--info: #60a5fa;
+	--info-foreground: #0f172a;
+
+	/* Interactive elements */
+	--border: #334155;
+	--input: #334155;
+	--ring: #60a5fa;
+	--ring-offset: #0f172a;
+
+	/* Elevation system - softer shadows for dark mode */
+	--shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+	--shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+	--shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+	--shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+
+	/* Chart colors - adjusted for dark mode */
+	--chart-1: #60a5fa;
+	--chart-2: #a78bfa;
+	--chart-3: #22d3ee;
+	--chart-4: #34d399;
+	--chart-5: #fbbf24;
+
+	/* Sidebar */
+	--sidebar: #1e293b;
+	--sidebar-foreground: #f1f5f9;
+	--sidebar-primary: #60a5fa;
+	--sidebar-primary-foreground: #0f172a;
+	--sidebar-accent: #334155;
+	--sidebar-accent-foreground: #f1f5f9;
+	--sidebar-border: #334155;
+	--sidebar-ring: #60a5fa;
 }
 
 @theme inline {
+	/* Radius utilities */
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -119,6 +174,8 @@
 	--radius-2xl: calc(var(--radius) + 8px);
 	--radius-3xl: calc(var(--radius) + 12px);
 	--radius-4xl: calc(var(--radius) + 16px);
+
+	/* Core color mapping */
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -127,6 +184,8 @@
 	--color-popover-foreground: var(--popover-foreground);
 	--color-primary: var(--primary);
 	--color-primary-foreground: var(--primary-foreground);
+	--color-primary-hover: var(--primary-hover);
+	--color-primary-light: var(--primary-light);
 	--color-secondary: var(--secondary);
 	--color-secondary-foreground: var(--secondary-foreground);
 	--color-muted: var(--muted);
@@ -134,14 +193,34 @@
 	--color-accent: var(--accent);
 	--color-accent-foreground: var(--accent-foreground);
 	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-success: var(--success);
+	--color-success-foreground: var(--success-foreground);
+	--color-warning: var(--warning);
+	--color-warning-foreground: var(--warning-foreground);
+	--color-info: var(--info);
+	--color-info-foreground: var(--info-foreground);
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-ring-offset: var(--ring-offset);
+
+	/* Shadow utilities */
+	--shadow-xs: var(--shadow-xs);
+	--shadow-sm: var(--shadow-sm);
+	--shadow-md: var(--shadow-md);
+	--shadow-lg: var(--shadow-lg);
+	--shadow-xl: var(--shadow-xl);
+	--shadow-2xl: var(--shadow-2xl);
+
+	/* Chart colors */
 	--color-chart-1: var(--chart-1);
 	--color-chart-2: var(--chart-2);
 	--color-chart-3: var(--chart-3);
 	--color-chart-4: var(--chart-4);
 	--color-chart-5: var(--chart-5);
+
+	/* Sidebar colors */
 	--color-sidebar: var(--sidebar);
 	--color-sidebar-foreground: var(--sidebar-foreground);
 	--color-sidebar-primary: var(--sidebar-primary);
@@ -151,35 +230,130 @@
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
 
-	--color-dracula-purple: #bd93f9;
-	--color-dracula-pink: #ff79c6;
-	--color-dracula-cyan: #8be9fd;
-	--color-dracula-green: #50fa7b;
-	--color-dracula-orange: #ffb86c;
-	--color-dracula-red: #ff5555;
-	--color-dracula-yellow: #f1fa8c;
-	--color-dracula-comment: #6272a4;
-
+	/* Typography */
 	--font-heading: var(--font-heading);
 	--font-sans: var(--font-sans);
+
+	/* Animation timing */
+	--transition-fast: var(--transition-fast);
+	--transition-base: var(--transition-base);
+	--transition-slow: var(--transition-slow);
+	--ease-smooth: var(--ease-smooth);
 }
 
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
 	}
+
 	body {
-		@apply font-sans bg-background text-foreground;
+		@apply font-sans bg-background text-foreground antialiased;
+		/* Subtle texture for depth */
+		background-image: radial-gradient(circle at 1px 1px, rgb(0 0 0 / 0.08) 1.5px, transparent 0);
+		background-size: 24px 24px;
 	}
+
+	.dark body {
+		background-image: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.08) 1.5px, transparent 0);
+		background-size: 24px 24px;
+	}
+
 	html {
 		@apply font-sans;
+		/* Smooth scrolling */
+		scroll-behavior: smooth;
 	}
-	h1,
-	h2,
-	h3,
-	h4,
-	h5,
+
+	/* Typography refinements */
+	h1 {
+		@apply font-heading font-semibold tracking-tight text-4xl;
+		line-height: 1.1;
+	}
+
+	h2 {
+		@apply font-heading font-semibold tracking-tight text-3xl;
+		line-height: 1.2;
+	}
+
+	h3 {
+		@apply font-heading font-semibold tracking-tight text-2xl;
+		line-height: 1.3;
+	}
+
+	h4 {
+		@apply font-heading font-semibold tracking-tight text-xl;
+		line-height: 1.4;
+	}
+
+	h5 {
+		@apply font-heading font-semibold tracking-tight text-lg;
+		line-height: 1.5;
+	}
+
 	h6 {
-		@apply font-heading tracking-tight;
+		@apply font-heading font-semibold tracking-tight text-base;
+		line-height: 1.5;
+	}
+
+	p {
+		line-height: 1.6;
+	}
+
+	/* Enhanced focus visibility */
+	:focus-visible {
+		@apply outline-2 outline-offset-2 outline-ring;
+	}
+
+	/* Selection styling */
+	::selection {
+		@apply bg-primary/20 text-foreground;
 	}
 }
+
+/* Enhanced utility layer */
+@layer utilities {
+	/* Elevation utilities */
+	.shadow-soft {
+		box-shadow: var(--shadow-sm);
+	}
+
+	.shadow-soft:hover {
+		box-shadow: var(--shadow-md);
+	}
+
+	/* Gradient utilities */
+	.bg-gradient-primary {
+		background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+	}
+
+	.bg-gradient-subtle {
+		background: linear-gradient(180deg, var(--background) 0%, var(--muted) 100%);
+	}
+
+	/* Glass morphism */
+	.glass {
+		background: rgba(255, 255, 255, 0.8);
+		backdrop-filter: blur(10px);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+
+	.dark .glass {
+		background: rgba(30, 41, 59, 0.8);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	/* Smooth transitions */
+	.transition-smooth {
+		transition: all var(--transition-base) var(--ease-smooth);
+	}
+
+	.transition-smooth-fast {
+		transition: all var(--transition-fast) var(--ease-smooth);
+	}
+
+	.transition-smooth-slow {
+		transition: all var(--transition-slow) var(--ease-smooth);
+	}
+}
+
+@import './styles/design-utilities.css';

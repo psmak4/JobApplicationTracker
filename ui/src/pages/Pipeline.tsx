@@ -1,12 +1,9 @@
-import { Plus } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import NewApplicationLink from '@/components/NewApplicationLink'
 import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
 import { ResponsiveApplicationView } from '@/components/dashboard'
-import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useApplications } from '@/hooks/useApplications'
-import { cn } from '@/lib/utils'
 
 export default function JobBoard() {
 	const { data: applications = [], isLoading, error } = useApplications()
@@ -21,23 +18,11 @@ export default function JobBoard() {
 			<PageHeader
 				title="Pipeline"
 				subtitle="Visualize your application pipeline."
-				actions={[
-					<Link
-						to="/new"
-						className={cn(
-							buttonVariants({ variant: 'default' }),
-							'flex items-center gap-2 group transition-all duration-300 hover:scale-105 hover:shadow-lg',
-						)}
-						aria-label="Create new application"
-					>
-						<Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" /> New
-						Application
-					</Link>,
-				]}
+				actions={[<NewApplicationLink size="default" />]}
 			/>
 
 			{/* Kanban Board */}
-			<Card>
+			<Card className="shadow-xl">
 				<CardContent>
 					<ResponsiveApplicationView applications={applications} />
 				</CardContent>

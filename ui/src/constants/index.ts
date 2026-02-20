@@ -37,113 +37,156 @@ export const CLOSED_STATUSES: ApplicationStatus[] = ['Offer Accepted', 'Offer De
 export const ACTIVE_STATUSES: ApplicationStatus[] = ['Applied', 'Interviewing', 'Offer Received']
 
 /**
- * Consolidated status theme configuration.
- * Contains all color definitions for statuses across the UI.
+ * Design System 2.0 - Enhanced Status Theme
+ *
+ * Features:
+ * - Refined badge styles with ring borders
+ * - Improved color contrast for accessibility
+ * - Smooth transitions and hover states
+ * - Status bar colors for list items
+ * - Hero section gradient accents
  */
 export const STATUS_THEME: Record<
 	ApplicationStatus,
 	{
+		// Solid background color (for buttons, status bars)
 		solid: string
-		badge: { bg: string; text: string; darkBg: string; darkText: string }
-		hero: { gradient: string; border: string; dot: string }
+		// Badge styling (enhanced with rings and better contrast)
+		badge: {
+			base: string // Base badge classes
+			light: string // Light mode colors
+			dark: string // Dark mode colors
+		}
+		// Status bar for list/card items
+		statusBar: {
+			base: string
+			hover: string
+		}
+		// Hero section accent colors
+		hero: {
+			gradient: string
+			border: string
+			ring: string
+		}
 	}
 > = {
 	Applied: {
-		solid: 'bg-[#036A96]',
+		solid: 'bg-blue-600 dark:bg-blue-500',
 		badge: {
-			bg: 'bg-[#8BE9FD]/15',
-			text: 'text-[#036A96]',
-			darkBg: 'dark:bg-[#8BE9FD]/20',
-			darkText: 'dark:text-[#8BE9FD]',
+			base: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all',
+			light: 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/10',
+			dark: 'dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20',
+		},
+		statusBar: {
+			base: 'bg-blue-600 dark:bg-blue-400',
+			hover: 'group-hover:w-2',
 		},
 		hero: {
-			gradient: 'from-[#8BE9FD]/10 via-transparent to-transparent dark:from-[#8BE9FD]/15',
-			border: 'border-[#8BE9FD]/30 dark:border-[#8BE9FD]/40',
-			dot: 'bg-[#036A96] dark:bg-[#8BE9FD]',
+			gradient: 'from-blue-50/50 via-transparent to-transparent dark:from-blue-500/5',
+			border: 'border-blue-200 dark:border-blue-500/30',
+			ring: 'ring-blue-500/10 dark:ring-blue-400/10',
 		},
 	},
 	Interviewing: {
-		solid: 'bg-[#644AC9]',
+		solid: 'bg-purple-600 dark:bg-purple-500',
 		badge: {
-			bg: 'bg-[#BD93F9]/15',
-			text: 'text-[#644AC9]',
-			darkBg: 'dark:bg-[#BD93F9]/20',
-			darkText: 'dark:text-[#BD93F9]',
+			base: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all',
+			light: 'bg-purple-50 text-purple-700 ring-1 ring-inset ring-purple-600/10',
+			dark: 'dark:bg-purple-500/10 dark:text-purple-400 dark:ring-purple-500/20',
+		},
+		statusBar: {
+			base: 'bg-purple-600 dark:bg-purple-400',
+			hover: 'group-hover:w-2',
 		},
 		hero: {
-			gradient: 'from-[#BD93F9]/10 via-transparent to-transparent dark:from-[#BD93F9]/15',
-			border: 'border-[#BD93F9]/30 dark:border-[#BD93F9]/40',
-			dot: 'bg-[#644AC9] dark:bg-[#BD93F9]',
+			gradient: 'from-purple-50/50 via-transparent to-transparent dark:from-purple-500/5',
+			border: 'border-purple-200 dark:border-purple-500/30',
+			ring: 'ring-purple-500/10 dark:ring-purple-400/10',
 		},
 	},
 	'Offer Received': {
-		solid: 'bg-[#8B7E00]',
+		solid: 'bg-amber-600 dark:bg-amber-500',
 		badge: {
-			bg: 'bg-[#F1FA8C]/15',
-			text: 'text-[#8B7E00]',
-			darkBg: 'dark:bg-[#F1FA8C]/20',
-			darkText: 'dark:text-[#F1FA8C]',
+			base: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all',
+			light: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/10',
+			dark: 'dark:bg-amber-500/10 dark:text-amber-400 dark:ring-amber-500/20',
+		},
+		statusBar: {
+			base: 'bg-amber-600 dark:bg-amber-400',
+			hover: 'group-hover:w-2',
 		},
 		hero: {
-			gradient: 'from-[#F1FA8C]/10 via-transparent to-transparent dark:from-[#F1FA8C]/15',
-			border: 'border-[#F1FA8C]/30 dark:border-[#F1FA8C]/40',
-			dot: 'bg-[#8B7E00] dark:bg-[#F1FA8C]',
+			gradient: 'from-amber-50/50 via-transparent to-transparent dark:from-amber-500/5',
+			border: 'border-amber-200 dark:border-amber-500/30',
+			ring: 'ring-amber-500/10 dark:ring-amber-400/10',
 		},
 	},
 	'Offer Accepted': {
-		solid: 'bg-[#14710A]',
+		solid: 'bg-green-600 dark:bg-green-500',
 		badge: {
-			bg: 'bg-[#50FA7B]/15',
-			text: 'text-[#14710A]',
-			darkBg: 'dark:bg-[#50FA7B]/20',
-			darkText: 'dark:text-[#50FA7B]',
+			base: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all',
+			light: 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/10',
+			dark: 'dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20',
+		},
+		statusBar: {
+			base: 'bg-green-600 dark:bg-green-400',
+			hover: 'group-hover:w-2',
 		},
 		hero: {
-			gradient: 'from-[#50FA7B]/10 via-transparent to-transparent dark:from-[#50FA7B]/15',
-			border: 'border-[#50FA7B]/30 dark:border-[#50FA7B]/40',
-			dot: 'bg-[#14710A] dark:bg-[#50FA7B]',
+			gradient: 'from-green-50/50 via-transparent to-transparent dark:from-green-500/5',
+			border: 'border-green-200 dark:border-green-500/30',
+			ring: 'ring-green-500/10 dark:ring-green-400/10',
 		},
 	},
 	'Offer Declined': {
-		solid: 'bg-[#9C5700]',
+		solid: 'bg-orange-600 dark:bg-orange-500',
 		badge: {
-			bg: 'bg-[#FFB86C]/15',
-			text: 'text-[#9C5700]',
-			darkBg: 'dark:bg-[#FFB86C]/20',
-			darkText: 'dark:text-[#FFB86C]',
+			base: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all',
+			light: 'bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-600/10',
+			dark: 'dark:bg-orange-500/10 dark:text-orange-400 dark:ring-orange-500/20',
+		},
+		statusBar: {
+			base: 'bg-orange-600 dark:bg-orange-400',
+			hover: 'group-hover:w-2',
 		},
 		hero: {
-			gradient: 'from-[#FFB86C]/10 via-transparent to-transparent dark:from-[#FFB86C]/15',
-			border: 'border-[#FFB86C]/30 dark:border-[#FFB86C]/40',
-			dot: 'bg-[#9C5700] dark:bg-[#FFB86C]',
+			gradient: 'from-orange-50/50 via-transparent to-transparent dark:from-orange-500/5',
+			border: 'border-orange-200 dark:border-orange-500/30',
+			ring: 'ring-orange-500/10 dark:ring-orange-400/10',
 		},
 	},
 	Rejected: {
-		solid: 'bg-[#CB3A2A]',
+		solid: 'bg-red-600 dark:bg-red-500',
 		badge: {
-			bg: 'bg-[#FF5555]/15',
-			text: 'text-[#CB3A2A]',
-			darkBg: 'dark:bg-[#FF5555]/20',
-			darkText: 'dark:text-[#FF5555]',
+			base: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all',
+			light: 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/10',
+			dark: 'dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20',
+		},
+		statusBar: {
+			base: 'bg-red-600 dark:bg-red-400',
+			hover: 'group-hover:w-2',
 		},
 		hero: {
-			gradient: 'from-[#FF5555]/10 via-transparent to-transparent dark:from-[#FF5555]/15',
-			border: 'border-[#FF5555]/30 dark:border-[#FF5555]/40',
-			dot: 'bg-[#CB3A2A] dark:bg-[#FF5555]',
+			gradient: 'from-red-50/50 via-transparent to-transparent dark:from-red-500/5',
+			border: 'border-red-200 dark:border-red-500/30',
+			ring: 'ring-red-500/10 dark:ring-red-400/10',
 		},
 	},
 	Withdrawn: {
-		solid: 'bg-[#6C664B]',
+		solid: 'bg-slate-600 dark:bg-slate-500',
 		badge: {
-			bg: 'bg-[#6272A4]/15',
-			text: 'text-[#6C664B]',
-			darkBg: 'dark:bg-[#6272A4]/20',
-			darkText: 'dark:text-[#6272A4]',
+			base: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all',
+			light: 'bg-slate-50 text-slate-700 ring-1 ring-inset ring-slate-600/10',
+			dark: 'dark:bg-slate-500/10 dark:text-slate-400 dark:ring-slate-500/20',
+		},
+		statusBar: {
+			base: 'bg-slate-600 dark:bg-slate-400',
+			hover: 'group-hover:w-2',
 		},
 		hero: {
-			gradient: 'from-[#6272A4]/10 via-transparent to-transparent dark:from-[#6272A4]/15',
-			border: 'border-[#6272A4]/30 dark:border-[#6272A4]/40',
-			dot: 'bg-[#6C664B] dark:bg-[#6272A4]',
+			gradient: 'from-slate-50/50 via-transparent to-transparent dark:from-slate-500/5',
+			border: 'border-slate-200 dark:border-slate-500/30',
+			ring: 'ring-slate-500/10 dark:ring-slate-400/10',
 		},
 	},
 }
@@ -159,3 +202,19 @@ export const PIPELINE_STEPS: Array<{
 	{ key: 'Offer', label: 'Offer', statuses: ['Offer Received', 'Offer Accepted', 'Offer Declined'] },
 	{ key: 'Closed', label: 'Closed', statuses: ['Offer Accepted', 'Offer Declined', 'Rejected', 'Withdrawn'] },
 ]
+
+/**
+ * Helper function to get complete badge classes for a status
+ */
+export function getStatusBadgeClasses(status: ApplicationStatus): string {
+	const theme = STATUS_THEME[status]
+	return `${theme.badge.base} ${theme.badge.light} ${theme.badge.dark}`
+}
+
+/**
+ * Helper function to get status bar classes
+ */
+export function getStatusBarClasses(status: ApplicationStatus): string {
+	const theme = STATUS_THEME[status]
+	return `${theme.statusBar.base} ${theme.statusBar.hover}`
+}
