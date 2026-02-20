@@ -15,9 +15,9 @@ The backend API for the Job Application Tracker, built with Node.js, Express, an
 ## Key Features
 
 - **Authentication System**: Secure user management with Better Auth (email/password, session management).
-- **Application Management**: CRUD operations for job applications, including status tracking and archiving.
+- **Application Management**: CRUD operations for job applications, including status tracking (with unified application statuses directly on the application model) and archiving.
 - **Job Parsing**: Custom parser to extract job details from URLs (supports Glassdoor and generic pages).
-- **Calendar Integration**: Google Calendar sync for interview tracking.
+- **Calendar Integration**: Google Calendar sync for interview tracking via the `calendar_events` table and OAuth2.
 - **Admin Tools**: User management and email template testing.
 - **Security**:
     - Rate limiting (strict for auth, flexible for general API)
@@ -29,10 +29,10 @@ The backend API for the Job Application Tracker, built with Node.js, Express, an
 - `src/routes/`
     - `applications.ts`: Core application CRUD operations
     - `admin.ts`: Admin-only user management and email testing
-    - `calendar.ts`: Google Calendar integration
+    - `calendar.ts`: Google Calendar OAuth2 and event sync integration
     - `events.ts`: Internal event tracking
     - `parser.ts`: Job description parsing endpoint
-    - `statuses.ts`: Status history management
+    - `statuses.ts`: Status history management (Deprecated in favor of direct status columns on the application model)
 
 ## Setup & Development
 

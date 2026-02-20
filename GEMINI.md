@@ -24,15 +24,14 @@
 ### Key Features
 
 1.  **Dashboard:**
-    - **View Modes:** Toggle between Kanban Board (Grid) and List View.
-    - **Responsive Kanban:** Horizontal drag-and-drop (Desktop), Stacked sections (Tablet), and Card list (Mobile).
+    - **View Modes:** Split routing for List View (`/app`) and Kanban View (`/app/pipeline`), as well as a dedicated Archive View (`/app/archive`).
     - **Filtering & Sorting:** Advanced filters by status, work type, and date.
-    - **Upcoming Events:** Dedicated section for interviews and meetings.
+    - **Upcoming Events:** Dedicated section for interviews and meetings linked to Google Calendar.
 2.  **Application Management:**
     - **CRUD:** Create, Read, Update, Delete applications.
     - **Archive/Restore:** Archive old applications to keep the dashboard clean without losing data.
     - **Job Parsing:** Auto-fill application details from job URLs (e.g., Glassdoor).
-    - **Status History:** Track the timeline of application status changes.
+    - **Status Tracking:** Track applications through unified statuses (Applied, Interviewing, Offer Received, Offer Accepted, Offer Declined, Rejected, Withdrawn) tracked directly on the application model. (Note: The `status_history` table is considered deprecated in favor of direct state mutation).
 3.  **User Features:**
     - **Profile:** Manage account details and password.
     - **Theme:** Light, Dark, and System preferences.
@@ -89,7 +88,7 @@
 
 ### Centralized Constants & Schemas
 
-- **Status Options:** Use `APPLICATION_STATUS_OPTIONS` from `ui/src/constants/index.ts` instead of hardcoding status arrays.
+- **Status Options:** Use `APPLICATION_STATUS_OPTIONS` from `ui/src/constants/index.ts` instead of hardcoding status arrays. Includes unified statuses: 'Applied', 'Interviewing', 'Offer Received', 'Offer Accepted', 'Offer Declined', 'Rejected', 'Withdrawn'.
 - **Work Type Options:** Use `WORK_TYPE_OPTIONS` from `ui/src/constants/index.ts` for work type dropdowns.
 - **Form Schemas:** Use shared Zod schemas from `ui/src/lib/schemas.ts` (`applicationSchema`, `newApplicationSchema`) instead of duplicating validation logic.
 - **Query Keys:** Use centralized query key factories from `ui/src/lib/queryKeys.ts` for React Query cache keys:
@@ -113,14 +112,13 @@
 
 ### Routing & Navigation
 
-- The app uses a hybrid MPA/SPA approach with a **sidebar navigation** using ShadCN's Sidebar component.
+- The app uses a hybrid MPA/SPA approach.
 - Static content belongs in `ui/index.html`.
 - Dynamic application logic belongs in `ui/app.html` and the `ui/src` directory.
-- **Sidebar Navigation:** The main app uses `AppSidebar.tsx` which includes:
-  - Dashboard (`/app`)
-  - New Application (`/app/new`)
-  - Admin section (collapsible, admin-only): Users (`/app/admin`), Email Testing (`/app/admin/email`)
-  - User footer with profile link and sign out
+- **Top Navigation:** The main app uses `SiteHeader.tsx` which includes:
+  - Main Routes: Dashboard (`/app`), Pipeline (`/app/pipeline`), Archive (`/app/archive`)
+  - Admin section (collapsible via `AdminNav`, admin-only): Users (`/app/admin`), Email Testing (`/app/admin/email`)
+  - User header dropdown with profile link and sign out
 - **Redirection Logic:** Always ensure redirects after login/logout point to either `/app` (dashboard) or `/` (static landing).
 - **404 Handling:** Unknown routes redirect to a Not Found page.
 - **URL State:** Dashboard filters are persisted to URL query params (for bookmarkability) AND localStorage (for preference memory).
@@ -143,8 +141,10 @@
 ### UI & Styling
 
 - **Colors:** Uses `oklch` color variables defined in `ui/src/index.css` to match the brand identity.
+- **Design System Tracker:** Use Design System 2.0 colors, unified badges, and components from `ui/src/constants/index.ts` (`STATUS_THEME`).
 - **Dark Mode:** Full dark mode support via `.dark` class. Variables are defined for both light and dark themes in `index.css`.
 - **Components:** Prefer using existing `shadcn/ui` components located in `ui/src/components/ui`.
+- **Imports:** Always use the alias syntax `@/` for imports instead of relative paths `../`.
 - **Accessibility:** Always add `aria-label` to icon-only buttons.
 
 ### Performance
@@ -154,7 +154,7 @@
 
 ### Database & API
 
-- **Schema:** Managed in `api/src/db/schema.ts`. Always run `npm run db:generate` after changing the schema.
+- **Schema:** Managed in `api/src/db/schema.ts`. Always run `npm run db:generate` after changing the schema. Note that `statusHistory` relations and tables are deprecated. Calendar integration via `calendar_events` is actively supported.
 - **Better Auth:** Authentication tables are integrated into the Drizzle schema.
 - **API Client:** Use the pre-configured `apiClient` in `ui/src/lib/api-client.ts` which handles `withCredentials` for session cookies.
 - **Rate Limiting:**
