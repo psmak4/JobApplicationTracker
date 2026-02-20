@@ -53,7 +53,7 @@ export function ProfileFormCard({ user }: ProfileFormCardProps) {
 		try {
 			await updateProfile.mutateAsync(data)
 			toast.success('Profile updated successfully')
-		} catch (error) {
+		} catch {
 			toast.error('Failed to update profile')
 		}
 	}

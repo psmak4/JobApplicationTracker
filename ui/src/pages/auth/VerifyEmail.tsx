@@ -27,7 +27,7 @@ export default function VerifyEmail() {
 					query: { token },
 				})
 				setState('success')
-			} catch (error) {
+			} catch {
 				setState('error')
 				setErrorMessage('This verification link is invalid or has expired.')
 			}

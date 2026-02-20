@@ -1,14 +1,14 @@
 import { Briefcase } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import { useSession } from '@/lib/auth-client'
-import { cn } from '@/lib/utils'
 import {
 	NavigationMenu,
 	NavigationMenuItem,
 	NavigationMenuLink,
 	NavigationMenuList,
 	navigationMenuTriggerStyle,
-} from '../ui/navigation-menu'
+} from '@/components/ui/navigation-menu'
+import { useSession } from '@/lib/auth-client'
+import { cn } from '@/lib/utils'
 import { AdminNav } from './AdminNav'
 import { mainNavItems } from './nav-config'
 

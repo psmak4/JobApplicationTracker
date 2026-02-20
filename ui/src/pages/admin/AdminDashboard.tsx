@@ -202,7 +202,7 @@ export default function AdminDashboard() {
 		try {
 			await unbanUser.mutateAsync({ userId })
 			toast.success('User unbanned successfully')
-		} catch (err) {
+		} catch {
 			toast.error('Failed to unban user')
 		}
 	}
@@ -215,7 +215,7 @@ export default function AdminDashboard() {
 		try {
 			await impersonateUser.mutateAsync({ userId })
 			toast.success('Now impersonating user')
-		} catch (err) {
+		} catch {
 			toast.error('Failed to impersonate user')
 		}
 	}
@@ -238,7 +238,7 @@ export default function AdminDashboard() {
 				await setUserRole.mutateAsync({ userId, role })
 				toast.success(`User role updated to ${role}`)
 			}
-		} catch (err) {
+		} catch {
 			toast.error('Action failed')
 		}
 
