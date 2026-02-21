@@ -66,6 +66,7 @@ export function NotesCard({ application }: NotesCardProps) {
 
 	const onDeleteNote = async () => {
 		if (!noteToDelete) return
+
 		try {
 			await deleteNoteMutation.mutateAsync(noteToDelete)
 		} catch {
