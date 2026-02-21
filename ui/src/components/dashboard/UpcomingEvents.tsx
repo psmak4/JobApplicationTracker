@@ -24,7 +24,7 @@ interface UpcomingEventsProps {
 export function UpcomingEvents({ events, onHoverApplication }: UpcomingEventsProps) {
 	if (events.length === 0) {
 		return (
-			<Card className="shadow-xl">
+			<Card className="shadow-lg">
 				<CardHeader className="pb-3">
 					<CardTitle className="text-lg font-semibold">Upcoming Events</CardTitle>
 				</CardHeader>

@@ -15,7 +15,7 @@ export function ApplicationHero({ application, actions }: ApplicationHeroProps) 
 
 	return (
 		<div
-			className={`hero-card relative overflow-hidden transition-all duration-300 shadow-xl ${theme.hero.border} ${theme.hero.ring}`}
+			className={`hero-card relative overflow-hidden transition-all duration-300 shadow-lg ${theme.hero.border} ${theme.hero.ring}`}
 		>
 			{/* Gradient Overlay */}
 			<div className={`absolute inset-0 bg-linear-to-br ${theme.hero.gradient} opacity-50 pointer-events-none`} />

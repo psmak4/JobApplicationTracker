@@ -59,7 +59,7 @@ export function ProfileFormCard({ user }: ProfileFormCardProps) {
 	}
 
 	return (
-		<Card className="shadow-xl grow w-full">
+		<Card className="shadow-lg grow w-full">
 			<CardHeader>
 				<div className="flex items-center gap-4">
 					<div className="h-16 w-16 rounded-full bg-linear-to-br from-primary/30 to-primary/10 flex items-center justify-center">

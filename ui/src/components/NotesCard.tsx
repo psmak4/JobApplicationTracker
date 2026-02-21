@@ -78,7 +78,7 @@ export function NotesCard({ application }: NotesCardProps) {
 
 	return (
 		<>
-			<Card className="shadow-xl">
+			<Card className="shadow-lg">
 				<CardHeader className="pb-3 flex flex-row items-center justify-between">
 					<CardTitle className="text-lg font-semibold">Notes</CardTitle>
 					<div className="flex items-center gap-2">

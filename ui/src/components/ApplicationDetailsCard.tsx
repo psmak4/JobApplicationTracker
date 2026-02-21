@@ -13,7 +13,7 @@ interface ApplicationDetailsCardProps {
  */
 export function ApplicationDetailsCard({ application }: ApplicationDetailsCardProps) {
 	return (
-		<Card className="shadow-xl">
+		<Card className="shadow-lg">
 			<CardHeader className="pb-3">
 				<CardTitle className="text-lg font-semibold">Application Details</CardTitle>
 			</CardHeader>

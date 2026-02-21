@@ -22,7 +22,7 @@ export default function JobBoard() {
 			/>
 
 			{/* Kanban Board */}
-			<Card className="shadow-xl">
+			<Card className="shadow-lg">
 				<CardContent>
 					<ResponsiveApplicationView applications={applications} />
 				</CardContent>

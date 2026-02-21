@@ -62,7 +62,7 @@ export default function Dashboard() {
 					<div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
 						{/* Main Content */}
 						<div className="min-w-0">
-							<Card className="shadow-xl">
+							<Card className="shadow-lg">
 								<CardHeader className="pb-3 flex items-center justify-between">
 									<CardTitle className="text-lg font-semibold">Active Applications</CardTitle>
 									<NewApplicationLink size="sm" />
