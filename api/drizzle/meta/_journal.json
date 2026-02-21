@@ -57,6 +57,13 @@
       "when": 1770615617374,
       "tag": "0007_warm_jean_grey",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1771640666772,
+      "tag": "0008_illegal_veda",
+      "breakpoints": true
     }
   ]
 }

@@ -42,7 +42,7 @@ export function NotesCard({ application }: NotesCardProps) {
 	const [noteToDelete, setNoteToDelete] = useState<string | null>(null)
 	const [sortOrder, setSortOrder] = useState<SortOrder>('newest')
 
-	const notes = application.noteEntries || []
+	const notes = useMemo(() => application.noteEntries || [], [application.noteEntries])
 
 	const sortedNotes = useMemo(() => {
 		return [...notes].sort((a, b) => {

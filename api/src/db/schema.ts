@@ -109,31 +109,6 @@ export const applications = pgTable(
 	],
 )
 
-/**
- * @deprecated Status history is no longer read or written to.
- * Kept for historical data preservation only.
- */
-export const statusHistory = pgTable(
-	'status_history',
-	{
-		id: text('id')
-			.primaryKey()
-			.$defaultFn(() => crypto.randomUUID()),
-		applicationId: text('application_id')
-			.notNull()
-			.references(() => applications.id, { onDelete: 'cascade' }),
-		status: applicationStatusEnum('status').notNull(),
-		date: date('date').notNull(),
-		createdAt: timestamp('created_at').notNull().defaultNow(),
-	},
-	(table) => [
-		// Index for joining status history with applications
-		index('status_history_application_id_idx').on(table.applicationId),
-		// Index for sorting by date (most recent first)
-		index('status_history_date_idx').on(table.date),
-	],
-)
-
 // Calendar Events table - linked directly to applications
 export const calendarEvents = pgTable(
 	'calendar_events',
@@ -177,18 +152,8 @@ export const notes = pgTable(
 )
 
 export const applicationsRelations = relations(applications, ({ many }) => ({
-	/** @deprecated Kept for schema compatibility only */
-	statusHistory: many(statusHistory),
 	calendarEvents: many(calendarEvents),
 	notes: many(notes),
-}))
-
-/** @deprecated Status history relations are no longer used */
-export const statusHistoryRelations = relations(statusHistory, ({ one }) => ({
-	application: one(applications, {
-		fields: [statusHistory.applicationId],
-		references: [applications.id],
-	}),
 }))
 
 export const calendarEventsRelations = relations(calendarEvents, ({ one }) => ({
@@ -210,8 +175,7 @@ export type User = typeof user.$inferSelect
 export type NewUser = typeof user.$inferInsert
 export type Application = typeof applications.$inferSelect
 export type NewApplication = typeof applications.$inferInsert
-export type StatusHistory = typeof statusHistory.$inferSelect
-export type NewStatusHistory = typeof statusHistory.$inferInsert
+
 export type CalendarEvent = typeof calendarEvents.$inferSelect
 export type NewCalendarEvent = typeof calendarEvents.$inferInsert
 export type Note = typeof notes.$inferSelect
