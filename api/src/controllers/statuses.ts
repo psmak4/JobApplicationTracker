@@ -1,10 +1,11 @@
+import { logger } from '@/config/logger'
 import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError, z } from 'zod'
-import { db } from '../db/index'
-import { applicationStatusEnum, applications, statusHistory } from '../db/schema'
-import { getRequestId } from '../utils/request'
-import { errorResponse, successResponse } from '../utils/responses'
+import { db } from '@/db/index'
+import { applicationStatusEnum, applications, statusHistory } from '@/db/schema'
+import { getRequestId } from '@/utils/request'
+import { errorResponse, successResponse } from '@/utils/responses'
 
 const createStatusSchema = z.object({
 	status: z.enum(applicationStatusEnum.enumValues),
@@ -54,7 +55,7 @@ export const statusController = {
 
 			res.json(successResponse(history, getRequestId(req)))
 		} catch (error) {
-			console.error('Error fetching status history:', error)
+			logger.error({ err: error }, 'Error fetching status history:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch status history', getRequestId(req)))
 		}
 	},
@@ -107,7 +108,7 @@ export const statusController = {
 				next(error)
 				return
 			}
-			console.error('Error creating status entry:', error)
+			logger.error({ err: error }, 'Error creating status entry:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create status entry', getRequestId(req)))
 		}
 	},
@@ -156,7 +157,7 @@ export const statusController = {
 
 			res.json(successResponse({ message: 'Status entry deleted' }, getRequestId(req)))
 		} catch (error) {
-			console.error('Error deleting status entry:', error)
+			logger.error({ err: error }, 'Error deleting status entry:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete status entry', getRequestId(req)))
 		}
 	},
@@ -226,7 +227,7 @@ export const statusController = {
 				next(error)
 				return
 			}
-			console.error('Error updating status entry:', error)
+			logger.error({ err: error }, 'Error updating status entry:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to update status entry', getRequestId(req)))
 		}
 	},

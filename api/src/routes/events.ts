@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { eventController } from '../controllers/events'
-import { requireAuth } from '../middleware/auth'
-import { createLimiter, deleteLimiter } from '../middleware/rateLimiter'
+import { eventController } from '@/controllers/events'
+import { requireAuth } from '@/middleware/auth'
+import { createLimiter, deleteLimiter } from '@/middleware/rateLimiter'
 
 const router = Router()
 

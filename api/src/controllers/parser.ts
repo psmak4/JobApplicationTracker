@@ -1,7 +1,8 @@
+import { logger } from '@/config/logger'
 import { NextFunction, Request, Response } from 'express'
-import { z, ZodError } from 'zod'
-import { errorResponse, successResponse } from '../utils/responses'
-import { jobParser } from '../services/jobParser'
+import { ZodError, z } from 'zod'
+import { jobParser } from '@/services/jobParser'
+import { errorResponse, successResponse } from '@/utils/responses'
 
 // Helper to get request ID from request object
 const getRequestId = (req: Request): string => req.requestId || 'unknown'
@@ -59,10 +60,8 @@ export const parserController = {
 				next(error)
 				return
 			}
-			console.error('Error parsing job:', error)
-			res.status(500).json(
-				errorResponse('INTERNAL_ERROR', 'Failed to parse job posting', getRequestId(req)),
-			)
+			logger.error({ err: error }, 'Error parsing job:')
+			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to parse job posting', getRequestId(req)))
 		}
 	},
 

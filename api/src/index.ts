@@ -2,8 +2,9 @@ import { toNodeHandler } from 'better-auth/node'
 import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
+import pinoHttp from 'pino-http'
+import { logger } from '@/config/logger'
 import { auth } from './auth'
-// Import env validation - this will validate env vars immediately on import
 import { env } from './config/env'
 import { errorHandler, notFoundHandler, requestIdMiddleware } from './middleware/errorHandler'
 import { authProtection } from './middleware/rateLimiter'
@@ -44,6 +45,9 @@ app.use(
 // Request ID middleware - adds unique ID to each request for tracking
 app.use(requestIdMiddleware)
 
+// Structured HTTP request logging
+app.use(pinoHttp({ logger }))
+
 app.use(express.json())
 
 // Better Auth handler with rate limiting to prevent brute-force attacks
@@ -67,20 +71,20 @@ app.use(notFoundHandler)
 app.use(errorHandler)
 
 const server = app.listen(PORT, () => {
-	console.log(`Server is running on http://localhost:${PORT}`)
+	logger.info(`Server is running on http://localhost:${PORT}`)
 })
 
 const gracefulShutdown = (signal: string) => {
-	console.log(`\n${signal} received. Starting graceful shutdown...`)
+	logger.info(`\n${signal} received. Starting graceful shutdown...`)
 
 	server.close(() => {
-		console.log('HTTP server closed')
-		console.log('Graceful shutdown complete')
+		logger.info('HTTP server closed')
+		logger.info('Graceful shutdown complete')
 		process.exit(0)
 	})
 
 	setTimeout(() => {
-		console.error('Forced shutdown after timeout')
+		logger.error('Forced shutdown after timeout')
 		process.exit(1)
 	}, 10000)
 }

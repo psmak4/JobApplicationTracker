@@ -1,12 +1,13 @@
+import { logger } from '@/config/logger'
 import { fromZonedTime } from 'date-fns-tz'
 import { and, eq } from 'drizzle-orm'
 import { Router } from 'express'
 import { google } from 'googleapis'
-import { db } from '../db'
-import { account } from '../db/schema'
-import { requireAuth } from '../middleware/auth'
-import { getRequestId } from '../utils/request'
-import { ErrorCodes, errorResponse, successResponse } from '../utils/responses'
+import { db } from '@/db'
+import { account } from '@/db/schema'
+import { requireAuth } from '@/middleware/auth'
+import { getRequestId } from '@/utils/request'
+import { ErrorCodes, errorResponse, successResponse } from '@/utils/responses'
 
 const router = Router()
 
@@ -97,7 +98,7 @@ router.get('/events', async (req, res) => {
 					oauth2Client.setCredentials(credentials)
 				}
 			} catch (refreshError) {
-				console.error('Failed to refresh Google token:', refreshError)
+				logger.error({ err: refreshError }, 'Failed to refresh Google token:')
 				return res
 					.status(401)
 					.json(
@@ -137,19 +138,22 @@ router.get('/events', async (req, res) => {
 		}))
 
 		res.json(successResponse(mappedEvents, getRequestId(req)))
-	} catch (error: any) {
-		console.error('Error fetching calendar events:', error)
+	} catch (error) {
+		logger.error({ err: error }, 'Error fetching calendar events:')
 
-		if (error.code === 403 || error.status === 403) {
-			return res
-				.status(403)
-				.json(
-					errorResponse(
-						ErrorCodes.FORBIDDEN,
-						'Insufficient permissions to access Google Calendar. Please reconnect your account by signing out and signing back in.',
-						getRequestId(req),
-					),
-				)
+		if (error instanceof Error && ('code' in error || 'status' in error)) {
+			const err = error as any
+			if (err.code === 403 || err.status === 403) {
+				return res
+					.status(403)
+					.json(
+						errorResponse(
+							ErrorCodes.FORBIDDEN,
+							'Insufficient permissions to access Google Calendar. Please reconnect your account by signing out and signing back in.',
+							getRequestId(req),
+						),
+					)
+			}
 		}
 
 		res.status(500).json(
@@ -169,7 +173,7 @@ router.get('/status', async (req, res) => {
 
 		res.json(successResponse({ connected: !!googleAccount }, getRequestId(req)))
 	} catch (error) {
-		console.error('Error checking calendar status:', error)
+		logger.error({ err: error }, 'Error checking calendar status:')
 		res.status(500).json(
 			errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to check calendar status', getRequestId(req)),
 		)
@@ -186,7 +190,7 @@ router.delete('/', async (req, res) => {
 
 		res.json(successResponse({ disconnected: true }, getRequestId(req)))
 	} catch (error) {
-		console.error('Error disconnecting calendar:', error)
+		logger.error({ err: error }, 'Error disconnecting calendar:')
 		res.status(500).json(
 			errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to disconnect calendar', getRequestId(req)),
 		)

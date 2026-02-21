@@ -188,9 +188,7 @@ export class GenericParser implements JobParserStrategy {
 			const jobPosting = this.findJobPostingFromSchema($)
 			if (!jobPosting?.jobLocation) return undefined
 
-			const locations = Array.isArray(jobPosting.jobLocation)
-				? jobPosting.jobLocation
-				: [jobPosting.jobLocation]
+			const locations = Array.isArray(jobPosting.jobLocation) ? jobPosting.jobLocation : [jobPosting.jobLocation]
 
 			for (const location of locations) {
 				const address = location?.address
@@ -405,8 +403,8 @@ export class GenericParser implements JobParserStrategy {
 		const structuredData = $('script[type="application/ld+json"]')
 		let jobPosting: Record<string, any> | undefined
 
-		const extractJobPosting = (data: any): Record<string, any> | undefined => {
-			if (!data) return undefined
+		const extractJobPosting = (data: unknown): Record<string, unknown> | undefined => {
+			if (!data || typeof data !== 'object') return undefined
 
 			if (Array.isArray(data)) {
 				for (const entry of data) {
@@ -415,15 +413,17 @@ export class GenericParser implements JobParserStrategy {
 				}
 			}
 
-			if (data['@graph'] && Array.isArray(data['@graph'])) {
-				for (const entry of data['@graph']) {
+			const record = data as Record<string, unknown>
+
+			if (record['@graph'] && Array.isArray(record['@graph'])) {
+				for (const entry of record['@graph']) {
 					const found = extractJobPosting(entry)
 					if (found) return found
 				}
 			}
 
-			if (data['@type'] === 'JobPosting') {
-				return data
+			if (record['@type'] === 'JobPosting') {
+				return record
 			}
 
 			return undefined

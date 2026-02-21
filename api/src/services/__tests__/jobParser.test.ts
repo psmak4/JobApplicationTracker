@@ -1,6 +1,6 @@
 import axios, { type AxiosStatic } from 'axios'
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { jobParser } from '../jobParser'
+import { jobParser } from '@/services/jobParser'
 import {
 	genericJobHtml,
 	glassdoorJobHtml,

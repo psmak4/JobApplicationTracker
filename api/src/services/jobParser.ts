@@ -1,3 +1,4 @@
+import { logger } from '@/config/logger'
 import { Readability } from '@mozilla/readability'
 import axios from 'axios'
 import * as cheerio from 'cheerio'
@@ -6,12 +7,12 @@ import { JSDOM } from 'jsdom'
 import sanitizeHtml from 'sanitize-html'
 import TurndownService from 'turndown'
 import urlParse from 'url-parse'
+import { clearCachedJob, getCachedJob, setCachedJob } from './jobParserCache'
 import { GreenhouseParser, LeverParser, WorkdayParser } from './parsers/ats'
 import { GenericParser } from './parsers/generic'
 import { GlassdoorParser } from './parsers/glassdoor'
 import { IndeedParser } from './parsers/indeed'
 import { LinkedInParser } from './parsers/linkedin'
-import { clearCachedJob, getCachedJob, setCachedJob } from './jobParserCache'
 import type { JobParserStrategy, ParsedJobData } from './parsers/types'
 
 interface ParserResult {
@@ -186,7 +187,7 @@ class JobParser {
 				},
 			}
 		} catch (error) {
-			console.error('Job parser error:', error)
+			logger.error({ err: error }, 'Job parser error:')
 			const errorMessage = error instanceof Error ? error.message : 'Failed to parse job posting'
 			return {
 				success: false,
@@ -294,7 +295,7 @@ class JobParser {
 			} catch (dnsError) {
 				// DNS lookup failed - hostname might not exist
 				// We'll allow this to proceed as the HTTP request will fail anyway
-				console.warn(`DNS lookup failed for ${hostname}:`, dnsError)
+				logger.warn({ err: dnsError }, `DNS lookup failed for ${hostname}:`)
 			}
 
 			return { valid: true }

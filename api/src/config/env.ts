@@ -1,10 +1,11 @@
 import dotenv from 'dotenv'
+import { logger } from '@/config/logger'
 
 dotenv.config()
 
 /**
  * Environment variable configuration with validation
- * 
+ *
  * This module validates all required environment variables at startup
  * and fails fast with clear error messages if any are missing or invalid.
  */
@@ -29,12 +30,7 @@ interface EnvConfig {
 	CORS_ORIGINS: string[]
 }
 
-const requiredVars: Array<keyof EnvConfig> = [
-	'DATABASE_URL',
-	'BETTER_AUTH_SECRET',
-	'BETTER_AUTH_URL',
-	'RESEND_API_KEY',
-]
+const requiredVars: Array<keyof EnvConfig> = ['DATABASE_URL', 'BETTER_AUTH_SECRET', 'BETTER_AUTH_URL', 'RESEND_API_KEY']
 
 const optionalVars: Array<keyof EnvConfig> = ['PORT', 'NODE_ENV', 'CORS_ORIGINS', 'RESEND_FROM_EMAIL']
 
@@ -52,7 +48,7 @@ function isValidUrl(url: string): boolean {
 
 /**
  * Validate all environment variables
- * 
+ *
  * @throws Error if any required variables are missing or invalid
  */
 export function validateEnv(): EnvConfig {
@@ -89,21 +85,21 @@ export function validateEnv(): EnvConfig {
 
 	// If there are errors, log them and exit
 	if (errors.length > 0) {
-		console.error('╔══════════════════════════════════════════════════════════════╗')
-		console.error('║           Environment Configuration Errors                    ║')
-		console.error('╚══════════════════════════════════════════════════════════════╝')
-		console.error()
+		logger.error('╔══════════════════════════════════════════════════════════════╗')
+		logger.error('║           Environment Configuration Errors                    ║')
+		logger.error('╚══════════════════════════════════════════════════════════════╝')
+		logger.error('')
 		for (const error of errors) {
-			console.error(`  ❌ ${error}`)
+			logger.error(`  ❌ ${error}`)
 		}
-		console.error()
-		console.error('Please check your .env file and ensure all required variables are set.')
-		console.error()
-		console.error('Required variables:')
+		logger.error('')
+		logger.error('Please check your .env file and ensure all required variables are set.')
+		logger.error('')
+		logger.error('Required variables:')
 		for (const varName of requiredVars) {
-			console.error(`  - ${varName}`)
+			logger.error(`  - ${varName}`)
 		}
-		console.error()
+		logger.error('')
 		process.exit(1)
 	}
 
@@ -121,10 +117,10 @@ export function validateEnv(): EnvConfig {
 
 	// Log success in development
 	if (config.NODE_ENV === 'development') {
-		console.log('✅ Environment variables validated successfully')
-		console.log(`   NODE_ENV: ${config.NODE_ENV}`)
-		console.log(`   PORT: ${config.PORT}`)
-		console.log(`   CORS_ORIGINS: ${config.CORS_ORIGINS.join(', ')}`)
+		logger.info('✅ Environment variables validated successfully')
+		logger.info(`   NODE_ENV: ${config.NODE_ENV}`)
+		logger.info(`   PORT: ${config.PORT}`)
+		logger.info(`   CORS_ORIGINS: ${config.CORS_ORIGINS.join(', ')}`)
 	}
 
 	return config

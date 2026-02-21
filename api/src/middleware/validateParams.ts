@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express'
-import { errorResponse } from '../utils/responses'
+import { errorResponse } from '@/utils/responses'
 
 /**
  * Extend Express Request to include requestId
@@ -28,11 +28,11 @@ export function isValidUUID(id: string): boolean {
 
 /**
  * Middleware factory to validate UUID parameters
- * 
+ *
  * Usage:
  *   router.get('/:id', validateUUID('id'), controller.getOne)
  *   router.get('/:applicationId/statuses', validateUUID('applicationId'), controller.getStatuses)
- * 
+ *
  * @param paramName - The name of the URL parameter to validate
  */
 export function validateUUID(paramName: string) {
@@ -51,14 +51,9 @@ export function validateUUID(paramName: string) {
 		if (!isValidUUID(valueStr)) {
 			const requestId = req.requestId ? req.requestId : 'unknown'
 			res.status(400).json(
-				errorResponse(
-					'INVALID_PARAMETER',
-					`Invalid ${paramName} format. Expected a valid UUID.`,
-					requestId,
-					{
-						[paramName]: ['Must be a valid UUID format (e.g., 123e4567-e89b-12d3-a456-426614174000)'],
-					},
-				),
+				errorResponse('INVALID_PARAMETER', `Invalid ${paramName} format. Expected a valid UUID.`, requestId, {
+					[paramName]: ['Must be a valid UUID format (e.g., 123e4567-e89b-12d3-a456-426614174000)'],
+				}),
 			)
 			return
 		}
@@ -69,7 +64,7 @@ export function validateUUID(paramName: string) {
 
 /**
  * Middleware to validate multiple UUID parameters at once
- * 
+ *
  * Usage:
  *   router.get('/:id', validateUUIDs(['id']), controller.getOne)
  */

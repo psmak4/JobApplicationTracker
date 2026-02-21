@@ -1,7 +1,8 @@
+import { logger } from '@/config/logger'
 import { fromNodeHeaders } from 'better-auth/node'
 import { NextFunction, Request, Response } from 'express'
-import { auth } from '../auth'
-import { errorResponse } from '../utils/responses'
+import { auth } from '@/auth'
+import { errorResponse } from '@/utils/responses'
 
 /**
  * Middleware that requires the user to be authenticated AND have admin role.
@@ -31,7 +32,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 
 		next()
 	} catch (error) {
-		console.error('Admin middleware error:', error)
+		logger.error({ err: error }, 'Admin middleware error:')
 		res.status(500).json(errorResponse('INTERNAL_ERROR', 'Authorization check failed', 'auth'))
 	}
 }

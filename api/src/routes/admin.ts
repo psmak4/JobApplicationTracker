@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { requireAdmin } from '../middleware/requireAdmin'
+import { requireAdmin } from '@/middleware/requireAdmin'
 
 const router = Router()
 

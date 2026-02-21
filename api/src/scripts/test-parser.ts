@@ -1,4 +1,4 @@
-import { jobParser } from '../services/jobParser'
+import { jobParser } from '@/services/jobParser'
 
 async function testParser() {
 	console.log('🧪 Testing Job Parser\n')

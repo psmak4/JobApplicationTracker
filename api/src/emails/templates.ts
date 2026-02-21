@@ -1,4 +1,4 @@
-import { escapeHtml } from '../utils/htmlEscape'
+import { escapeHtml } from '@/utils/htmlEscape'
 
 export const emailTemplates = {
 	verification: (url: string, userName: string) => {

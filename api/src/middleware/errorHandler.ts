@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
-import { ErrorCodes, errorResponse, validationErrorResponse } from '../utils/responses'
+import { logger } from '@/config/logger'
+import { ErrorCodes, errorResponse, validationErrorResponse } from '@/utils/responses'
 
 /**
  * Extend Express Request to include requestId
@@ -47,74 +48,56 @@ function formatZodErrors(error: ZodError): Record<string, string[]> {
 
 /**
  * Global error handler middleware
- * 
+ *
  * This catches all unhandled errors and returns standardized JSON responses.
  * It should be the LAST middleware added to the Express app.
  */
-export function errorHandler(
-	err: Error,
-	req: Request,
-	res: Response,
-	_next: NextFunction,
-): void {
+export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
 	const requestId = req.requestId || generateRequestId()
 
 	// Log the error with request ID for debugging
-	console.error(`[Error] Request ${requestId}:`, {
-		message: err.message,
-		stack: err.stack,
-		path: req.path,
-		method: req.method,
-	})
+	logger.error(
+		{
+			message: err.message,
+			stack: err.stack,
+			path: req.path,
+			method: req.method,
+		},
+		`[Error] Request ${requestId}:`,
+	)
 
 	// Handle Zod validation errors
 	if (err instanceof ZodError) {
 		const details = formatZodErrors(err)
-		res.status(400).json(
-			validationErrorResponse('Validation failed. Please check your input.', requestId, details),
-		)
+		res.status(400).json(validationErrorResponse('Validation failed. Please check your input.', requestId, details))
 		return
 	}
 
 	// Handle specific error types
 	if (err.name === 'ValidationError') {
-		res.status(400).json(
-			errorResponse(ErrorCodes.VALIDATION_ERROR, err.message, requestId),
-		)
+		res.status(400).json(errorResponse(ErrorCodes.VALIDATION_ERROR, err.message, requestId))
 		return
 	}
 
 	// Handle syntax errors (malformed JSON)
 	if (err.name === 'SyntaxError' && 'body' in err) {
-		res.status(400).json(
-			errorResponse(ErrorCodes.BAD_REQUEST, 'Invalid JSON in request body', requestId),
-		)
+		res.status(400).json(errorResponse(ErrorCodes.BAD_REQUEST, 'Invalid JSON in request body', requestId))
 		return
 	}
 
 	// Default: Internal server error (don't expose internal details)
 	res.status(500).json(
-		errorResponse(
-			ErrorCodes.INTERNAL_ERROR,
-			'An unexpected error occurred. Please try again later.',
-			requestId,
-		),
+		errorResponse(ErrorCodes.INTERNAL_ERROR, 'An unexpected error occurred. Please try again later.', requestId),
 	)
 }
 
 /**
  * 404 handler for undefined routes
- * 
+ *
  * This should be added after all routes but before the error handler
  */
 export function notFoundHandler(req: Request, res: Response): void {
 	const requestId = req.requestId || generateRequestId()
 
-	res.status(404).json(
-		errorResponse(
-			ErrorCodes.NOT_FOUND,
-			`Route ${req.method} ${req.path} not found`,
-			requestId,
-		),
-	)
+	res.status(404).json(errorResponse(ErrorCodes.NOT_FOUND, `Route ${req.method} ${req.path} not found`, requestId))
 }

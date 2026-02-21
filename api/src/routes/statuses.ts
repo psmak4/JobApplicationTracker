@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { statusController } from '../controllers/statuses'
-import { requireAuth } from '../middleware/auth'
-import { createProtection, deleteProtection } from '../middleware/rateLimiter'
-import { validateUUID } from '../middleware/validateParams'
+import { statusController } from '@/controllers/statuses'
+import { requireAuth } from '@/middleware/auth'
+import { createProtection, deleteProtection } from '@/middleware/rateLimiter'
+import { validateUUID } from '@/middleware/validateParams'
 
 const router = Router()
 

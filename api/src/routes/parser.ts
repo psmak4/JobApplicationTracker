@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { parserController } from '../controllers/parser'
-import { requireAuth } from '../middleware/auth'
-import { parserProtection } from '../middleware/rateLimiter'
+import { parserController } from '@/controllers/parser'
+import { requireAuth } from '@/middleware/auth'
+import { parserProtection } from '@/middleware/rateLimiter'
 
 const router = Router()
 

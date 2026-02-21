@@ -1,10 +1,11 @@
+import { logger } from '@/config/logger'
 import { and, desc, eq, isNull } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError, z } from 'zod'
-import { db } from '../db/index'
-import { applications, calendarEvents } from '../db/schema'
-import { getRequestId } from '../utils/request'
-import { errorResponse, successResponse } from '../utils/responses'
+import { db } from '@/db/index'
+import { applications, calendarEvents } from '@/db/schema'
+import { getRequestId } from '@/utils/request'
+import { errorResponse, successResponse } from '@/utils/responses'
 
 const createEventSchema = z.object({
 	googleEventId: z.string().optional(),
@@ -54,7 +55,7 @@ export const eventController = {
 
 			res.json(successResponse(events, getRequestId(req)))
 		} catch (error) {
-			console.error('Error fetching calendar events:', error)
+			logger.error({ err: error }, 'Error fetching calendar events:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch calendar events', getRequestId(req)))
 		}
 	},
@@ -106,7 +107,7 @@ export const eventController = {
 				next(error)
 				return
 			}
-			console.error('Error creating calendar event:', error)
+			logger.error({ err: error }, 'Error creating calendar event:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create calendar event', getRequestId(req)))
 		}
 	},
@@ -134,7 +135,7 @@ export const eventController = {
 
 			res.json(successResponse({ message: 'Calendar event deleted' }, getRequestId(req)))
 		} catch (error) {
-			console.error('Error deleting calendar event:', error)
+			logger.error({ err: error }, 'Error deleting calendar event:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete calendar event', getRequestId(req)))
 		}
 	},

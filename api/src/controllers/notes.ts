@@ -1,10 +1,11 @@
+import { logger } from '@/config/logger'
 import { and, asc, desc, eq, isNull } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError, z } from 'zod'
-import { db } from '../db/index'
-import { applications, notes } from '../db/schema'
-import { getRequestId } from '../utils/request'
-import { errorResponse, successResponse } from '../utils/responses'
+import { db } from '@/db/index'
+import { applications, notes } from '@/db/schema'
+import { getRequestId } from '@/utils/request'
+import { errorResponse, successResponse } from '@/utils/responses'
 
 const createNoteSchema = z.object({
 	content: z
@@ -42,7 +43,7 @@ export const noteController = {
 
 			res.json(successResponse(notesList, getRequestId(req)))
 		} catch (error) {
-			console.error('Error fetching notes:', error)
+			logger.error({ err: error }, 'Error fetching notes:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch notes', getRequestId(req)))
 		}
 	},
@@ -90,7 +91,7 @@ export const noteController = {
 				next(error)
 				return
 			}
-			console.error('Error creating note:', error)
+			logger.error({ err: error }, 'Error creating note:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create note', getRequestId(req)))
 		}
 	},
@@ -118,7 +119,7 @@ export const noteController = {
 
 			res.json(successResponse({ message: 'Note deleted' }, getRequestId(req)))
 		} catch (error) {
-			console.error('Error deleting note:', error)
+			logger.error({ err: error }, 'Error deleting note:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete note', getRequestId(req)))
 		}
 	},

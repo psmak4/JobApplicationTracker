@@ -1,6 +1,6 @@
 /**
  * Standardized API response helpers
- * 
+ *
  * Note: Frontend will need to be updated to handle these response formats:
  * - Success responses are wrapped in { data: ... } with optional metadata
  * - Error responses include detailed validation errors when applicable
@@ -34,11 +34,7 @@ export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse
 /**
  * Create a standardized success response
  */
-export function successResponse<T>(
-	data: T,
-	requestId: string,
-	meta?: Record<string, unknown>,
-): SuccessResponse<T> {
+export function successResponse<T>(data: T, requestId: string, meta?: Record<string, unknown>): SuccessResponse<T> {
 	return {
 		success: true,
 		data,
@@ -75,7 +71,7 @@ export function errorResponse(
 
 /**
  * Create a validation error response with field-level details
- * 
+ *
  * Frontend note: Check error.details for field-specific validation errors
  */
 export function validationErrorResponse(

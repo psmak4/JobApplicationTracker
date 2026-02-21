@@ -1,10 +1,11 @@
+import { logger } from '@/config/logger'
 import { and, asc, desc, eq, gte, inArray, isNotNull, isNull } from 'drizzle-orm'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError, z } from 'zod'
-import { db } from '../db/index'
-import { applicationStatusEnum, applications, calendarEvents, notes } from '../db/schema'
-import { getRequestId } from '../utils/request'
-import { errorResponse, successResponse } from '../utils/responses'
+import { db } from '@/db/index'
+import { applicationStatusEnum, applications, calendarEvents, notes } from '@/db/schema'
+import { getRequestId } from '@/utils/request'
+import { errorResponse, successResponse } from '@/utils/responses'
 
 // Zod schemas for validation with input sanitization (trim whitespace)
 const createApplicationSchema = z.object({
@@ -119,7 +120,7 @@ export const applicationController = {
 
 			res.json(successResponse(response, getRequestId(req)))
 		} catch (error) {
-			console.error('Error fetching application list:', error)
+			logger.error({ err: error }, 'Error fetching application list:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch applications', getRequestId(req)))
 		}
 	},
@@ -201,7 +202,7 @@ export const applicationController = {
 
 			res.json(successResponse(response, getRequestId(req)))
 		} catch (error) {
-			console.error('Error fetching active application list:', error)
+			logger.error({ err: error }, 'Error fetching active application list:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch applications', getRequestId(req)))
 		}
 	},
@@ -237,7 +238,7 @@ export const applicationController = {
 			const { statusHistory: _sh, notes: noteEntries, ...appData } = application as any
 			res.json(successResponse({ ...appData, noteEntries }, getRequestId(req)))
 		} catch (error) {
-			console.error('Error fetching application:', error)
+			logger.error({ err: error }, 'Error fetching application:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to fetch application', getRequestId(req)))
 		}
 	},
@@ -274,7 +275,7 @@ export const applicationController = {
 				next(error)
 				return
 			}
-			console.error('Error creating application:', error)
+			logger.error({ err: error }, 'Error creating application:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to create application', getRequestId(req)))
 		}
 	},
@@ -338,7 +339,7 @@ export const applicationController = {
 				next(error)
 				return
 			}
-			console.error('Error updating application:', error)
+			logger.error({ err: error }, 'Error updating application:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to update application', getRequestId(req)))
 		}
 	},
@@ -361,7 +362,7 @@ export const applicationController = {
 
 			res.json(successResponse({ message: 'Application deleted successfully' }, getRequestId(req)))
 		} catch (error) {
-			console.error('Error deleting application:', error)
+			logger.error({ err: error }, 'Error deleting application:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to delete application', getRequestId(req)))
 		}
 	},
@@ -388,7 +389,7 @@ export const applicationController = {
 
 			res.json(successResponse(archivedApp, getRequestId(req)))
 		} catch (error) {
-			console.error('Error archiving application:', error)
+			logger.error({ err: error }, 'Error archiving application:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to archive application', getRequestId(req)))
 		}
 	},
@@ -412,7 +413,7 @@ export const applicationController = {
 
 			res.json(successResponse(applicationList, getRequestId(req)))
 		} catch (error) {
-			console.error('Error fetching archived applications:', error)
+			logger.error({ err: error }, 'Error fetching archived applications:')
 			res.status(500).json(
 				errorResponse('INTERNAL_ERROR', 'Failed to fetch archived applications', getRequestId(req)),
 			)
@@ -441,7 +442,7 @@ export const applicationController = {
 
 			res.json(successResponse(restoredApp, getRequestId(req)))
 		} catch (error) {
-			console.error('Error restoring application:', error)
+			logger.error({ err: error }, 'Error restoring application:')
 			res.status(500).json(errorResponse('INTERNAL_ERROR', 'Failed to restore application', getRequestId(req)))
 		}
 	},

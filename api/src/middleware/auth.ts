@@ -1,7 +1,8 @@
+import { logger } from '@/config/logger'
 import { fromNodeHeaders } from 'better-auth/node'
 import { NextFunction, Request, Response } from 'express'
-import { auth } from '../auth'
-import { errorResponse } from '../utils/responses'
+import { auth } from '@/auth'
+import { errorResponse } from '@/utils/responses'
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -21,8 +22,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 
 		next()
 	} catch (error) {
-		console.error('Auth middleware error:', error)
+		logger.error({ err: error }, 'Auth middleware error:')
 		res.status(500).json(errorResponse('INTERNAL_ERROR', 'Authentication check failed', 'auth'))
 	}
 }
-

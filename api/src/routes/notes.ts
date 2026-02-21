@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { noteController } from '../controllers/notes'
-import { requireAuth } from '../middleware/auth'
-import { createLimiter, deleteLimiter } from '../middleware/rateLimiter'
+import { noteController } from '@/controllers/notes'
+import { requireAuth } from '@/middleware/auth'
+import { createLimiter, deleteLimiter } from '@/middleware/rateLimiter'
 
 const router = Router()
 
