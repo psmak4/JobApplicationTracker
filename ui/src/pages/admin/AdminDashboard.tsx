@@ -29,6 +29,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -43,14 +44,16 @@ import {
 	useBanUser,
 	useImpersonateUser,
 	useRemoveUser,
+	useRemoveUsers,
 	useSetUserRole,
 	useUnbanUser,
 } from '@/hooks/useAdmin'
 import { formatDate } from '@/lib/utils'
 
-// Memoized user row component for performance
 const UserRow = React.memo(function UserRow({
 	user,
+	isSelected,
+	onSelect,
 	onBan,
 	onUnban,
 	onSetRole,
@@ -58,6 +61,8 @@ const UserRow = React.memo(function UserRow({
 	onRemove,
 }: {
 	user: AdminUser
+	isSelected: boolean
+	onSelect: (userId: string, checked: boolean) => void
 	onBan: (userId: string) => void
 	onUnban: (userId: string) => void
 	onSetRole: (userId: string, role: 'user' | 'admin') => void
@@ -69,6 +74,13 @@ const UserRow = React.memo(function UserRow({
 
 	return (
 		<tr className="border-b border-border hover:bg-muted/50 transition-colors">
+			<td className="py-4 px-4">
+				<Checkbox
+					checked={isSelected}
+					onCheckedChange={(checked) => onSelect(user.id, checked as boolean)}
+					aria-label={`Select ${user.name}`}
+				/>
+			</td>
 			<td className="py-4 px-4">
 				<div className="flex items-center gap-3">
 					<div className="h-10 w-10 rounded-full bg-linear-to-br from-primary/30 to-primary/10 flex items-center justify-center">
@@ -172,12 +184,13 @@ const UserRow = React.memo(function UserRow({
 export default function AdminDashboard() {
 	const [searchValue, setSearchValue] = useState('')
 	const [page, setPage] = useState(0)
+	const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set())
 	const [confirmDialog, setConfirmDialog] = useState<{
 		open: boolean
-		type: 'ban' | 'remove' | 'role' | null
-		userId: string
+		type: 'ban' | 'remove' | 'bulk-remove' | 'role' | null
+		userId?: string
 		role?: 'user' | 'admin'
-	}>({ open: false, type: null, userId: '' })
+	}>({ open: false, type: null })
 
 	const pageSize = 20
 
@@ -193,6 +206,27 @@ export default function AdminDashboard() {
 	const setUserRole = useSetUserRole()
 	const impersonateUser = useImpersonateUser()
 	const removeUser = useRemoveUser()
+	const removeUsers = useRemoveUsers()
+
+	const handleSelectUser = (userId: string, checked: boolean) => {
+		setSelectedUsers((prev) => {
+			const newSet = new Set(prev)
+			if (checked) {
+				newSet.add(userId)
+			} else {
+				newSet.delete(userId)
+			}
+			return newSet
+		})
+	}
+
+	const handleSelectAll = (checked: boolean) => {
+		if (checked && data?.users) {
+			setSelectedUsers(new Set(data.users.map((u) => u.id)))
+		} else {
+			setSelectedUsers(new Set())
+		}
+	}
 
 	const handleBan = (userId: string) => {
 		setConfirmDialog({ open: true, type: 'ban', userId })
@@ -224,17 +258,25 @@ export default function AdminDashboard() {
 		setConfirmDialog({ open: true, type: 'remove', userId })
 	}
 
+	const handleBulkRemove = () => {
+		setConfirmDialog({ open: true, type: 'bulk-remove' })
+	}
+
 	const confirmAction = async () => {
 		const { type, userId, role } = confirmDialog
 
 		try {
-			if (type === 'ban') {
+			if (type === 'ban' && userId) {
 				await banUser.mutateAsync({ userId })
 				toast.success('User banned successfully')
-			} else if (type === 'remove') {
+			} else if (type === 'remove' && userId) {
 				await removeUser.mutateAsync({ userId })
 				toast.success('User deleted successfully')
-			} else if (type === 'role' && role) {
+			} else if (type === 'bulk-remove') {
+				await removeUsers.mutateAsync({ userIds: Array.from(selectedUsers) })
+				toast.success(`${selectedUsers.size} users deleted successfully`)
+				setSelectedUsers(new Set())
+			} else if (type === 'role' && userId && role) {
 				await setUserRole.mutateAsync({ userId, role })
 				toast.success(`User role updated to ${role}`)
 			}
@@ -242,10 +284,12 @@ export default function AdminDashboard() {
 			toast.error('Action failed')
 		}
 
-		setConfirmDialog({ open: false, type: null, userId: '' })
+		setConfirmDialog({ open: false, type: null })
 	}
 
 	const totalPages = data ? Math.ceil(data.total / pageSize) : 0
+	const allSelected = data?.users.length === selectedUsers.size && (data?.users.length ?? 0) > 0
+	const someSelected = selectedUsers.size > 0
 
 	if (error) {
 		return (
@@ -260,10 +304,8 @@ export default function AdminDashboard() {
 
 	return (
 		<div className="space-y-6">
-			{/* Header */}
 			<PageHeader title="User Management" subtitle="Manage users, roles, and permissions" />
 
-			{/* Stats Cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 				<Card>
 					<CardHeader className="pb-2">
@@ -287,7 +329,6 @@ export default function AdminDashboard() {
 				</Card>
 			</div>
 
-			{/* Users Table */}
 			<Card>
 				<CardHeader>
 					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -321,25 +362,33 @@ export default function AdminDashboard() {
 						</div>
 					) : (
 						<>
+							{someSelected && (
+								<div className="mb-4 flex items-center gap-2">
+									<span className="text-sm text-muted-foreground">
+										{selectedUsers.size} user(s) selected
+									</span>
+									<Button variant="destructive" size="sm" onClick={handleBulkRemove}>
+										<Trash2 className="h-4 w-4 mr-2" />
+										Delete Selected
+									</Button>
+								</div>
+							)}
 							<div className="overflow-x-auto">
 								<table className="w-full">
 									<thead>
 										<tr className="border-b border-border text-left">
-											<th className="py-3 px-4 text-sm font-medium text-muted-foreground">
-												User
+											<th className="py-3 px-4 text-sm font-medium text-muted-foreground w-12">
+												<Checkbox
+													checked={allSelected}
+													onCheckedChange={handleSelectAll}
+													aria-label="Select all"
+												/>
 											</th>
-											<th className="py-3 px-4 text-sm font-medium text-muted-foreground">
-												Role
-											</th>
-											<th className="py-3 px-4 text-sm font-medium text-muted-foreground">
-												Status
-											</th>
-											<th className="py-3 px-4 text-sm font-medium text-muted-foreground">
-												Joined
-											</th>
-											<th className="py-3 px-4 text-sm font-medium text-muted-foreground">
-												Actions
-											</th>
+											<th className="py-3 px-4 text-sm font-medium text-muted-foreground">User</th>
+											<th className="py-3 px-4 text-sm font-medium text-muted-foreground">Role</th>
+											<th className="py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
+											<th className="py-3 px-4 text-sm font-medium text-muted-foreground">Joined</th>
+											<th className="py-3 px-4 text-sm font-medium text-muted-foreground">Actions</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -347,6 +396,8 @@ export default function AdminDashboard() {
 											<UserRow
 												key={user.id}
 												user={user}
+												isSelected={selectedUsers.has(user.id)}
+												onSelect={handleSelectUser}
 												onBan={handleBan}
 												onUnban={handleUnban}
 												onSetRole={handleSetRole}
@@ -358,7 +409,6 @@ export default function AdminDashboard() {
 								</table>
 							</div>
 
-							{/* Pagination */}
 							{totalPages > 1 && (
 								<div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
 									<p className="text-sm text-muted-foreground">
@@ -389,16 +439,16 @@ export default function AdminDashboard() {
 				</CardContent>
 			</Card>
 
-			{/* Confirmation Dialog */}
 			<AlertDialog
 				open={confirmDialog.open}
-				onOpenChange={(open) => !open && setConfirmDialog({ open: false, type: null, userId: '' })}
+				onOpenChange={(open) => !open && setConfirmDialog({ open: false, type: null })}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>
 							{confirmDialog.type === 'ban' && 'Ban User'}
 							{confirmDialog.type === 'remove' && 'Delete User'}
+							{confirmDialog.type === 'bulk-remove' && `Delete ${selectedUsers.size} Users`}
 							{confirmDialog.type === 'role' && `Change Role to ${confirmDialog.role}`}
 						</AlertDialogTitle>
 						<AlertDialogDescription>
@@ -406,6 +456,8 @@ export default function AdminDashboard() {
 								'This will prevent the user from signing in and revoke all their sessions.'}
 							{confirmDialog.type === 'remove' &&
 								'This action cannot be undone. This will permanently delete the user and all their data.'}
+							{confirmDialog.type === 'bulk-remove' &&
+								`This action cannot be undone. This will permanently delete ${selectedUsers.size} users and all their data.`}
 							{confirmDialog.type === 'role' && `Are you sure you want to change this user's role?`}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
@@ -413,7 +465,11 @@ export default function AdminDashboard() {
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={confirmAction}
-							className={confirmDialog.type === 'remove' ? 'bg-destructive hover:bg-destructive/90' : ''}
+							className={
+								confirmDialog.type === 'remove' || confirmDialog.type === 'bulk-remove'
+									? 'bg-destructive hover:bg-destructive/90'
+									: ''
+							}
 						>
 							Confirm
 						</AlertDialogAction>

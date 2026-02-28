@@ -126,3 +126,35 @@ export type MutationError = Error | AxiosError<ApiErrorResponse>
 export function isAxiosError(error: MutationError): error is AxiosError<ApiErrorResponse> {
 	return 'isAxiosError' in error && error.isAxiosError === true
 }
+
+// Action Dashboard types
+export interface StaleApplication extends ApplicationSummary {
+	daysSinceUpdate: number
+}
+
+export interface UpcomingEventWithApp extends UpcomingEventEntry {
+	company: string
+	jobTitle: string
+}
+
+export interface RecentActivityStats {
+	applied: number
+	interviews: number
+	offers: number
+}
+
+export interface EventGroups {
+	today: UpcomingEventWithApp[]
+	tomorrow: UpcomingEventWithApp[]
+	thisWeek: UpcomingEventWithApp[]
+}
+
+export interface DashboardStats {
+	active: number
+	thisWeekNew: number
+	thisWeekInterviews: number
+	avgResponseDays: number | null
+	hitRateNumerator: number
+	hitRateDenominator: number
+	hitRatePercentage: number
+}

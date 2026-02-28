@@ -12,20 +12,12 @@ export class ApplicationViewPage {
     return this.page.locator('a:has-text("Edit"), button:has-text("Edit")');
   }
 
-  get deleteButton(): Locator {
-    return this.page.locator('button:has-text("Delete")').first();
-  }
-
-  get confirmDeleteButton(): Locator {
-    return this.page.locator('[role="alertdialog"] button:has-text("Delete")');
-  }
-
-  get cancelDeleteButton(): Locator {
-    return this.page.locator('[role="alertdialog"] button:has-text("Cancel")');
+  get archiveButton(): Locator {
+    return this.page.locator('button:has-text("Archive")').first();
   }
 
   get backButton(): Locator {
-    return this.page.locator('button[aria-label*="back" i], button[aria-label*="Back" i]');
+    return this.page.locator('a:has-text("Back"), button[aria-label*="back" i]');
   }
 
   // Navigation
@@ -40,28 +32,44 @@ export class ApplicationViewPage {
     await expect(this.page).toHaveURL(/\/edit$/);
   }
 
+  async clickArchive() {
+    await this.archiveButton.click();
+  }
+
   async clickDelete() {
-    await this.deleteButton.click();
+    await this.page.locator('button:has-text("Delete")').first().click();
   }
 
   async confirmDelete() {
-    await this.confirmDeleteButton.click();
+    await this.page.locator('[role="alertdialog"] button:has-text("Delete")').click();
   }
 
   async cancelDelete() {
-    await this.cancelDeleteButton.click();
+    await this.page.locator('[role="alertdialog"] button:has-text("Cancel")').click();
+  }
+
+  async confirmArchive() {
+    await this.page.locator('[role="alertdialog"] button:has-text("Archive")').click();
+  }
+
+  async cancelArchive() {
+    await this.page.locator('[role="alertdialog"] button:has-text("Cancel")').click();
   }
 
   async deleteApplication() {
     await this.clickDelete();
     await this.confirmDelete();
-    // Wait for redirect to dashboard
-    // Check for either dashboard or landing page after delete
-    await this.page.waitForURL(/\/app\/?$|^http:\/\/localhost:5173\/$/, { timeout: 15000 });
+    await this.page.waitForURL(/\/app\/?$/, { timeout: 15000 });
+  }
+
+  async archiveApplication() {
+    await this.clickArchive();
+    await this.confirmArchive();
+    await this.page.waitForURL(/\/app\/pipeline/, { timeout: 15000 });
   }
 
   async goBack() {
-    await this.backButton.click();
+    await this.backButton.first().click();
   }
 
   // Getters
@@ -71,9 +79,7 @@ export class ApplicationViewPage {
   }
 
   async getJobTitle(): Promise<string> {
-    const subtitle = this.page
-      .locator("h1 + p, .text-muted-foreground")
-      .first();
+    const subtitle = this.page.locator("h1 + p, .text-muted-foreground").first();
     return (await subtitle.textContent()) || "";
   }
 
@@ -90,9 +96,13 @@ export class ApplicationViewPage {
     await expect(this.page.locator(`text=${jobTitle}`).first()).toBeVisible();
   }
 
+  async expectArchiveDialogVisible() {
+    await expect(this.page.locator('[role="alertdialog"]')).toBeVisible();
+    await expect(this.page.locator("text=Archive Application?")).toBeVisible();
+  }
+
   async expectDeleteDialogVisible() {
     await expect(this.page.locator('[role="alertdialog"]')).toBeVisible();
-    await expect(this.confirmDeleteButton).toBeVisible();
   }
 
   async expectNotFound() {

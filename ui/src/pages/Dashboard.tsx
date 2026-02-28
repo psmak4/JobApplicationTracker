@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import NewApplicationLink from '@/components/NewApplicationLink'
 import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
-import { ApplicationList, EmptyState, UpcomingEvents } from '@/components/dashboard'
+import { ActionDashboard, ApplicationList, EmptyState, UpcomingEvents } from '@/components/dashboard'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useActiveApplications, useApplicationPrefetch } from '@/hooks/useApplications'
 
@@ -59,6 +59,9 @@ export default function Dashboard() {
 				<EmptyState />
 			) : (
 				<>
+					{/* Action Dashboard */}
+					<ActionDashboard />
+
 					<div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
 						{/* Main Content */}
 						<div className="min-w-0">

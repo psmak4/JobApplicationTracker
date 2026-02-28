@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import apiClient from '@/lib/api-client'
 import { authClient } from '@/lib/auth-client'
 import { getErrorMessage } from '@/lib/error-utils'
 import { adminQueryKeys } from '@/lib/queryKeys'
@@ -34,7 +35,6 @@ export interface ListUsersResponse {
 	offset?: number
 }
 
-// Hook to list all users with pagination and search
 export function useAdminUsers(params: ListUsersParams = {}) {
 	return useQuery({
 		queryKey: adminQueryKeys.usersList({
@@ -64,7 +64,6 @@ export function useAdminUsers(params: ListUsersParams = {}) {
 	})
 }
 
-// Hook to list user sessions
 export function useAdminUserSessions(userId: string) {
 	return useQuery({
 		queryKey: adminQueryKeys.userSessions(userId),
@@ -84,7 +83,6 @@ export function useAdminUserSessions(userId: string) {
 	})
 }
 
-// Hook to ban a user
 export function useBanUser() {
 	const queryClient = useQueryClient()
 
@@ -118,7 +116,6 @@ export function useBanUser() {
 	})
 }
 
-// Hook to unban a user
 export function useUnbanUser() {
 	const queryClient = useQueryClient()
 
@@ -142,7 +139,6 @@ export function useUnbanUser() {
 	})
 }
 
-// Hook to set user role
 export function useSetUserRole() {
 	const queryClient = useQueryClient()
 
@@ -167,7 +163,6 @@ export function useSetUserRole() {
 	})
 }
 
-// Hook to remove a user
 export function useRemoveUser() {
 	const queryClient = useQueryClient()
 
@@ -191,7 +186,24 @@ export function useRemoveUser() {
 	})
 }
 
-// Hook to impersonate a user
+export function useRemoveUsers() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: async ({ userIds }: { userIds: string[] }) => {
+			const response = await apiClient.post('/admin/users/bulk-delete', { userIds })
+			return response.data
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: adminQueryKeys.users })
+			toast.success('Users removed successfully')
+		},
+		onError: (error) => {
+			toast.error('Error', { description: getErrorMessage(error) })
+		},
+	})
+}
+
 export function useImpersonateUser() {
 	return useMutation({
 		mutationFn: async ({ userId }: { userId: string }) => {
@@ -203,13 +215,11 @@ export function useImpersonateUser() {
 				throw new Error(getErrorMessage(error))
 			}
 
-			// Reload the page to reflect the impersonated user
 			window.location.reload()
 		},
 	})
 }
 
-// Hook to stop impersonating
 export function useStopImpersonating() {
 	return useMutation({
 		mutationFn: async () => {
@@ -219,13 +229,11 @@ export function useStopImpersonating() {
 				throw new Error(getErrorMessage(error))
 			}
 
-			// Reload the page to reflect the original user
 			window.location.reload()
 		},
 	})
 }
 
-// Hook to revoke a specific session
 export function useRevokeUserSession() {
 	const queryClient = useQueryClient()
 
@@ -240,13 +248,11 @@ export function useRevokeUserSession() {
 			}
 		},
 		onSuccess: () => {
-			// Invalidate all session queries since we don't have the userId here
 			queryClient.invalidateQueries({ queryKey: ['admin', 'sessions'] })
 		},
 	})
 }
 
-// Hook to revoke all sessions for a user
 export function useRevokeAllUserSessions() {
 	const queryClient = useQueryClient()
 
@@ -261,7 +267,6 @@ export function useRevokeAllUserSessions() {
 			}
 		},
 		onSuccess: () => {
-			// Invalidate all session queries since we don't have the userId here
 			queryClient.invalidateQueries({ queryKey: ['admin', 'sessions'] })
 		},
 	})
