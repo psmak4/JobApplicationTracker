@@ -27,8 +27,8 @@ const PageHeader = ({ title, subtitle, backUrl, actions }: Props) => {
 				/>
 			)}
 			<div>
-				<h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-				<p className="text-muted-foreground">{subtitle}</p>
+				<h1 className="text-3xl font-heading font-semibold tracking-tight">{title}</h1>
+				<p className="text-muted-foreground mt-1">{subtitle}</p>
 			</div>
 			{actions && (
 				<div className="flex gap-2 ml-auto">

@@ -1,9 +1,9 @@
 import { ArchiveRestore, CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { ApplicationStatusBadge } from '@/components/ApplicationStatusBadge'
 import { LoadingFallback } from '@/components/LoadingSpinner'
 import PageHeader from '@/components/PageHeader'
+import { EmptyState } from '@/components/dashboard/EmptyState'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -15,7 +15,7 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { useArchivedApplications } from '@/hooks/useApplications'
 import { useRestoreApplication } from '@/hooks/useMutations'
 import { formatDate } from '@/lib/utils'
@@ -53,20 +53,8 @@ export default function ApplicationArchive() {
 			<PageHeader title="Archived Applications" subtitle="View and restore previously archived applications." />
 
 			{!applications || applications.length === 0 ? (
-				<Card className="text-center py-12">
-					<CardHeader>
-						<div className="mx-auto bg-muted rounded-full p-4 w-16 h-16 flex items-center justify-center mb-4">
-							<ArchiveRestore className="h-8 w-8 text-muted-foreground" />
-						</div>
-						<CardTitle>No archived applications</CardTitle>
-						<CardDescription>
-							Archived applications will appear here. You can archive an application from its details
-							page.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<Button variant="outline" render={<Link to="/pipeline">Go to Pipeline</Link>} />
-					</CardContent>
+				<Card className="shadow-lg">
+					<EmptyState variant="no-archive" />
 				</Card>
 			) : (
 				<div className="rounded-md border bg-card shadow-lg">

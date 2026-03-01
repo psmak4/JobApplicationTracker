@@ -14,12 +14,12 @@ export default function NewApplicationLink({ size = 'sm' }: Props) {
 			className={cn(
 				buttonVariants({ variant: 'default', size }),
 				'flex items-center gap-2 group',
-				'bg-linear-to-r from-blue-600 to-blue-500',
-				'hover:from-blue-700 hover:to-blue-600',
-				'shadow-sm hover:shadow-md',
+				'bg-linear-to-r from-primary to-amber-500',
+				'hover:from-primary-hover hover:to-amber-400',
+				'shadow-md hover:shadow-lg shadow-primary/20',
 				'transition-all duration-200',
 				'border-0',
-				'dark:text-white',
+				'text-primary-foreground',
 			)}
 			aria-label="Create new application"
 		>

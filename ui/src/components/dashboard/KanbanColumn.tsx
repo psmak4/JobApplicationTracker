@@ -1,3 +1,4 @@
+import { GripHorizontal, Plus } from 'lucide-react'
 import { useDroppable } from '@dnd-kit/core'
 import { type KanbanColumn as KanbanColumnType, STATUS_THEME } from '@/constants'
 import type { ApplicationSummary } from '@/types'
@@ -38,8 +39,22 @@ export function KanbanColumn({ id, title, applications, showStatusBadge = false 
 					<KanbanCard key={app.id} application={app} showStatusBadge={showStatusBadge} />
 				))}
 				{applications.length === 0 && (
-					<div className="flex items-center justify-center h-20 text-xs text-muted-foreground opacity-50">
-						Drop here
+					<div
+						className={`flex flex-col items-center justify-center h-24 rounded-lg border-2 border-dashed transition-all ${
+							isOver ? 'border-primary bg-primary/5' : 'border-border/50'
+						}`}
+					>
+						{isOver ? (
+							<>
+								<Plus className="h-5 w-5 text-primary mb-1" />
+								<span className="text-xs text-primary font-medium">Drop here</span>
+							</>
+						) : (
+							<>
+								<GripHorizontal className="h-5 w-5 text-muted-foreground/30 mb-1" />
+								<span className="text-xs text-muted-foreground/50">Drag applications here</span>
+							</>
+						)}
 					</div>
 				)}
 			</div>

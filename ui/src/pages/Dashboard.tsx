@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import NewApplicationLink from '@/components/NewApplicationLink'
 import PageHeader from '@/components/PageHeader'
 import { QueryError, QueryLoading } from '@/components/QueryState'
-import { ActionDashboard, ApplicationList, EmptyState, UpcomingEvents } from '@/components/dashboard'
+import { ApplicationList, EmptyState, UpcomingEvents } from '@/components/dashboard'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useActiveApplications, useApplicationPrefetch } from '@/hooks/useApplications'
 
@@ -58,35 +58,30 @@ export default function Dashboard() {
 			{applications.length === 0 ? (
 				<EmptyState />
 			) : (
-				<>
-					{/* Action Dashboard */}
-					<ActionDashboard />
-
-					<div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
-						{/* Main Content */}
-						<div className="min-w-0">
-							<Card className="shadow-lg">
-								<CardHeader className="pb-3 flex items-center justify-between">
-									<CardTitle className="text-lg font-semibold">Active Applications</CardTitle>
-									<NewApplicationLink size="sm" />
-								</CardHeader>
-								<CardContent>
-									<ApplicationList
-										applications={applications}
-										onNavigate={handleNavigate}
-										onPrefetch={handlePrefetch}
-										highlightedApplicationId={highlightedApplicationId}
-									/>
-								</CardContent>
-							</Card>
-						</div>
-
-						{/* Sidebar - Always visible */}
-						<div>
-							<UpcomingEvents events={upcomingEvents} onHoverApplication={setHighlightedApplicationId} />
-						</div>
+				<div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
+					{/* Main Content */}
+					<div className="min-w-0">
+						<Card className="shadow-lg">
+							<CardHeader className="pb-3 flex items-center justify-between">
+								<CardTitle className="text-lg font-semibold font-heading">Active Applications</CardTitle>
+								<NewApplicationLink size="sm" />
+							</CardHeader>
+							<CardContent>
+								<ApplicationList
+									applications={applications}
+									onNavigate={handleNavigate}
+									onPrefetch={handlePrefetch}
+									highlightedApplicationId={highlightedApplicationId}
+								/>
+							</CardContent>
+						</Card>
 					</div>
-				</>
+
+					{/* Sidebar */}
+					<div>
+						<UpcomingEvents events={upcomingEvents} onHoverApplication={setHighlightedApplicationId} />
+					</div>
+				</div>
 			)}
 		</div>
 	)

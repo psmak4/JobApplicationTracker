@@ -19,12 +19,12 @@ export function MainNav() {
 	const isAdmin = user?.role === 'admin'
 
 	return (
-		<div className="mr-4 hidden md:flex">
-			<Link to="/" className="mr-6 flex items-center gap-2">
-				<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+		<div className="mr-6 hidden md:flex">
+			<Link to="/" className="mr-8 flex items-center gap-2.5 group">
+				<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-md transition-shadow group-hover:shadow-lg group-hover:shadow-primary/20">
 					<Briefcase className="h-4 w-4" />
 				</div>
-				<span className="hidden font-bold font-heading text-2xl sm:inline-block">Job Application Tracker</span>
+				<span className="hidden font-semibold font-heading text-xl sm:inline-block tracking-tight">Job Application Tracker</span>
 			</Link>
 			<NavigationMenu>
 				<NavigationMenuList>
@@ -36,10 +36,10 @@ export function MainNav() {
 										to={item.url}
 										className={cn(
 											navigationMenuTriggerStyle(),
-											'text-lg transition-colors hover:text-foreground/80',
+											'text-base transition-all duration-200 hover:text-foreground/80',
 											location.pathname === item.url
-												? 'text-foreground font-bold'
-												: 'text-foreground/60',
+												? 'text-foreground font-semibold bg-primary/5'
+												: 'text-foreground/60 font-medium',
 										)}
 									>
 										{item.title}

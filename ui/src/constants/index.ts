@@ -71,20 +71,20 @@ export const STATUS_THEME: Record<
 	}
 > = {
 	Applied: {
-		solid: 'bg-blue-600 dark:bg-blue-500',
+		solid: 'bg-teal-600 dark:bg-teal-500',
 		badge: {
 			base: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all',
-			light: 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/10',
-			dark: 'dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20',
+			light: 'bg-teal-50 text-teal-700 ring-1 ring-inset ring-teal-600/10',
+			dark: 'dark:bg-teal-500/10 dark:text-teal-400 dark:ring-teal-500/20',
 		},
 		statusBar: {
-			base: 'bg-blue-600 dark:bg-blue-400',
+			base: 'bg-teal-600 dark:bg-teal-400',
 			hover: 'group-hover:w-2',
 		},
 		hero: {
-			gradient: 'from-blue-50/50 via-transparent to-transparent dark:from-blue-500/5',
-			border: 'border-blue-200 dark:border-blue-500/30',
-			ring: 'ring-blue-500/10 dark:ring-blue-400/10',
+			gradient: 'from-teal-50/50 via-transparent to-transparent dark:from-teal-500/5',
+			border: 'border-teal-200 dark:border-teal-500/30',
+			ring: 'ring-teal-500/10 dark:ring-teal-400/10',
 		},
 	},
 	Interviewing: {
@@ -105,20 +105,20 @@ export const STATUS_THEME: Record<
 		},
 	},
 	'Offer Received': {
-		solid: 'bg-amber-600 dark:bg-amber-500',
+		solid: 'bg-cyan-600 dark:bg-cyan-500',
 		badge: {
 			base: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all',
-			light: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/10',
-			dark: 'dark:bg-amber-500/10 dark:text-amber-400 dark:ring-amber-500/20',
+			light: 'bg-cyan-50 text-cyan-700 ring-1 ring-inset ring-cyan-600/10',
+			dark: 'dark:bg-cyan-500/10 dark:text-cyan-400 dark:ring-cyan-500/20',
 		},
 		statusBar: {
-			base: 'bg-amber-600 dark:bg-amber-400',
+			base: 'bg-cyan-600 dark:bg-cyan-400',
 			hover: 'group-hover:w-2',
 		},
 		hero: {
-			gradient: 'from-amber-50/50 via-transparent to-transparent dark:from-amber-500/5',
-			border: 'border-amber-200 dark:border-amber-500/30',
-			ring: 'ring-amber-500/10 dark:ring-amber-400/10',
+			gradient: 'from-cyan-50/50 via-transparent to-transparent dark:from-cyan-500/5',
+			border: 'border-cyan-200 dark:border-cyan-500/30',
+			ring: 'ring-cyan-500/10 dark:ring-cyan-400/10',
 		},
 	},
 	'Offer Accepted': {
@@ -139,20 +139,20 @@ export const STATUS_THEME: Record<
 		},
 	},
 	'Offer Declined': {
-		solid: 'bg-orange-600 dark:bg-orange-500',
+		solid: 'bg-pink-600 dark:bg-pink-500',
 		badge: {
 			base: 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium transition-all',
-			light: 'bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-600/10',
-			dark: 'dark:bg-orange-500/10 dark:text-orange-400 dark:ring-orange-500/20',
+			light: 'bg-pink-50 text-pink-700 ring-1 ring-inset ring-pink-600/10',
+			dark: 'dark:bg-pink-500/10 dark:text-pink-400 dark:ring-pink-500/20',
 		},
 		statusBar: {
-			base: 'bg-orange-600 dark:bg-orange-400',
+			base: 'bg-pink-600 dark:bg-pink-400',
 			hover: 'group-hover:w-2',
 		},
 		hero: {
-			gradient: 'from-orange-50/50 via-transparent to-transparent dark:from-orange-500/5',
-			border: 'border-orange-200 dark:border-orange-500/30',
-			ring: 'ring-orange-500/10 dark:ring-orange-400/10',
+			gradient: 'from-pink-50/50 via-transparent to-transparent dark:from-pink-500/5',
+			border: 'border-pink-200 dark:border-pink-500/30',
+			ring: 'ring-pink-500/10 dark:ring-pink-400/10',
 		},
 	},
 	Rejected: {
