@@ -43,6 +43,7 @@ describe('JobParser', () => {
 		'https://boards.greenhouse.io/company/jobs/12345',
 		'https://jobs.lever.co/company/position-id',
 		'https://company.myworkdayjobs.com/en-US/careers/job/12345',
+		'https://wd1.myworkdaysite.com/recruiting/company/careers/job/12345',
 		'https://careers.google.com/jobs/results/12345',
 		'https://careers.google.com/jobs/results/99999',
 		'https://www.linkedin.com/jobs/view/deleted',
@@ -75,6 +76,7 @@ describe('JobParser', () => {
 
 		it('should validate Glassdoor job URLs', async () => {
 			expect(await jobParser.isSupported('https://www.glassdoor.com/job-listing/software-engineer')).toBe(true)
+			expect(await jobParser.isSupported('https://www.glassdoor.com/job/software-engineer')).toBe(true)
 		})
 
 		it('should validate Greenhouse job URLs', async () => {
@@ -87,6 +89,7 @@ describe('JobParser', () => {
 
 		it('should validate Workday job URLs', async () => {
 			expect(await jobParser.isSupported('https://company.myworkdayjobs.com/en-US/careers/job/12345')).toBe(true)
+			expect(await jobParser.isSupported('https://wd1.myworkdaysite.com/recruiting/company/careers/job/12345')).toBe(true)
 		})
 
 		it('should reject non-job URLs', async () => {
@@ -116,6 +119,7 @@ describe('JobParser', () => {
 			expect(domains).toContain('glassdoor.com')
 			expect(domains).toContain('greenhouse.io')
 			expect(domains).toContain('lever.co')
+			expect(domains).toContain('myworkdaysite.com')
 			expect(Array.isArray(domains)).toBe(true)
 			expect(domains.length).toBeGreaterThan(0)
 		})
