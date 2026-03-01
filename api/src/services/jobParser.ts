@@ -40,6 +40,7 @@ const ALLOWED_DOMAINS = [
 	'greenhouse.io',
 	'lever.co',
 	'myworkdayjobs.com',
+	'myworkdaysite.com',
 	'ashbyhq.com',
 	'jobs.lever.co',
 	'boards.greenhouse.io',
@@ -462,7 +463,7 @@ class JobParser {
 		}
 
 		if (hostname.endsWith('glassdoor.com')) {
-			return path.includes('/job-listing/')
+			return path.includes('/job-listing/') || path.includes('/job/')
 		}
 
 		if (hostname.endsWith('greenhouse.io')) {
@@ -473,7 +474,7 @@ class JobParser {
 			return path.split('/').filter(Boolean).length >= 2
 		}
 
-		if (hostname.endsWith('myworkdayjobs.com')) {
+		if (hostname.endsWith('myworkdayjobs.com') || hostname.endsWith('myworkdaysite.com')) {
 			return path.includes('/job/')
 		}
 

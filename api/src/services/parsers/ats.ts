@@ -54,7 +54,7 @@ export class WorkdayParser implements JobParserStrategy {
 	name = 'workday'
 
 	canParse(url: string): boolean {
-		return url.includes('myworkdayjobs.com')
+		return url.includes('myworkdayjobs.com') || url.includes('myworkdaysite.com')
 	}
 
 	parse($: cheerio.CheerioAPI): Partial<ParsedJobData> {
